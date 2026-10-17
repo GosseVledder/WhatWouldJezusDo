@@ -35,6 +35,46 @@ Once the statements and actions have been fact-checked, the verified dossier is 
 - **0.0–10.0 Final Score**: Each relevant guideline is scored from `0` to `10`. The final WWJD score is the arithmetic mean of all relevant guideline scores, rounded to **one decimal place** (e.g., `4.3` or `7.6`).
 - **Expandable Substantiation & Hard Bible Links**: Clicking to expand the score reveals every weighed guideline, its individual score, reasoning tied to the video's quotes and fact-check results, and **clickable Bible reference badges** linking directly to the scripture text on [`debijbel.nl`](https://www.debijbel.nl/).
 
+<details>
+<summary><b>📖 View All 25 Biblical Guidelines in the Database (The Ten Commandments + 15 Core Teachings of Jesus)</b></summary>
+
+#### Part A: The Ten Commandments in Broader Context & Deepened by Jesus (1–10)
+
+| # | Guideline / Commandment | Broader Meaning & Jesus' Fulfillment | Biblical Sources (OT + NT) |
+|---|---|---|---|
+| **1** | **No other gods (Love God and the good above all)** | Where does ultimate loyalty lie? Are money (Mammon), power, ideology, nation, or ego elevated above God and justice? | Exodus 20:2-3 · Matthew 22:37-38 · Matthew 6:24 · Luke 4:8 |
+| **2** | **No idols (Purity of faith, do not abuse religion)** | Do not reduce faith or the sacred to a commercial or political instrument for personal gain or manipulation. | Exodus 20:4-6 · John 4:23-24 · Matthew 21:12-13 |
+| **3** | **Do not misuse God's name & Integrity of oaths** | Do not claim God's authority to justify lies, violence, or injustice; let your "Yes" simply be "Yes" and your "No" be "No". | Exodus 20:7 · Matthew 5:33-37 · Matthew 7:21 |
+| **4** | **Honor the Sabbath / Humanity & mercy above rigid rules** | Protect rest, recovery, and human dignity; saving lives and doing good always come before legalistic formalism. | Exodus 20:8-11 · Mark 2:27-28 · Matthew 12:11-12 |
+| **5** | **Honor your father and mother (Care for parents & elders)** | Show respect and genuine material and moral care for parents, elders, and family bonds without pious excuses. | Exodus 20:12 · Mark 7:9-13 · John 19:26-27 |
+| **6** | **You shall not murder (Including anger, hate speech & warmongering)** | Protect human life. Jesus extends this in the Sermon on the Mount to rage, contempt, dehumanizing slurs, and violence (*"all who draw the sword will die by the sword"*). | Exodus 20:13 · Matthew 5:21-22 · Matthew 26:52 · Luke 9:54-56 |
+| **7** | **You shall not commit adultery (Relational faithfulness & purity)** | Faithfulness in relationships and commitments; do not reduce other people to objects of lust or exploitation. | Exodus 20:14 · Matthew 5:27-28 · Matthew 19:4-6 |
+| **8** | **You shall not steal (Justice, fairness & restitution)** | Do not take what belongs to another through theft, plunder, fraud, or exploitation; share generously and restore what was taken. | Exodus 20:15 · Mark 10:19 · Luke 19:8-9 · John 10:10 |
+| **9** | **You shall not bear false witness (Do not lie or contradict yourself)** | Speak the truth. Deliberate falsehoods, debunked claims, slander, or **self-contradiction** (e.g., promising peace while starting a war) are by definition lying. | Exodus 20:16 · Matthew 5:37 · John 8:44 · John 14:6 · Matthew 15:18-19 |
+| **10** | **You shall not covet (Freedom from greed, envy & expansionism)** | Guard against all kinds of greed, jealousy, and the urge to seize what belongs to others; life does not consist in an abundance of possessions. | Exodus 20:17 · Luke 12:15 · Matthew 6:19-21 |
+
+#### Part B: 15 Core New Testament Teachings & Guidelines of Jesus (11–25)
+
+| # | Teaching / Guideline of Jesus | Broader Meaning for Video Evaluation | Biblical Sources (NT) |
+|---|---|---|---|
+| **11** | **Love your neighbor as yourself (Including the stranger & outsider)** | Active compassion for every human being without partiality, as exemplified in the Parable of the Good Samaritan. | Matthew 22:39-40 · Luke 10:27-37 · John 13:34-35 |
+| **12** | **The Golden Rule (Treat others as you want to be treated)** | Active empathy and reciprocity: do to others what you would have them do to you, without double standards. | Matthew 7:12 · Luke 6:31 |
+| **13** | **Love your enemies and pray for those who persecute you** | Reject hatred, dehumanization, and vengeance toward opponents; overcome evil with good. | Matthew 5:43-45 · Luke 6:27-28 · Luke 23:34 |
+| **14** | **Turn the other cheek (Non-violence & de-escalation)** | Break the cycle of "an eye for an eye" retaliation through non-violence, calm restraint, and de-escalation. | Matthew 5:38-39 · Luke 6:29-30 · John 18:36 |
+| **15** | **Blessed are the peacemakers (Active peace & reconciliation)** | Build bridges and pursue diplomacy and reconciliation rather than stoking division, polarization, or war. | Matthew 5:9 · Mark 9:50 · John 14:27 |
+| **16** | **Forgiveness (Seventy times seven)** | Willingness to forgive and offer grace and restoration rather than harboring ruthless resentment or vengeance. | Matthew 18:21-22 · Matthew 6:14-15 · Luke 17:3-4 |
+| **17** | **Do not judge (Self-reflection over self-righteousness)** | Remove the plank from your own eye before pointing at the speck in another's; humility over self-righteous condemnation. | Matthew 7:1-5 · John 8:7 · Luke 6:37 |
+| **18** | **Care for the poor, hungry, and oppressed** | Whatever you do for the least of these (the hungry, strangers, sick, and downtrodden), you do for Jesus Himself. | Matthew 25:35-40 · Luke 14:13-14 · Luke 4:18 |
+| **19** | **Rejection of hypocrisy (Words and deeds must match)** | Jesus sharply condemns leaders who preach noble or pious words in public while acting in the exact opposite way (*"by their fruit you will recognize them"*). | Matthew 23:3 · Matthew 7:16-20 · Luke 12:1 |
+| **20** | **Humility and servant leadership** | True greatness is not dominating or exalting oneself, but serving others (*"whoever wants to be first must be servant of all"*). | Mark 10:42-45 · Luke 14:11 · John 13:14-15 |
+| **21** | **Meekness and mercy** | Showing gentleness, patience, and deep compassion for human suffering rather than cruelty, arrogance, or intimidation. | Matthew 5:5 · Matthew 5:7 · Luke 6:36 |
+| **22** | **Accountability for every spoken word** | Out of the overflow of the heart the mouth speaks; people are accountable for reckless, abusive, or destructive language. | Matthew 12:34-37 · Matthew 15:11 |
+| **23** | **Faithful stewardship (Trustworthy in small and great things)** | Using entrusted power, resources, and influence responsibly for the common good rather than squandering or abusing them. | Luke 16:10 · Matthew 25:21 · Luke 12:48 |
+| **24** | **Hunger and thirst for righteousness** | Courageously standing up for justice, truth, mercy, and the voiceless without partiality. | Matthew 5:6 · Matthew 23:23 · John 7:24 |
+| **25** | **Protection of children and the vulnerable** | Welcoming and safeguarding children and the defenseless; causing them harm carries the heaviest condemnation. | Matthew 18:5-6 · Matthew 19:14 · Mark 9:36-37 |
+
+</details>
+
 ---
 
 ## Installing the Android App
