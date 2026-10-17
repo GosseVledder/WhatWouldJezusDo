@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WWJD – Instellingen & API-sleutels</title>
+    <style>
+      :root {
+        --primary: #065fd4;
+        --bg: #f8f9fa;
+        --card: #ffffff;
+        --text: #1f2937;
+        --text-sub: #4b5563;
+        --border: #e5e7eb;
+        --success: #15803d;
+        --error: #b91c1c;
+      }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        margin: 0;
+        padding: 32px 16px;
+      }
+      .container {
+        max-width: 640px;
+        margin: 0 auto;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 24px;
+      }
+      .logo-badge {
+        background: var(--primary);
+        color: white;
+        font-weight: 800;
+        font-size: 14px;
+        padding: 4px 10px;
+        border-radius: 6px;
+      }
+      h1 {
+        font-size: 20px;
+        font-weight: 700;
+        margin: 0;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      }
+      h2 {
+        font-size: 15px;
+        font-weight: 600;
+        margin-top: 0;
+        margin-bottom: 12px;
+      }
+      .form-group {
+        margin-bottom: 16px;
+      }
+      .form-group:last-child {
+        margin-bottom: 0;
+      }
+      label {
+        display: block;
+        font-size: 13px;
+        font-weight: 500;
+        margin-bottom: 6px;
+        color: var(--text);
+      }
+      .help-text {
+        font-size: 12px;
+        color: var(--text-sub);
+        margin-top: 4px;
+        line-height: 16px;
+      }
+      input[type='text'],
+      input[type='password'],
+      select {
+        width: 100%;
+        padding: 8px 12px;
+        font-size: 14px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        box-sizing: border-box;
+      }
+      input:focus,
+      select:focus {
+        outline: 2px solid var(--primary);
+        border-color: transparent;
+      }
+      .switch-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+      .btn {
+        background: var(--primary);
+        color: white;
+        border: 0;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+      }
+      .btn:hover {
+        filter: brightness(0.9);
+      }
+      .status-msg {
+        margin-top: 12px;
+        font-size: 13px;
+        padding: 8px 12px;
+        border-radius: 6px;
+        display: none;
+      }
+      .status-msg.ok {
+        background: #dcfce7;
+        color: var(--success);
+        display: block;
+      }
+      .status-msg.err {
+        background: #fee2e2;
+        color: var(--error);
+        display: block;
+      }
+      a {
+        color: var(--primary);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <span class="logo-badge">WWJD</span>
+        <h1>What Would Jezus Do – Instellingen</h1>
+      </header>
+
+      <!-- AI Provider & Sleutel -->
+      <div class="card">
+        <h2>1. AI-Dienst (LLM)</h2>
+        <div class="form-group">
+          <label for="provider-select">Kies AI-provider</label>
+          <select id="provider-select">
+            <option value="gemini">Google Gemini (standaard & gratis)</option>
+            <option value="claude">Anthropic Claude</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="gemini-key-group">
+          <label for="gemini-key">Google Gemini API-sleutel</label>
+          <input type="password" id="gemini-key" placeholder="AIzaSy..." />
+          <div class="help-text">
+            Gratis aan te maken in
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener"
+              >Google AI Studio</a
+            >.
+          </div>
+        </div>
+
+        <div class="form-group" id="claude-key-group" style="display: none">
+          <label for="claude-key">Anthropic Claude API-sleutel</label>
+          <input type="password" id="claude-key" placeholder="sk-ant-..." />
+          <div class="help-text">
+            Aan te maken in
+            <a href="https://console.anthropic.com/" target="_blank" rel="noopener"
+              >Anthropic Console</a
+            >.
+          </div>
+        </div>
+      </div>
+
+      <!-- Google Fact Check Tools API (Aanvullend) -->
+      <div class="card">
+        <h2>2. Google Fact Check Tools API (Snelle primaire factcheck)</h2>
+        <div class="form-group">
+          <label class="switch-label">
+            <input type="checkbox" id="factcheck-enabled" checked />
+            <span>Google Fact Check Tools API inschakelen</span>
+          </label>
+          <div class="help-text">
+            Haalt in een fractie van een seconde bestaande officiële factchecks op van erkende
+            factcheck-organisaties.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="factcheck-key">Google Fact Check API-sleutel</label>
+          <input type="password" id="factcheck-key" placeholder="AIzaSy..." />
+          <div class="help-text">
+            Gratis aan te maken: open
+            <a href="https://console.cloud.google.com/" target="_blank" rel="noopener"
+              >Google Cloud Console</a
+            >
+            → schakel <em>Fact Check Tools API</em> in → maak een API-key aan.
+          </div>
+        </div>
+      </div>
+
+      <!-- Algemene instellingen -->
+      <div class="card">
+        <h2>3. Voorkeuren</h2>
+        <div class="form-group">
+          <label class="switch-label">
+            <input type="checkbox" id="active-enabled" checked />
+            <span>Extensie actief op YouTube</span>
+          </label>
+        </div>
+        <div class="form-group">
+          <label class="switch-label">
+            <input type="checkbox" id="auto-enabled" checked />
+            <span>Automatisch analyseren bij openen video</span>
+          </label>
+        </div>
+      </div>
+
+      <button type="button" class="btn" id="save-btn">Instellingen & Sleutels Opslaan</button>
+      <div id="status-box" class="status-msg"></div>
+    </div>
+
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

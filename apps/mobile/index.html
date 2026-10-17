@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>What Would Jezus Do</title>
+    <link rel="stylesheet" href="/src/app.css" />
+  </head>
+  <body>
+    <header class="app-bar">
+      <div class="brand">
+        <span class="logo-pill">WWJD</span>
+        <h1>What Would Jezus Do</h1>
+      </div>
+      <button id="btn-settings" class="icon-btn" title="Instellingen">⚙️</button>
+    </header>
+
+    <main class="app-content">
+      <!-- Input Card -->
+      <section class="card input-card">
+        <label for="video-url-input">Voer een YouTube-link in:</label>
+        <div class="input-row">
+          <input
+            type="text"
+            id="video-url-input"
+            placeholder="https://www.youtube.com/watch?v=..."
+          />
+          <button id="btn-evaluate" class="btn primary">Analyseer</button>
+        </div>
+      </section>
+
+      <!-- Player (Optional/When playing) -->
+      <div id="player-container" class="player-wrapper" style="display: none">
+        <iframe
+          id="yt-player"
+          src=""
+          frameborder="0"
+          allow="
+            accelerometer;
+            autoplay;
+            clipboard-write;
+            encrypted-media;
+            gyroscope;
+            picture-in-picture;
+          "
+          allowfullscreen
+        ></iframe>
+      </div>
+
+      <!-- Result View -->
+      <section id="results-view"></section>
+
+      <!-- Settings Dialog -->
+      <dialog id="settings-dialog" class="dialog">
+        <form method="dialog">
+          <h2>WWJD Instellingen & Sleutels</h2>
+          <div class="field">
+            <label for="mob-provider">AI Provider</label>
+            <select id="mob-provider">
+              <option value="gemini">Google Gemini</option>
+              <option value="claude">Anthropic Claude</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="mob-key">Gemini / Claude API Key</label>
+            <input type="password" id="mob-key" placeholder="AIzaSy... of sk-ant-..." />
+          </div>
+          <div class="field">
+            <label for="mob-factcheck-key">Google Fact Check Tools API Key</label>
+            <input type="password" id="mob-factcheck-key" placeholder="AIzaSy..." />
+            <small
+              >Optioneel: gratis in te schakelen in Google Cloud Console voor live factcheck
+              reviews.</small
+            >
+          </div>
+          <div class="dialog-actions">
+            <button type="submit" id="mob-save-settings" class="btn primary">Opslaan</button>
+            <button type="button" id="mob-close-settings" class="btn">Sluiten</button>
+          </div>
+        </form>
+      </dialog>
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

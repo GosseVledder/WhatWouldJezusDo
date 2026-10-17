@@ -1,0 +1,38 @@
+{
+  "name": "wwjd",
+  "description": "What Would Jezus Do — YouTube video fact-checking and evaluation against the Ten Commandments and Jesus' teachings",
+  "private": true,
+  "version": "0.1.0",
+  "license": "MIT",
+  "type": "module",
+  "workspaces": [
+    "packages/core",
+    "apps/extension",
+    "apps/mobile"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @wwjd/extension",
+    "dev:edge": "npm run dev:edge -w @wwjd/extension",
+    "build": "npm run build -w @wwjd/extension",
+    "zip": "npm run zip -w @wwjd/extension",
+    "package:extension": "node scripts/package-extension.mjs",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "try": "npm run try -w @wwjd/core --",
+    "secrets": "node scripts/check-secrets.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.6.4",
+    "eslint": "^10.12.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.13.0",
+    "jsdom": "^29.1.1",
+    "prettier": "^3.9.9",
+    "tsx": "^4.23.15",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.71.0",
+    "vitest": "^5.0.3"
+  }
+}
