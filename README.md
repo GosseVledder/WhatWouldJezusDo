@@ -11,7 +11,7 @@ Ready to use: download, install, and enter your API keys. No build tools require
 | Platform | Download | Installation Guide |
 |---|---|---|
 | 📱 **Android App**<br>Phone and tablet, Android 7.0 or newer | [**WhatWouldJezusDo-0.1.0.apk**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/apk/WhatWouldJezusDo-0.1.0.apk)<br>3.1 MB | [Install on Android](#installing-the-android-app) |
-| 🧩 **Chrome & Edge Extension**<br>Windows, macOS, Linux | [**WhatWouldJezusDo-extension-0.1.0.zip**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.1.0.zip)<br>54 kB | [Install in Chrome or Edge](#installing-the-extension-in-chrome-or-edge) |
+| 🧩 **Chrome & Edge Extension**<br>Windows, macOS, Linux | [**WhatWouldJezusDo-extension-0.1.0.zip**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.1.0.zip)<br>55 kB | [Install in Chrome or Edge](#installing-the-extension-in-chrome-or-edge) |
 
 You will need your own LLM API key from **Google (Gemini, free)** or **Anthropic (Claude, paid)**, and optionally a free **Google Fact Check Tools API key**; see [Configuring API Keys](#configuring-api-keys). All releases and their SHA-256 checksums are available under [Releases](https://github.com/GosseVledder/WhatWouldJezusDo/releases).
 
@@ -45,7 +45,7 @@ Once the statements and actions have been fact-checked, the verified dossier is 
 | **Version** | 0.1.0 (versionCode 1) |
 | **Requires** | Android 7.0 or newer |
 | **Size** | 3.1 MB |
-| **SHA-256** | `fe87357dfefc232b90940523e5fea440536129976a25e329395fd924f8190e66` |
+| **SHA-256** | `a9231a188d25c1eb637d92190f84538a3597ec831dcd30ac19a6803ef97e7a2c` |
 
 The APK is a signed release build distributed directly via GitHub.
 
@@ -69,8 +69,8 @@ The APK is a signed release build distributed directly via GitHub.
 | **File** | [`WhatWouldJezusDo-extension-0.1.0.zip`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.1.0.zip) (also unpacked in [`extension/WhatWouldJezusDo/`](extension/WhatWouldJezusDo/)) |
 | **Version** | 0.1.0 |
 | **Browsers** | Google Chrome and Microsoft Edge (Manifest V3) |
-| **Size** | 54 kB |
-| **SHA-256** | `5e1eebc0ccadbad49cadc4e66bf127343ec36e35d4e6a0da8973c87bb7e5b217` |
+| **Size** | 55 kB |
+| **SHA-256** | `7b283f6ecabb30375877c3a6bce9e35bba32cd16c35a6c93c845e8b6f68b2837` |
 
 1. **Download** [`WhatWouldJezusDo-extension-0.1.0.zip`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.1.0.zip).
 2. **Extract** the zip file to a permanent folder on your computer (for example, `Documents\WhatWouldJezusDo`). Keep this folder in place—the browser loads the extension from it.
@@ -89,7 +89,72 @@ What Would Jezus Do runs directly on your device without a middleman server. You
 |---|---|---|---|---|
 | **Google Gemini** | AI Evaluation & Search Grounding | Free tier available | <https://aistudio.google.com/app/apikey> | `gemini-flash-latest` |
 | **Anthropic Claude** | AI Evaluation (Alternative) | Paid (prepaid credit) | <https://console.anthropic.com/settings/keys> | `claude-haiku-5-5` |
-| **Google Fact Check Tools API** | Fast primary lookup of existing fact-checks | Free | <https://console.cloud.google.com/> (*Enable "Fact Check Tools API" → Credentials → Create API Key*) | N/A |
+| **Google Fact Check Tools API** | Fast primary lookup of existing fact-checks | 100% Free | <https://console.cloud.google.com/apis/library/factchecktools.googleapis.com> | N/A |
+
+---
+
+### Step-by-Step Guide (For Dummies): Google Fact Check Tools API Key
+
+The **Google Fact Check Tools API** lets the app search thousands of existing fact-checks from independent organizations worldwide (Reuters, AP, AFP, PolitiFact, Full Fact, etc.) in less than a second.
+
+- **Cost**: **100% Free** (up to 10,000 queries per day).
+- **Credit Card Needed?**: **No.** You do **not** need to enable billing or enter a credit card.
+
+#### Step 1 — Open Google Cloud Console
+1. Go to **<https://console.cloud.google.com/>** in your browser.
+2. Sign in with your regular Google / Gmail account.
+3. *First time visiting?* A welcome popup will ask you to accept the Terms of Service. Check the box and click **Agree and Continue**.
+   > 💡 **Important:** Ignore any banner at the top offering "$300 in free credit / Start Free Trial". You do **not** need a trial or credit card for the Fact Check Tools API.
+
+#### Step 2 — Select or Create a Project
+1. Look at the very top bar (just to the right of the **Google Cloud** logo) and click the **Project dropdown button** (it may say *Select a project* or *My First Project*).
+2. A popup window will appear:
+   - **Shortcut:** If you already created a Gemini key in Google AI Studio, you may already see a project in the list (such as `Default Gemini Project`). You can simply click that project to select it!
+   - **Or create a new project:** Click **New Project** in the top-right corner of the popup, enter a name like `WWJD-FactCheck`, and click **Create**. Wait a few seconds and make sure `WWJD-FactCheck` is selected in the top bar.
+
+#### Step 3 — Enable the "Fact Check Tools API"
+1. Click this direct link to open the Fact Check Tools API page:
+   👉 **<https://console.cloud.google.com/apis/library/factchecktools.googleapis.com>**
+   *(Alternatively: click the search bar at the top of Google Cloud Console, type `Fact Check Tools API`, and click the result with the blue API icon).*
+2. Click the blue **Enable** button.
+3. Wait 2–5 seconds until the page refreshes and shows that the API is enabled.
+
+#### Step 4 — Create and Copy Your API Key
+1. Click this direct link to open the Credentials page:
+   👉 **<https://console.cloud.google.com/apis/credentials>**
+   *(Alternatively: in the left sidebar menu, click **APIs & Services › Credentials**).*
+2. At the top of the page, click **+ Create Credentials** and choose **API key** from the dropdown menu.
+3. A box titled *API key created* will pop up showing a long code that starts with `AIzaSy...`.
+4. Click the **Copy** icon next to the key.
+
+#### Step 5 — (Optional) Restrict Your Key to Only the Fact Check API
+For extra peace of mind so the key cannot be used for anything else:
+1. Click on your newly created API key in the **Credentials** list.
+2. Under **API restrictions**, select **Restrict key**.
+3. Click the **Select APIs** dropdown, check **Fact Check Tools API**, click **OK**, and click **Save**.
+   > 💡 **Pro Tip:** If you enabled the *Fact Check Tools API* on the same Google Cloud project as your Gemini key and did not restrict your Gemini key to a single API, that single `AIzaSy...` key can actually be pasted into **both** the Gemini field and the Fact Check field!
+
+#### Step 6 — Paste the Key into What Would Jezus Do
+- **In the Chrome / Edge Extension**:
+  1. Click the **WWJD** icon in your browser toolbar to open the Settings page.
+  2. Under *2. Google Fact Check Tools API*, make sure **Google Fact Check Tools API inschakelen** is checked.
+  3. Paste your `AIzaSy...` key into **Google Fact Check API-sleutel**.
+  4. Click **Instellingen & Sleutels Opslaan** at the bottom.
+- **In the Android App**:
+  1. Tap the **⚙️ Settings** icon in the top-right corner.
+  2. Paste your `AIzaSy...` key into **Google Fact Check Tools API Key**.
+  3. Tap **Opslaan**.
+
+---
+
+### Step-by-Step Guide: Google Gemini API Key (Free)
+
+1. Open **<https://aistudio.google.com/app/apikey>** and sign in with your Google account.
+2. Accept the terms of service if prompted.
+3. Click **Create API key** (choose an existing project or click *Create API key in new project*).
+4. Copy the generated key (starts with `AIzaSy...`).
+5. Paste it into the **Gemini API key** field in the WWJD settings and click **Save**.
+   - As long as you do not attach a billing account to the Google project, the Flash models (`gemini-flash-latest`) are completely free to use within Google's free-tier rate limits.
 
 ### Privacy & Security
 - **Browser Extension**: API keys are stored exclusively in the extension's isolated `IndexedDB` (`wwjd-secrets`), inaccessible to YouTube page scripts.

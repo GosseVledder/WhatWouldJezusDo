@@ -69,9 +69,47 @@
             <label for="mob-factcheck-key">Google Fact Check Tools API Key</label>
             <input type="password" id="mob-factcheck-key" placeholder="AIzaSy..." />
             <small
-              >Optioneel: gratis in te schakelen in Google Cloud Console voor live factcheck
-              reviews.</small
+              >Optioneel & 100% gratis (geen creditcard nodig) voor directe officiële
+              factchecks.</small
             >
+            <details
+              style="margin-top: 8px; font-size: 12px; color: var(--text-muted); line-height: 1.5"
+            >
+              <summary style="cursor: pointer; font-weight: 600; color: var(--text)">
+                📖 Stap-voor-stap handleiding (For Dummies)
+              </summary>
+              <ol style="margin: 6px 0 0 18px; padding: 0">
+                <li>
+                  Open
+                  <a href="https://console.cloud.google.com/" target="_blank" rel="noopener"
+                    >console.cloud.google.com</a
+                  >
+                  met je Google-account.
+                </li>
+                <li>Kies bovenin een project (of maak een nieuw project <code>WWJD</code> aan).</li>
+                <li>
+                  Open
+                  <a
+                    href="https://console.cloud.google.com/apis/library/factchecktools.googleapis.com"
+                    target="_blank"
+                    rel="noopener"
+                    >Fact Check Tools API</a
+                  >
+                  en tik op <strong>Enable / Inschakelen</strong>.
+                </li>
+                <li>
+                  Ga naar
+                  <a
+                    href="https://console.cloud.google.com/apis/credentials"
+                    target="_blank"
+                    rel="noopener"
+                    >Credentials</a
+                  >
+                  → <strong>+ Create Credentials</strong> → <strong>API key</strong>.
+                </li>
+                <li>Kopieer de <code>AIzaSy...</code> sleutel en plak hem hierboven.</li>
+              </ol>
+            </details>
           </div>
           <div class="dialog-actions">
             <button type="submit" id="mob-save-settings" class="btn primary">Opslaan</button>
