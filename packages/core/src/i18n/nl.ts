@@ -1,0 +1,251 @@
+import type { Messages } from './messages';
+
+export const nl: Messages = {
+  locale: 'nl-NL',
+  languageNames: {
+    nl: 'Nederlands',
+    en: 'Engels',
+    de: 'Duits',
+    fr: 'Frans',
+    es: 'Spaans',
+    it: 'Italiaans',
+    pt: 'Portugees',
+  },
+
+  view: {
+    switchAria: 'WWJD aan of uit',
+    turnOff: 'WWJD uitzetten',
+    turnOn: 'WWJD aanzetten',
+    showDetails: 'Toon onderbouwing ▼',
+    hideDetails: 'Onderbouwing inklappen ▲',
+    jesusAlignment: 'Jezus-overeenkomst',
+    section1Title: '1. Factcheck & Integriteit (Activiteit 1)',
+    coreActivity: 'Kern van activiteit:',
+    sentimentAndAttitude: 'Sentiment & houding:',
+    contradictionAlert: 'Zelf-tegenspraak geconstateerd (= per definitie liegen):',
+    statementLabel: 'Uitspraak:',
+    factcheckLabel: 'Factcheck:',
+    sourcesLabel: 'Bron(nen):',
+    verdicts: {
+      bevestigd: 'bevestigd',
+      ontkracht: 'ontkracht',
+      tegenspraak: 'tegenspraak',
+      gemengd_of_context: 'gemengd of context',
+      opinie: 'opinie',
+    },
+    section2Title: (n) =>
+      `2. Toetsing aan Jezus' Richtlijnen (${n} relevante punten meegewogen)`,
+    linkedToMoment: 'Gekoppeld aan moment:',
+    fromCache: (d) => `Uit cache · ${d}`,
+    justAnalyzed: 'Zojuist geanalyseerd',
+    off: 'WWJD staat uit: er worden geen analyses gemaakt.',
+    analyzeVideo: 'Analyseer video',
+    loadingStep: "Video factchecken en toetsen aan Jezus' richtlijnen en De Tien Geboden…",
+    fetchingTranscript: 'Transcript ophalen…',
+    evaluatingWith: (p) => `Feiten verifiëren en toetsen aan Jezus' richtlijnen met ${p}…`,
+    openSettings: 'Instellingen openen',
+    retry: 'Opnieuw proberen',
+    verifiedVia: (pub, rating) => `[Geverifieerd via ${pub} (oordeel: "${rating}")]`,
+  },
+
+  settings: {
+    title: 'Instellingen',
+    loading: 'Laden…',
+    autoSaved: 'Instellingen worden direct opgeslagen.',
+    saved: 'Opgeslagen',
+    languageHeading: 'Taal',
+    languageLabel: 'Taal (interface, analyse & Bijbelverwijzingen)',
+    languageHint:
+      'Bepaalt de taal van de interface, de AI-analyse én de Bijbelbronnen waarnaar wordt verwezen.',
+    aiService: 'AI-dienst',
+    providerHint:
+      'De gekozen dienst extraheert uitspraken uit het transcript, controleert de feiten en toetst de video aan de 25 richtlijnen en geboden van Jezus.',
+    apiKey: 'API-sleutel',
+    apiKeyOf: (p) => `API-sleutel ${p}`,
+    modelOf: (p) => `Model ${p}`,
+    show: 'Toon',
+    hide: 'Verberg',
+    keyHintBrowser: ['Maak een sleutel aan op ', '. De sleutel blijft alleen in deze browser.'],
+    keyHintDevice: ['Maak een sleutel aan op ', '. De sleutel staat versleuteld op dit toestel.'],
+    keyStepsTitle: 'Hoe kom ik aan een sleutel?',
+    keySteps: {
+      gemini: [
+        'Open {site} en log in met je Google-account.',
+        'Accepteer de voorwaarden (alleen de eerste keer).',
+        'Klik op "Create API key"; kies zo nodig een project of laat er een aanmaken.',
+        'Kopieer de sleutel (begint met AIza) en plak hem hierboven bij API-sleutel.',
+        'Klik op "Test verbinding".',
+      ],
+      claude: [
+        'Open {site} en maak een account aan of log in.',
+        'Koop tegoed onder "Billing" (vooraf betaald); zet bij voorkeur ook een maximum op je uitgaven.',
+        'Kies "Create key" bij de API-sleutels en geef de sleutel een naam.',
+        'Kopieer de sleutel (begint met sk-ant-) meteen: je ziet hem maar één keer. Plak hem hierboven bij API-sleutel.',
+        'Klik op "Test verbinding".',
+      ],
+      factcheck: [
+        'Open {site} en log in met je Google-account (geen creditcard of betaalaccount nodig).',
+        'Kies bovenin een bestaand project of klik op "New Project" en noem het bijvoorbeeld WWJD.',
+        'Open de Fact Check Tools API in de API Library (console.cloud.google.com/apis/library/factchecktools.googleapis.com) en klik op "Enable".',
+        'Ga naar "Credentials", klik op "+ Create Credentials" → "API key", kopieer de sleutel (begint met AIza) en plak hem hierboven.',
+        'Klik op "Test verbinding".',
+      ],
+    },
+    keyCost: {
+      gemini:
+        'Gratis zolang je geen facturering (billing) aan het Google-project koppelt. Reken op ongeveer 10 analyses per minuut en 200 per dag; Google kan dat wijzigen en je eigen limiet zie je in AI Studio. Elke nieuwe video kost één aanroep, een eerder geanalyseerde video niets.',
+      claude: 'Betaald: elke analyse gaat van je tegoed af. Zonder tegoed werkt de sleutel niet.',
+      factcheck:
+        '100% gratis (tot 10.000 zoekopdrachten per dag, geen creditcard nodig). Wordt gebruikt om beweringen direct te verifiëren bij erkende factcheck-organisaties wereldwijd.',
+    },
+    keyModels: {
+      gemini:
+        'Gratis via AI Studio: de Flash- en Flash-Lite-modellen (gemini-flash-latest, gemini-3.8-flash, gemini-flash-lite-latest). Niet gratis: de Pro-modellen (gemini-pro-latest); die werken alleen met facturering.',
+      claude: 'Alle Claude-modellen zijn betaald; Haiku is het goedkoopst, Opus het duurst.',
+      factcheck:
+        'Tip: gebruik je hetzelfde Google Cloud-project als voor je Gemini-sleutel, dan kun je nadat je de Fact Check Tools API hebt ingeschakeld ook dezelfde AIza-sleutel gebruiken.',
+    },
+    model: 'Model',
+    testConnection: 'Test verbinding',
+    busy: 'Bezig…',
+    testOk: '✓ Verbinding werkt en het model bestaat.',
+    testOkFactcheck: '✓ Verbinding met Google Fact Check API werkt.',
+    testOkShort: 'Verbinding werkt',
+    testFailed: 'Verbinding mislukt.',
+    fillKeyFirst: 'Vul eerst een API-sleutel in.',
+    factcheckHeading: 'Feitencontrole (Google Fact Check API)',
+    factcheckToggle: 'Google Fact Check Tools API gebruiken',
+    factcheckHint:
+      'Doorzoekt razendsnel bestaande officiële factchecks van erkende organisaties wereldwijd.',
+    factcheckKeyLabel: 'API-sleutel Fact Check',
+    factcheckKeyHintBrowser: [
+      'Maak een gratis sleutel aan op ',
+      '. De sleutel blijft alleen in deze browser.',
+    ],
+    factcheckKeyHintDevice: [
+      'Maak een gratis sleutel aan op ',
+      '. De sleutel staat versleuteld op dit toestel.',
+    ],
+    evalHeading: 'Analyse & weergave',
+    displayHeading: 'Weergave',
+    activeLabel: 'Extensie actief op YouTube',
+    activeHint: 'Uit: het WWJD-paneel op YouTube is uitgeschakeld.',
+    autoLabel: 'Automatisch analyseren bij het openen van een video',
+    autoHint: 'Uit: klik op "Analyseer video" in het paneel.',
+    collapsedLabel: 'Onderbouwing standaard inklappen',
+    collapsedHint: 'Toon eerst alleen de eindscore (0–10) en de korte conclusie.',
+    tipLabel: 'Uitleg',
+    cacheHeading: 'Cache',
+    savedAnalyses: 'Opgeslagen analyses',
+    cacheText: 'Elke video wordt één keer per taal geanalyseerd; daarna komt de analyse uit de cache.',
+    clearCache: 'Cache wissen',
+    clear: 'Wissen',
+    cacheCount: (n) => (n === 1 ? '1 analyse opgeslagen' : `${n} analyses opgeslagen`),
+    analysisCount: (n) => (n === 1 ? '1 analyse' : `${n} analyses`),
+    confirmClear: 'Alle opgeslagen analyses wissen?',
+    advanced: 'Geavanceerd',
+    debugHeading: 'Debuglog',
+    debugCheck: 'Per aanroep provider, model, invoerlengte, duur en tokens bijhouden',
+    showLog: 'Log tonen',
+    clearLog: 'Log wissen',
+    logEmpty: 'Nog geen aanroepen gelogd.',
+    logHead: [
+      'Tijd',
+      'Video',
+      'Stap',
+      'Provider',
+      'Model',
+      'Invoer (tekens)',
+      'Duur',
+      'Tokens in/uit',
+      'Fout',
+    ],
+  },
+
+  tips: {
+    language:
+      'Kies de taal voor de gebruikersinterface, de AI-analyse én de Bijbelverwijzingen (Nederlands gebruikt debijbel.nl NBV21; andere talen gebruiken de bijbehorende Bijbelvertaling).',
+    provider:
+      'Welke AI de video analyseert en toetst aan de 25 richtlijnen van Jezus. Gemini is gratis te gebruiken (met een daglimiet); Claude betaal je per analyse.',
+    apiKey:
+      'Een geheime code waarmee WWJD namens jou de AI-dienst gebruikt; eventuele kosten komen op jouw account. De sleutel blijft op dit apparaat en gaat alleen naar die dienst.',
+    model:
+      'Het AI-model dat de analyse maakt. Laat de standaard staan, tenzij je een ander model wilt proberen; "Test verbinding" controleert of het bestaat. Met een gratis Gemini-sleutel werken alleen de Flash- en Flash-Lite-modellen; Pro vraagt facturering.',
+    factcheck:
+      'De Google Fact Check Tools API doorzoekt razendsnel duizenden bestaande factchecks van erkende organisaties (zoals Reuters, AP, Nieuwscheckers, PolitiFact). Is er geen bestaande factcheck voor een uitspraak, dan voert de AI zelf een historische feitenanalyse uit.',
+    factcheckKey:
+      'Een gratis API-sleutel uit de Google Cloud Console waarmee de Fact Check Tools API wordt aangeroepen. De sleutel blijft op dit apparaat en gaat alleen naar Google.',
+    actief:
+      'Aan: het WWJD-paneel verschijnt op YouTube-videopagina’s. Uit: de extensie doet niets op YouTube.',
+    auto: 'Aan: elke video die je opent wordt meteen geanalyseerd; een nieuwe video kost één AI-aanroep. Uit: pas analyseren wanneer je op "Analyseer video" klikt.',
+    collapsed:
+      'Aan: toont eerst alleen de Jezus-score (0–10) en de korte conclusie; de volledige factcheck en de bijbelverwijzingen klap je open wanneer je die wilt lezen.',
+    updates:
+      'Zoekt op GitHub naar de nieuwste versie van WWJD. Er gaan geen sleutels of andere gegevens mee.',
+    cache:
+      'Elke analyse wordt bewaard, zodat dezelfde video opnieuw openen niets kost. Wissen verwijdert alle bewaarde analyses; je sleutels en instellingen blijven staan.',
+    debug:
+      'Voor probleemoplossing: houdt per AI-aanroep bij welk model is gebruikt, hoe lang het duurde en hoeveel tokens het kostte. Je sleutel staat er nooit in.',
+  },
+
+  update: {
+    heading: 'Updates',
+    installed: (v) => `Geïnstalleerde versie: ${v}`,
+    check: 'Controleren op updates',
+    checking: 'Controleren…',
+    upToDate: 'Je hebt de nieuwste versie.',
+    available: (v) => `Versie ${v} is beschikbaar.`,
+    none: 'Nog geen versie gevonden op GitHub.',
+    failed: (e) => `Controleren mislukt: ${e}`,
+    whatsNew: 'Wat is er nieuw?',
+    download: (v) => `Versie ${v} downloaden`,
+    extensionSteps: [
+      'Download de zip met de nieuwe versie.',
+      'Pak hem uit over de map van WWJD heen (bestanden vervangen).',
+      'Klik op Herladen; deze pagina opent daarna opnieuw.',
+    ],
+    reload: 'Herladen',
+    downloadInstall: 'Downloaden en installeren',
+    downloading: 'Downloaden…',
+    opening: 'Installatie wordt geopend…',
+    installHint:
+      'De eerste keer vraagt Android om installeren via WWJD toe te staan; tik daarna zo nodig nog een keer op deze knop. Je sleutels, instellingen en analyses blijven bewaard.',
+    checksumFailed: 'Het gedownloade bestand klopt niet (SHA-256). Probeer het opnieuw.',
+    downloadFailed: (e) => `Downloaden mislukt: ${e}`,
+  },
+
+  extension: {
+    actionTitle: 'WWJD – instellingen',
+    disabledError: 'WWJD analyse is uitgeschakeld in de extensie-instellingen.',
+    noKeyError: (p) =>
+      `Geen API-sleutel gevonden voor ${p}. Vul je sleutel in via de WWJD-instellingen.`,
+    noTranscriptError: (r) => `Kon geen transcript ophalen voor deze video (${r}).`,
+    unknownError: 'Onbekende fout bij evaluatie.',
+  },
+
+  app: {
+    analysisTitle: 'Analyse',
+    shareAction: 'Delen → WWJD',
+    back: 'Terug',
+    settings: 'Instellingen',
+    showPlayer: 'YouTube-player tonen',
+    hidePlayer: 'YouTube-player verbergen',
+    pastePlaceholder: 'Plak een YouTube-link',
+    linkAria: 'YouTube-link of video-ID',
+    notRecognized: 'Geen YouTube-video herkend in deze link.',
+    shareHint: ['Tik in de YouTube-app op ', '.'],
+    analyzeButton: 'Analyseer',
+    recent: 'Recent',
+    noAnalyses: 'Nog geen analyses.',
+    shareNoVideo: 'Geen YouTube-video gevonden in wat je deelde.',
+    cannotPlay: (c) => `De video kan hier niet worden afgespeeld (fout ${c}).`,
+    openInYouTube: 'Open in YouTube',
+    seekTitle: (t) => `Naar ${t} in de video`,
+    playerOff: 'De YouTube-player staat uit.',
+    showPlayerAndSeek: (t) => `Toon player en spring naar ${t}`,
+    openInYouTubeAt: (t) => `Open in de YouTube-app op ${t}`,
+    openedInYouTube: (t) => `YouTube springt naar ${t}`,
+    cancel: 'Annuleren',
+    noKeyError: 'Er is nog geen API-sleutel ingesteld.',
+  },
+};

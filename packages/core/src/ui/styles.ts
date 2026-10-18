@@ -63,7 +63,7 @@ a:hover { text-decoration: underline; }
 .wwjd-header-actions {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
 }
 
 .icon-btn {

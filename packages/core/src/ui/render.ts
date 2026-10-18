@@ -1,5 +1,7 @@
 import type { ScoredGuideline, WwjdEvaluation } from '../engine/types';
-import { ICONS, WWJD_BASE_CSS } from './styles';
+import { getGuidelineById, localizeBibleSource, normalizeLang } from '../guidelines/jesus';
+import { messages, type Messages } from '../i18n/messages';
+import { WWJD_BASE_CSS } from './styles';
 
 type Child = Node | string | null | undefined | false;
 
@@ -35,6 +37,8 @@ export interface RenderOptions {
   onToggleEnabled?: (enabled: boolean) => void;
   enabled?: boolean;
   fromCache?: boolean;
+  taal?: string;
+  t?: Messages;
 }
 
 export type WwjdViewState =
@@ -66,6 +70,10 @@ export function renderWwjdView(
   evaluation: WwjdEvaluation,
   options: RenderOptions = {},
 ): void {
+  const lang = normalizeLang(options.taal ?? evaluation.taal ?? 'nl');
+  const t = options.t ?? messages(lang);
+  const v = t.view;
+
   container.innerHTML = '';
 
   const styleEl = document.createElement('style');
@@ -80,16 +88,22 @@ export function renderWwjdView(
   if (evaluation.finalScore >= 7.0) scoreClass = 'score-high';
   else if (evaluation.finalScore < 4.0) scoreClass = 'score-low';
 
-  // Format header
+  // Format header (short name WWJD, without refresh or settings icons)
   const header = document.createElement('div');
   header.className = 'wwjd-header';
-  const brand = h(
-    'div',
-    { class: 'wwjd-brand' },
-    h('span', { class: 'logo-badge' }, 'WWJD'),
-    h('span', { class: 'title' }, 'What Would Jezus Do'),
-  );
+  const brand = h('div', { class: 'wwjd-brand' }, h('span', { class: 'logo-badge' }, 'WWJD'));
   const actions = h('div', { class: 'wwjd-header-actions' });
+
+  const toggleBtnEl = h(
+    'button',
+    {
+      type: 'button',
+      class: 'toggle-details-btn',
+      id: 'wwjd-toggle-btn',
+    },
+    options.initiallyCollapsed ? v.showDetails : v.hideDetails,
+  );
+  actions.append(toggleBtnEl);
 
   if (options.onToggleEnabled) {
     const enabled = options.enabled !== false;
@@ -101,51 +115,14 @@ export function renderWwjdView(
           class: 'switch',
           role: 'switch',
           'aria-checked': String(enabled),
-          'aria-label': 'What Would Jezus Do aan of uit',
-          title: enabled ? 'WWJD uitzetten' : 'WWJD aanzetten',
+          'aria-label': v.switchAria,
+          title: enabled ? v.turnOff : v.turnOn,
           onClick: () => options.onToggleEnabled?.(!enabled),
         },
         h('span', { class: 'knob' }),
       ),
     );
   }
-
-  if (options.onRefresh) {
-    actions.append(
-      h('button', {
-        type: 'button',
-        class: 'icon-btn',
-        title: 'Opnieuw analyseren',
-        'aria-label': 'Opnieuw analyseren',
-        html: ICONS.refresh,
-        onClick: options.onRefresh,
-      }),
-    );
-  }
-
-  if (options.onOpenOptions) {
-    actions.append(
-      h('button', {
-        type: 'button',
-        class: 'icon-btn',
-        title: 'Instellingen',
-        'aria-label': 'Instellingen',
-        html: ICONS.settings,
-        onClick: options.onOpenOptions,
-      }),
-    );
-  }
-
-  const toggleBtnEl = h(
-    'button',
-    {
-      type: 'button',
-      class: 'toggle-details-btn',
-      id: 'wwjd-toggle-btn',
-    },
-    options.initiallyCollapsed ? 'Toon onderbouwing ▼' : 'Onderbouwing inklappen ▲',
-  );
-  actions.append(toggleBtnEl);
 
   header.append(brand, actions);
   card.appendChild(header);
@@ -156,7 +133,7 @@ export function renderWwjdView(
   scoreBanner.innerHTML = `
     <div class="wwjd-score-number">${evaluation.finalScore.toFixed(1)}</div>
     <div class="wwjd-score-details">
-      <strong>Jezus-overeenkomst: ${evaluation.finalScore.toFixed(1)} / 10</strong>
+      <strong>${escapeHtml(v.jesusAlignment)}: ${evaluation.finalScore.toFixed(1)} / 10</strong>
       ${escapeHtml(evaluation.verdictSummary)}
     </div>
   `;
@@ -172,10 +149,10 @@ export function renderWwjdView(
   // --- SECTIE 1: FEITENCHECK & INTEGRITEIT (ACTIVITEIT 1) ---
   const factcheckSection = document.createElement('div');
   factcheckSection.innerHTML = `
-    <div class="section-title">1. Factcheck & Integriteit (Activiteit 1)</div>
+    <div class="section-title">${escapeHtml(v.section1Title)}</div>
     <div class="activity-summary">
-      <strong>Kern van activiteit:</strong> ${escapeHtml(evaluation.factcheckDossier.coreActivity)}<br>
-      <strong>Sentiment & houding:</strong> ${escapeHtml(evaluation.factcheckDossier.sentimentAndAttitude)}
+      <strong>${escapeHtml(v.coreActivity)}</strong> ${escapeHtml(evaluation.factcheckDossier.coreActivity)}<br>
+      <strong>${escapeHtml(v.sentimentAndAttitude)}</strong> ${escapeHtml(evaluation.factcheckDossier.sentimentAndAttitude)}
     </div>
   `;
 
@@ -184,7 +161,7 @@ export function renderWwjdView(
     alertDiv.className = 'contradiction-alert';
     alertDiv.style.marginTop = '6px';
     alertDiv.innerHTML = `
-      ⚠️ <strong>Zelf-tegenspraak geconstateerd (= per definitie liegen):</strong><br>
+      ⚠️ <strong>${escapeHtml(v.contradictionAlert)}</strong><br>
       ${evaluation.factcheckDossier.contradictionsDetected.map((c) => `• ${escapeHtml(c)}`).join('<br>')}
     `;
     factcheckSection.appendChild(alertDiv);
@@ -194,18 +171,19 @@ export function renderWwjdView(
   evaluation.factcheckDossier.statements.forEach((stmt) => {
     const stmtEl = document.createElement('div');
     stmtEl.className = 'statement-item';
+    const verdictLabel = v.verdicts[stmt.verdict] ?? stmt.verdict.replace(/_/g, ' ');
     stmtEl.innerHTML = `
       <div class="statement-header">
         <button type="button" class="time-btn" data-start="${stmt.startSeconds}">
           ⏱️ ${escapeHtml(stmt.timestampLabel)}
         </button>
-        <span class="verdict-tag ${stmt.verdict}">${stmt.verdict.replace(/_/g, ' ')}</span>
+        <span class="verdict-tag ${stmt.verdict}">${escapeHtml(verdictLabel)}</span>
       </div>
-      <div><strong>Uitspraak:</strong> "${escapeHtml(stmt.quote)}"</div>
-      <div><strong>Factcheck:</strong> ${escapeHtml(stmt.historicalAnalysis)}</div>
+      <div><strong>${escapeHtml(v.statementLabel)}</strong> "${escapeHtml(stmt.quote)}"</div>
+      <div><strong>${escapeHtml(v.factcheckLabel)}</strong> ${escapeHtml(stmt.historicalAnalysis)}</div>
       ${
         stmt.sources && stmt.sources.length > 0
-          ? `<div><small>Bron(nen): ${stmt.sources
+          ? `<div><small>${escapeHtml(v.sourcesLabel)} ${stmt.sources
               .map(
                 (s) =>
                   `<a href="${escapeHtml(s.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(s.title || s.url)}</a>`,
@@ -222,7 +200,7 @@ export function renderWwjdView(
   const jesusSection = document.createElement('div');
   jesusSection.style.marginTop = '14px';
   jesusSection.innerHTML = `
-    <div class="section-title">2. Toetsing aan Jezus' Richtlijnen (${evaluation.relevantGuidelines.length} relevante punten meegewogen)</div>
+    <div class="section-title">${escapeHtml(v.section2Title(evaluation.relevantGuidelines.length))}</div>
   `;
 
   evaluation.relevantGuidelines.forEach((g: ScoredGuideline) => {
@@ -233,16 +211,23 @@ export function renderWwjdView(
     if (g.score >= 7.0) gScoreClass = 'score-high';
     else if (g.score < 4.0) gScoreClass = 'score-low';
 
+    const dbGuideline = lang !== 'nl' ? getGuidelineById(g.guidelineId, lang) : undefined;
+    const guidelineTitle = dbGuideline ? dbGuideline.title : g.title;
+    const bibleSources =
+      lang !== 'nl'
+        ? (dbGuideline?.sources ?? g.bibleSources.map((b) => localizeBibleSource(b, lang)))
+        : g.bibleSources;
+
     gEl.innerHTML = `
       <div class="guideline-head">
-        <div class="guideline-title">#${g.number} ${escapeHtml(g.title)}</div>
+        <div class="guideline-title">#${g.number} ${escapeHtml(guidelineTitle)}</div>
         <div class="guideline-score ${gScoreClass}">${g.score.toFixed(1)} / 10</div>
       </div>
       <div class="guideline-reasoning">${escapeHtml(g.reasoning)}</div>
       ${
         g.relatedQuotes.length > 0
           ? `<div style="font-size: 12px; color: var(--yt-text-2);">
-              Gekoppeld aan moment: ${g.relatedQuotes
+              ${escapeHtml(v.linkedToMoment)} ${g.relatedQuotes
                 .map(
                   (q) =>
                     `<button type="button" class="time-btn" data-start="${q.startSeconds}">${escapeHtml(q.timestampLabel)}</button> "${escapeHtml(q.quote)}"`,
@@ -252,7 +237,7 @@ export function renderWwjdView(
           : ''
       }
       <div class="bible-sources-list">
-        ${g.bibleSources
+        ${bibleSources
           .map(
             (b) => `
           <a class="bible-badge" href="${escapeHtml(b.url)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(b.quote)}">
@@ -272,8 +257,8 @@ export function renderWwjdView(
   const dateLabel = Number.isNaN(datum.getTime())
     ? ''
     : options.fromCache
-      ? `Uit cache · ${datum.toLocaleDateString('nl-NL')}`
-      : 'Zojuist geanalyseerd';
+      ? v.fromCache(datum.toLocaleDateString(t.locale))
+      : v.justAnalyzed;
   detailsContainer.appendChild(
     h(
       'div',
@@ -292,7 +277,7 @@ export function renderWwjdView(
   toggleBtn?.addEventListener('click', () => {
     isCollapsed = !isCollapsed;
     detailsContainer.style.display = isCollapsed ? 'none' : 'block';
-    toggleBtn.textContent = isCollapsed ? 'Toon onderbouwing ▼' : 'Onderbouwing inklappen ▲';
+    toggleBtn.textContent = isCollapsed ? v.showDetails : v.hideDetails;
     options.onToggleCollapse?.(isCollapsed);
   });
 
@@ -311,9 +296,15 @@ export function renderWwjdStateView(
   container: HTMLElement,
   state: WwjdViewState,
   handlers: WwjdStateHandlers = {},
-  opts: { collapsed?: boolean; enabled?: boolean } = {},
+  opts: { collapsed?: boolean; enabled?: boolean; taal?: string; t?: Messages } = {},
 ): void {
+  const lang = normalizeLang(
+    opts.taal ?? (state.kind === 'done' ? state.evaluation.taal : undefined) ?? 'nl',
+  );
+  const t = opts.t ?? messages(lang);
+  const v = t.view;
   const enabled = opts.enabled !== false;
+
   if (enabled && state.kind === 'done') {
     renderWwjdView(container, state.evaluation, {
       onSeek: handlers.onSeek,
@@ -324,6 +315,8 @@ export function renderWwjdStateView(
       onToggleEnabled: handlers.onToggleEnabled,
       enabled,
       fromCache: state.fromCache,
+      taal: lang,
+      t,
     });
     return;
   }
@@ -343,45 +336,26 @@ export function renderWwjdStateView(
           class: 'switch',
           role: 'switch',
           'aria-checked': String(enabled),
-          'aria-label': 'What Would Jezus Do aan of uit',
-          title: enabled ? 'WWJD uitzetten' : 'WWJD aanzetten',
+          'aria-label': v.switchAria,
+          title: enabled ? v.turnOff : v.turnOn,
           onClick: () => handlers.onToggleEnabled?.(!enabled),
         },
         h('span', { class: 'knob' }),
       ),
     );
   }
-  if (handlers.onOpenOptions) {
-    actions.append(
-      h('button', {
-        type: 'button',
-        class: 'icon-btn',
-        title: 'Instellingen',
-        'aria-label': 'Instellingen',
-        html: ICONS.settings,
-        onClick: handlers.onOpenOptions,
-      }),
-    );
-  }
 
   const header = h(
     'div',
     { class: 'wwjd-header' },
-    h(
-      'div',
-      { class: 'wwjd-brand' },
-      h('span', { class: 'logo-badge' }, 'WWJD'),
-      h('span', { class: 'title' }, 'What Would Jezus Do'),
-    ),
+    h('div', { class: 'wwjd-brand' }, h('span', { class: 'logo-badge' }, 'WWJD')),
     actions,
   );
 
   const card = h('div', { class: 'wwjd-card', 'aria-live': 'polite' }, header);
 
   if (!enabled) {
-    card.append(
-      h('p', { class: 'off' }, 'What Would Jezus Do staat uit: er worden geen analyses gemaakt.'),
-    );
+    card.append(h('p', { class: 'off' }, v.off));
     container.appendChild(card);
     return;
   }
@@ -394,7 +368,7 @@ export function renderWwjdStateView(
         h(
           'button',
           { type: 'button', class: 'btn primary', onClick: handlers.onStart },
-          'Analyseer video',
+          v.analyzeVideo,
         ),
       ),
     );
@@ -407,7 +381,7 @@ export function renderWwjdStateView(
           'div',
           { class: 'step' },
           h('span', { class: 'spinner' }),
-          state.step ?? "Video factchecken en toetsen aan Jezus' richtlijnen en De Tien Geboden…",
+          state.step ?? v.loadingStep,
         ),
         h('div', { class: 'bar w90' }),
         h('div', { class: 'bar w80' }),
@@ -421,17 +395,13 @@ export function renderWwjdStateView(
         h(
           'button',
           { type: 'button', class: 'btn primary', onClick: handlers.onOpenOptions },
-          'Instellingen openen',
+          v.openSettings,
         ),
       );
     }
     if (handlers.onRefresh) {
       errActions.append(
-        h(
-          'button',
-          { type: 'button', class: 'btn', onClick: handlers.onRefresh },
-          'Opnieuw proberen',
-        ),
+        h('button', { type: 'button', class: 'btn', onClick: handlers.onRefresh }, v.retry),
       );
     }
     card.append(h('div', { class: 'error-msg', role: 'alert' }, state.message), errActions);

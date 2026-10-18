@@ -1,18 +1,25 @@
-import type { WwjdEvaluation } from '@wwjd/core';
+import { normalizeLang, type WwjdEvaluation } from '@wwjd/core';
 
 const PREFIX = 'eval_';
 
-export const cacheKey = (videoId: string) => `${PREFIX}${videoId}`;
+export const cacheKey = (videoId: string, taal = 'nl') => {
+  const norm = normalizeLang(taal);
+  return norm === 'nl' ? `${PREFIX}${videoId}` : `${PREFIX}${videoId}_${norm}`;
+};
 
-export async function getCachedEvaluation(videoId: string): Promise<WwjdEvaluation | null> {
-  const key = cacheKey(videoId);
+export async function getCachedEvaluation(
+  videoId: string,
+  taal = 'nl',
+): Promise<WwjdEvaluation | null> {
+  const key = cacheKey(videoId, taal);
   const stored = await browser.storage.local.get(key);
   const val = stored[key] as WwjdEvaluation | undefined;
   return val && typeof val === 'object' && typeof val.finalScore === 'number' ? val : null;
 }
 
 export async function setCachedEvaluation(evaluation: WwjdEvaluation): Promise<void> {
-  await browser.storage.local.set({ [cacheKey(evaluation.videoId)]: evaluation });
+  const key = cacheKey(evaluation.videoId, evaluation.taal ?? 'nl');
+  await browser.storage.local.set({ [key]: evaluation });
 }
 
 async function allKeys(): Promise<string[]> {

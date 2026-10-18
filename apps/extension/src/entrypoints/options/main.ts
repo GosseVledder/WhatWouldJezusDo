@@ -1,12 +1,16 @@
 import {
   ICONS,
   keySteps,
+  messages,
   MODEL_SUGGESTIONS,
-  SETTINGS_TIPS,
   tooltips,
+  UI_LANGUAGE_NAMES,
+  UI_LANGUAGES,
   type KeyKind,
+  type Messages,
   type ProviderId,
   type TipKey,
+  type UiLang,
   type UpdateCheck,
   type WwjdSettings,
 } from '@wwjd/core';
@@ -27,10 +31,31 @@ interface RuntimeResponse<T = unknown> {
 const send = <T>(msg: Record<string, unknown>) =>
   browser.runtime.sendMessage(msg) as Promise<RuntimeResponse<T>>;
 
+let t: Messages = messages('nl');
+const onLanguage: (() => void)[] = [];
+
+function applyTexts(): void {
+  const lookup = (key: string): string => {
+    const [path, index] = key.split('.');
+    const [section, name] = path!.includes(':') ? path!.split(':') : ['settings', path];
+    const value = (t as unknown as Record<string, Record<string, unknown>>)[section!]?.[name!];
+    return String(Array.isArray(value) ? value[Number(index)] : (value ?? key));
+  };
+  document.documentElement.lang = t.locale.split('-')[0]!;
+  document.title = t.extension.actionTitle;
+  document.querySelectorAll<HTMLElement>('[data-i18n]').forEach((el) => {
+    el.textContent = lookup(el.dataset.i18n!);
+  });
+  document.querySelectorAll<HTMLElement>('[data-i18n-aria]').forEach((el) => {
+    el.setAttribute('aria-label', lookup(el.dataset.i18nAria!));
+  });
+  onLanguage.forEach((fn) => fn());
+}
+
 let savedTimer: number | undefined;
 function flashSaved(): void {
   const el = $('#saved');
-  el.textContent = 'Opgeslagen';
+  el.textContent = t.settings.saved;
   el.classList.add('show');
   window.clearTimeout(savedTimer);
   savedTimer = window.setTimeout(() => el.classList.remove('show'), 1500);
@@ -49,11 +74,27 @@ function debounce<A extends unknown[]>(fn: (...a: A) => void, ms: number): (...a
   };
 }
 
+const option = (value: string, text: string) =>
+  Object.assign(document.createElement('option'), { value, textContent: text });
+
 async function init(): Promise<void> {
   const [s, keys] = await Promise.all([getSettings(), getApiKeys()]);
+  t = messages(s.taal);
   const version = browser.runtime.getManifest().version;
-  $('#version').textContent = `What Would Jezus Do ${version}`;
+  $('#version').textContent = `WWJD ${version}`;
   initTips();
+
+  // Language selector
+  const taalSelect = $<HTMLSelectElement>('#taal');
+  taalSelect.replaceChildren(
+    ...UI_LANGUAGES.map((code) => option(code, UI_LANGUAGE_NAMES[code])),
+  );
+  taalSelect.value = s.taal;
+  taalSelect.addEventListener('change', async () => {
+    t = messages(taalSelect.value);
+    applyTexts();
+    await save({ taal: taalSelect.value as UiLang });
+  });
 
   // Provider radio buttons
   document.querySelectorAll<HTMLInputElement>('input[name="provider"]').forEach((r) => {
@@ -91,8 +132,17 @@ async function init(): Promise<void> {
       if (!model.value.trim()) model.value = (await getSettings()).models[p];
     });
 
-    // "Hoe kom ik aan een sleutel?" under the key row
-    key.closest('.row')!.after(keySteps(p));
+    // "How do I get a key?" under the key row; rebuilt on language change
+    let steps: HTMLDetailsElement | undefined;
+    const renderSteps = () => {
+      const next = keySteps(p, t);
+      next.open = steps?.open ?? false;
+      if (steps) steps.replaceWith(next);
+      else key.closest('.row')!.after(next);
+      steps = next;
+    };
+    renderSteps();
+    onLanguage.push(renderSteps);
   }
 
   // Google Fact Check Tools API key + steps
@@ -105,15 +155,24 @@ async function init(): Promise<void> {
       flashSaved();
     }, 400),
   );
-  $('#factcheck-key-row').after(keySteps('factcheck'));
+  let fcSteps: HTMLDetailsElement | undefined;
+  const renderFcSteps = () => {
+    const next = keySteps('factcheck', t);
+    next.open = fcSteps?.open ?? false;
+    if (fcSteps) fcSteps.replaceWith(next);
+    else $('#factcheck-key-row').after(next);
+    fcSteps = next;
+  };
+  renderFcSteps();
+  onLanguage.push(renderFcSteps);
 
   // Password show/hide toggles
   document.querySelectorAll<HTMLButtonElement>('[data-toggle]').forEach((b) => {
     const input = $<HTMLInputElement>(`#${b.dataset.toggle}`);
     const updateLabel = () => {
-      b.textContent = input.type === 'password' ? 'Toon' : 'Verberg';
+      b.textContent = input.type === 'password' ? t.settings.show : t.settings.hide;
     };
-    updateLabel();
+    onLanguage.push(updateLabel);
     b.addEventListener('click', () => {
       input.type = input.type === 'password' ? 'text' : 'password';
       updateLabel();
@@ -128,12 +187,12 @@ async function init(): Promise<void> {
       const apiKey = $<HTMLInputElement>(`#key-${kind}`).value.trim();
       if (!apiKey) {
         out.className = 'test-result error';
-        out.textContent = '✗ Vul eerst een API-sleutel in.';
+        out.textContent = `✗ ${t.settings.fillKeyFirst}`;
         return;
       }
       b.disabled = true;
       out.className = 'test-result';
-      out.textContent = 'Bezig…';
+      out.textContent = t.settings.busy;
       await setApiKey(kind, apiKey);
       const model =
         kind === 'factcheck' ? '' : $<HTMLInputElement>(`#model-${kind}`).value.trim();
@@ -152,12 +211,10 @@ async function init(): Promise<void> {
       if (res.ok && res.data?.ok !== false) {
         out.className = 'test-result ok';
         out.textContent =
-          kind === 'factcheck'
-            ? '✓ Verbinding met Google Fact Check API werkt.'
-            : '✓ Verbinding werkt en het model bestaat.';
+          kind === 'factcheck' ? t.settings.testOkFactcheck : t.settings.testOk;
       } else {
         out.className = 'test-result error';
-        out.textContent = `✗ ${res.data?.error ?? res.error ?? 'Verbinding mislukt.'}`;
+        out.textContent = `✗ ${res.data?.error ?? res.error ?? t.settings.testFailed}`;
       }
     });
   });
@@ -187,56 +244,55 @@ async function init(): Promise<void> {
   updateProviderSections();
 
   // Cache stats & clear
+  let aantal: number | null = null;
+  const showCount = () => {
+    if (aantal !== null) $('#cache-count').textContent = t.settings.cacheCount(aantal);
+  };
   const refreshCount = async () => {
     const res = await send<{ aantal: number }>({ type: 'cacheStats' });
-    const n = res.data?.aantal ?? 0;
-    $('#cache-count').textContent =
-      n === 1 ? '1 analyse opgeslagen' : `${n} analyses opgeslagen`;
+    aantal = res.data?.aantal ?? 0;
+    showCount();
   };
+  onLanguage.push(showCount);
   void refreshCount();
   $('#clear-cache').addEventListener('click', async () => {
-    if (!confirm('Alle opgeslagen analyses wissen?')) return;
+    if (!confirm(t.settings.confirmClear)) return;
     await send({ type: 'clearCache' });
     await refreshCount();
   });
 
   // Debug log
-  const LOG_HEAD = [
-    'Tijd',
-    'Video',
-    'Stap',
-    'Provider',
-    'Model',
-    'Invoer (tekens)',
-    'Duur',
-    'Tokens in/uit',
-    'Fout',
-  ];
+  let logShown = false;
   const showLog = async () => {
     const log = $('#log');
     const res = await send<DebugEntry[]>({ type: 'getDebugLog' });
     const entries = res.data ?? [];
     log.hidden = false;
+    logShown = true;
     if (entries.length === 0) {
-      log.textContent = 'Nog geen aanroepen gelogd.';
+      log.textContent = t.settings.logEmpty;
       return;
     }
     const table = document.createElement('table');
     table
       .createTHead()
       .insertRow()
-      .append(...LOG_HEAD.map((h) => Object.assign(document.createElement('th'), { textContent: h })));
+      .append(
+        ...t.settings.logHead.map((h) =>
+          Object.assign(document.createElement('th'), { textContent: h }),
+        ),
+      );
     const body = table.createTBody();
     for (const e of entries.slice().reverse()) {
       const row = body.insertRow();
       const cells = [
-        new Date(e.tijd).toLocaleString('nl-NL'),
+        new Date(e.tijd).toLocaleString(t.locale),
         e.videoId,
         e.stap,
         e.provider,
         e.model,
-        e.invoerTekens.toLocaleString('nl-NL'),
-        `${(e.duurMs / 1000).toLocaleString('nl-NL', { maximumFractionDigits: 1 })} s`,
+        e.invoerTekens.toLocaleString(t.locale),
+        `${(e.duurMs / 1000).toLocaleString(t.locale, { maximumFractionDigits: 1 })} s`,
         e.usage ? `${e.usage.inputTokens ?? '–'} / ${e.usage.outputTokens ?? '–'}` : '–',
         e.fout ?? '',
       ];
@@ -248,18 +304,21 @@ async function init(): Promise<void> {
     }
     log.replaceChildren(table);
   };
+  onLanguage.push(() => logShown && void showLog());
   $('#show-log').addEventListener('click', () => void showLog());
   $('#clear-log').addEventListener('click', async () => {
     await send({ type: 'clearDebugLog' });
     $('#log').hidden = true;
+    logShown = false;
   });
 
   initUpdate();
+  applyTexts();
 }
 
 /**
  * ⓘ next to every element with data-tip: the button sits beside the title and shows the
- * explanation from SETTINGS_TIPS.
+ * explanation from `t.tips`.
  */
 function initTips(): void {
   const tips = tooltips();
@@ -271,9 +330,11 @@ function initTips(): void {
     const button = document.createElement('button');
     button.className = 'tip';
     button.innerHTML = ICONS.info;
-    button.setAttribute('aria-label', `Uitleg: ${el.textContent}`);
     line.append(el, button);
-    tips.bind(button, () => SETTINGS_TIPS[key]);
+    tips.bind(button, () => t.tips[key]);
+    onLanguage.push(() =>
+      button.setAttribute('aria-label', `${t.settings.tipLabel}: ${el.textContent}`),
+    );
   });
 }
 
@@ -282,13 +343,45 @@ function initUpdate(): void {
   const button = $<HTMLButtonElement>('#check-update');
   const status = $('#update-status');
   const panel = $('#update-panel');
-  $('#installed-version').textContent = `Geïnstalleerde versie: ${version}`;
+  let state:
+    | { ok: true; check: UpdateCheck }
+    | { ok: false; error: string }
+    | 'checking'
+    | null = null;
+
+  const show = () => {
+    $('#installed-version').textContent = t.update.installed(version);
+    panel.hidden = true;
+    status.dataset.state =
+      state === null
+        ? ''
+        : state === 'checking'
+          ? 'checking'
+          : state.ok
+            ? state.check.status
+            : 'error';
+    if (state === null) status.textContent = '';
+    else if (state === 'checking') status.textContent = t.update.checking;
+    else if (!state.ok) status.textContent = t.update.failed(state.error);
+    else if (state.check.status === 'none') status.textContent = t.update.none;
+    else if (state.check.status === 'current') status.textContent = t.update.upToDate;
+    else {
+      const { asset, page } = state.check;
+      status.textContent = '';
+      panel.hidden = false;
+      $('#update-available').textContent = t.update.available(asset.version);
+      $<HTMLAnchorElement>('#update-notes').href = page;
+      const download = $<HTMLAnchorElement>('#update-download');
+      download.href = asset.url;
+      download.textContent = t.update.download(asset.version);
+    }
+  };
+  onLanguage.push(show);
 
   button.addEventListener('click', async () => {
     button.disabled = true;
-    panel.hidden = true;
-    status.dataset.state = 'checking';
-    status.textContent = 'Controleren…';
+    state = 'checking';
+    show();
     const res = await send<{ ok: boolean; check?: UpdateCheck; error?: string }>({
       type: 'checkUpdate',
     }).catch(
@@ -298,29 +391,13 @@ function initUpdate(): void {
       }),
     );
     button.disabled = false;
-
     const payload = res.data;
     if (!res.ok || !payload?.ok || !payload.check) {
-      status.dataset.state = 'error';
-      status.textContent = `Controleren mislukt: ${payload?.error ?? res.error ?? 'onbekende fout'}`;
-      return;
-    }
-
-    const check = payload.check;
-    status.dataset.state = check.status;
-    if (check.status === 'none') {
-      status.textContent = 'Nog geen versie gevonden op GitHub.';
-    } else if (check.status === 'current') {
-      status.textContent = 'Je hebt de nieuwste versie.';
+      state = { ok: false, error: payload?.error ?? res.error ?? 'unknown error' };
     } else {
-      status.textContent = '';
-      panel.hidden = false;
-      $('#update-available').textContent = `Versie ${check.asset.version} is beschikbaar.`;
-      $<HTMLAnchorElement>('#update-notes').href = check.page;
-      const download = $<HTMLAnchorElement>('#update-download');
-      download.href = check.asset.url;
-      download.textContent = `Versie ${check.asset.version} downloaden`;
+      state = { ok: true, check: payload.check };
     }
+    show();
   });
 
   $('#update-reload').addEventListener('click', async () => {

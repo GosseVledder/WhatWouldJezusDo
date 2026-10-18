@@ -50,6 +50,7 @@ export interface WwjdEvaluation {
   videoId: string;
   videoTitle?: string;
   channelName?: string;
+  taal?: string;
   finalScore: number; // Gemiddelde van relevante scores: 0.0 tot 10.0 (1 decimaal)
   verdictSummary: string; // Korte samenvattende conclusie
   factcheckDossier: VideoExtractionAndFactcheck;
@@ -97,6 +98,7 @@ export interface CallLog {
 export interface ProviderOptions {
   apiKey: string;
   model: string;
+  taal?: string;
   factCheckApiKey?: string;
   signal?: AbortSignal;
   timeoutMs?: number;

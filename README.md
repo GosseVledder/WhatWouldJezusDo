@@ -13,7 +13,7 @@ Ready to use: download, install, and enter your API keys. No build tools require
 | Platform | Download | Installation Guide |
 |---|---|---|
 | 📱 **Android App**<br>Phone and tablet, Android 7.0 or newer | [**WhatWouldJezusDo-0.2.0.apk**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/apk/WhatWouldJezusDo-0.2.0.apk)<br>3.1 MB | [Install on Android](#installing-the-android-app) |
-| 🧩 **Chrome & Edge Extension**<br>Windows, macOS, Linux | [**WhatWouldJezusDo-extension-0.2.0.zip**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.2.0.zip)<br>86 kB | [Install in Chrome or Edge](#installing-the-extension-in-chrome-or-edge) |
+| 🧩 **Chrome & Edge Extension**<br>Windows, macOS, Linux | [**WhatWouldJezusDo-extension-0.2.0.zip**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.2.0.zip)<br>217 kB | [Install in Chrome or Edge](#installing-the-extension-in-chrome-or-edge) |
 
 You will need your own LLM API key from **Google (Gemini, free)** or **Anthropic (Claude, paid)**, and optionally a free **Google Fact Check Tools API key**; see [Configuring API Keys](#configuring-api-keys). All releases and their SHA-256 checksums are available under [Releases](https://github.com/GosseVledder/WhatWouldJezusDo/releases); both the app and the extension can check for updates directly via *Instellingen › Updates*.
 
@@ -87,7 +87,7 @@ Once the statements and actions have been fact-checked, the verified dossier is 
 | **Version** | 0.2.0 (versionCode 2) |
 | **Requires** | Android 7.0 or newer |
 | **Size** | 3.1 MB |
-| **SHA-256** | `85a085dae7984b5de9d77e3b4e373cd14d9e16b2c86d4f1e7b4dfcf348ba3bce` |
+| **SHA-256** | `fbe127463f5bca93b8ea30dae56af488f99d670db5ac5d7b5fb75ed0a6188a6a` |
 
 The APK is a signed release build distributed directly via GitHub.
 
@@ -114,8 +114,8 @@ The APK is a signed release build distributed directly via GitHub.
 | **File** | [`WhatWouldJezusDo-extension-0.2.0.zip`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.2.0.zip) (also unpacked in [`extension/WhatWouldJezusDo/`](extension/WhatWouldJezusDo/)) |
 | **Version** | 0.2.0 |
 | **Browsers** | Google Chrome and Microsoft Edge (Manifest V3) |
-| **Size** | 86 kB |
-| **SHA-256** | `379fdb1961bbe231cfa3de75695468e164d25d2e3e0e9a74bcdb5f5ec9fd885d` |
+| **Size** | 217 kB |
+| **SHA-256** | `1ef45034935bc85639ea2247b4afc4db7d86aa6fc2e421ba5134f8c9a0faf7c9` |
 
 1. **Download** [`WhatWouldJezusDo-extension-0.2.0.zip`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.2.0.zip).
 2. **Extract** the zip file to a permanent folder on your computer (for example, `Documents\WhatWouldJezusDo`). Keep this folder in place—the browser loads the extension from it.
@@ -125,8 +125,9 @@ The APK is a signed release build distributed directly via GitHub.
 6. Pin **What Would Jezus Do** to your browser toolbar and click its icon to open the settings tab and configure your [API keys](#configuring-api-keys).
 
 ### Using the Extension (Layout & Settings)
-- **Watch-Page Panel**: On any YouTube watch page, the WWJD panel mounts at the top of the right-hand sidebar (or directly below The Point if both extensions are installed). Its header includes an **on/off switch**, a **refresh** button (`↻`), a **settings** button (`⚙`), and a toggle to expand or collapse the detailed substantiation.
-- **Full-Tab Settings Page**: Clicking the toolbar icon opens the settings page in a full browser tab with sticky header and instant auto-save (`✓ Opgeslagen`):
+- **Watch-Page Panel**: On any YouTube watch page, the **WWJD** panel mounts at the top of the right-hand sidebar (or directly below The Point if both extensions are installed). Its header includes the **WWJD** badge, an **on/off switch**, and a toggle to expand or collapse the detailed substantiation.
+- **Full-Tab Settings Page**: Clicking the extension icon in the browser toolbar opens the settings page in a full browser tab with sticky header and instant auto-save (`✓ Opgeslagen` / `✓ Saved`):
+  - **Taal / Language**: Choose the language (`Nederlands`, `English`, `Deutsch`, `Français`, `Español`, `Italiano`, `Português`) for the interface, the AI analysis, and the linked Bible passages (`debijbel.nl` NBV21 for Dutch; localized BibleGateway versions such as `NIV` for English and other languages).
   - **AI-dienst**: Choose **Gemini** (Google) or **Claude** (Anthropic), enter your API key (`Toon`/`Verberg`), select or type a model (`<datalist>`), read *"Hoe kom ik aan een sleutel?"*, and verify with **Test verbinding**.
   - **Feitencontrole (Google Fact Check API)**: Toggle the primary fact-check lookup on or off, enter your free Google Fact Check API key, view step-by-step instructions, and test the connection with **Test verbinding**.
   - **Analyse & weergave**: Toggle the extension on/off, automatic analysis on video open, and whether substantiation starts collapsed.

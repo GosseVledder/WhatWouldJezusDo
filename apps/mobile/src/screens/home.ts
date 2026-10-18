@@ -4,18 +4,20 @@ import { summaryHash, type App, type Screen } from '../app';
 import { videoFromShare } from '../share';
 import type { RecentEntry } from '../storage/stores';
 
-const dateFmt = new Intl.DateTimeFormat('nl-NL', {
-  day: 'numeric',
-  month: 'short',
-  hour: '2-digit',
-  minute: '2-digit',
-});
+const dateFmt = (locale: string) =>
+  new Intl.DateTimeFormat(locale, {
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 
 export function homeScreen(app: App): Screen {
+  const t = app.t;
   const input = h('input', {
     type: 'url',
-    placeholder: 'Plak een YouTube-link',
-    'aria-label': 'YouTube-link of video-ID',
+    placeholder: t.app.pastePlaceholder,
+    'aria-label': t.app.linkAria,
     autocomplete: 'off',
     spellcheck: 'false',
   });
@@ -23,7 +25,7 @@ export function homeScreen(app: App): Screen {
   const open = () => {
     const v = videoFromShare(input.value);
     if (v) app.go(summaryHash(v.videoId, v.start));
-    else error.textContent = 'Geen YouTube-video herkend in deze link.';
+    else error.textContent = t.app.notRecognized;
   };
   input.addEventListener('keydown', (e) => e.key === 'Enter' && open());
 
@@ -39,19 +41,19 @@ export function homeScreen(app: App): Screen {
       h(
         'p',
         { class: 'hint' },
-        'Tik in de YouTube-app op ',
-        h('b', {}, 'Delen → What Would Jezus Do'),
-        '.',
+        t.app.shareHint[0],
+        h('b', {}, t.app.shareAction),
+        t.app.shareHint[1],
       ),
       h(
         'div',
         { class: 'row' },
         input,
-        h('button', { class: 'primary', onClick: open }, 'Analyseer'),
+        h('button', { class: 'primary', onClick: open }, t.app.analyzeButton),
       ),
       error,
     ),
-    h('h2', {}, 'Recent'),
+    h('h2', {}, t.app.recent),
     list,
   );
 
@@ -64,22 +66,22 @@ export function homeScreen(app: App): Screen {
     if (!keys[settings.provider]) {
       keyNotice.hidden = false;
       keyNotice.replaceChildren(
-        h('span', {}, 'Vul eerst een API-sleutel in.'),
-        h('button', { onClick: () => app.go('#/instellingen') }, 'Instellingen'),
+        h('span', {}, t.settings.fillKeyFirst),
+        h('button', { onClick: () => app.go('#/instellingen') }, t.app.settings),
       );
     }
     list.replaceChildren(
       ...(recent.length
         ? recent.map((e) => recentItem(app, e))
-        : [h('li', { class: 'empty' }, 'Nog geen analyses.')]),
+        : [h('li', { class: 'empty' }, t.app.noAnalyses)]),
     );
   })();
 
-  return { title: 'What Would Jezus Do', el };
+  return { title: 'WWJD', el };
 }
 
 function recentItem(app: App, e: RecentEntry): HTMLLIElement {
-  const when = Number.isNaN(Date.parse(e.op)) ? '' : dateFmt.format(new Date(e.op));
+  const when = Number.isNaN(Date.parse(e.op)) ? '' : dateFmt(app.t.locale).format(new Date(e.op));
   const subtitle = Number.isFinite(e.score) ? `Score: ${e.score.toFixed(1)}/10 · ${when}` : when;
   return h(
     'li',

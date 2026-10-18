@@ -18,6 +18,7 @@ const VIEW_CSS = `
 `;
 
 export function summaryScreen(app: App, videoId: string, start: number | null): Screen {
+  const t = app.t;
   const playerBox = h('div', { class: 'player', hidden: true });
   const host = h('div', { class: 'summary-host' });
   const darkQuery = window.matchMedia?.('(prefers-color-scheme: dark)');
@@ -29,8 +30,9 @@ export function summaryScreen(app: App, videoId: string, start: number | null): 
   shadow.append(h('style', {}, VIEW_CSS), root);
   const el = h('div', { class: 'screen summary' }, playerBox, host);
 
-  let state: WwjdViewState = { kind: 'loading', step: 'Bezig…' };
+  let state: WwjdViewState = { kind: 'loading', step: t.settings.busy };
   let collapsed = false;
+  let currentLang = 'nl';
   let run = 0;
   let disposed = false;
 
@@ -55,8 +57,8 @@ export function summaryScreen(app: App, videoId: string, start: number | null): 
           h(
             'div',
             { class: 'player-fallback' },
-            h('p', {}, `De video kan hier niet worden afgespeeld (fout ${code}).`),
-            h('button', { onClick: () => void openInYouTube(at ?? 0) }, 'Open in YouTube'),
+            h('p', {}, t.app.cannotPlay(code)),
+            h('button', { onClick: () => void openInYouTube(at ?? 0) }, t.app.openInYouTube),
           ),
         );
         render();
@@ -90,7 +92,7 @@ export function summaryScreen(app: App, videoId: string, start: number | null): 
 
   const jumpInYouTube = async (sec: number) => {
     await openInYouTubeApp(videoId, sec, true);
-    app.toast(`YouTube springt naar ${formatTimestamp(sec)}`);
+    app.toast(t.app.openedInYouTube(formatTimestamp(sec)));
   };
 
   const seek = (sec: number) => {
@@ -116,8 +118,8 @@ export function summaryScreen(app: App, videoId: string, start: number | null): 
       h(
         'div',
         { class: 'dialog', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'seek-title' },
-        h('h2', { id: 'seek-title' }, `Naar ${tijd} in de video`),
-        h('p', {}, 'De YouTube-player staat uit.'),
+        h('h2', { id: 'seek-title' }, t.app.seekTitle(tijd)),
+        h('p', {}, t.app.playerOff),
         h(
           'button',
           {
@@ -127,7 +129,7 @@ export function summaryScreen(app: App, videoId: string, start: number | null): 
               playAt(sec);
             },
           },
-          `Toon player en spring naar ${tijd}`,
+          t.app.showPlayerAndSeek(tijd),
         ),
         h(
           'button',
@@ -137,9 +139,9 @@ export function summaryScreen(app: App, videoId: string, start: number | null): 
               void openInYouTube(sec);
             },
           },
-          `Open in de YouTube-app op ${tijd}`,
+          t.app.openInYouTubeAt(tijd),
         ),
-        h('button', { onClick: closeDialog }, 'Annuleren'),
+        h('button', { onClick: closeDialog }, t.app.cancel),
       ),
     );
     dialog = backdrop;
@@ -165,6 +167,8 @@ export function summaryScreen(app: App, videoId: string, start: number | null): 
       {
         collapsed,
         enabled: true,
+        taal: currentLang,
+        t,
       },
     );
   }
@@ -173,9 +177,10 @@ export function summaryScreen(app: App, videoId: string, start: number | null): 
     const my = ++run;
     const [s, keys] = await Promise.all([app.settings.get(), app.keys.get()]);
     collapsed = s.paneelIngeklapt;
+    currentLang = s.taal;
 
     if (!forceRefresh) {
-      const cached = await app.cache.get(videoId);
+      const cached = await app.cache.get(videoId, s.taal);
       if (my !== run || disposed) return;
       if (cached) {
         state = { kind: 'done', evaluation: cached, fromCache: true };
@@ -189,14 +194,14 @@ export function summaryScreen(app: App, videoId: string, start: number | null): 
     if (!apiKey) {
       state = {
         kind: 'error',
-        message: 'Er is nog geen API-sleutel ingesteld.',
+        message: t.app.noKeyError,
         showSettings: true,
       };
       render();
       return;
     }
 
-    state = { kind: 'loading', step: 'Transcript ophalen…' };
+    state = { kind: 'loading', step: t.view.fetchingTranscript };
     render();
 
     try {
@@ -204,14 +209,14 @@ export function summaryScreen(app: App, videoId: string, start: number | null): 
       if (my !== run || disposed) return;
       if (!transcriptRes.transcript) {
         throw new Error(
-          `Geen transcript beschikbaar voor deze video (${transcriptRes.reden ?? 'geen ondertitels'}).`,
+          t.extension.noTranscriptError(transcriptRes.reden ?? 'no captions'),
         );
       }
 
       const providerName = provider === 'claude' ? 'Claude' : 'Gemini';
       state = {
         kind: 'loading',
-        step: `Feiten verifiëren en toetsen aan Jezus' richtlijnen met ${providerName}…`,
+        step: t.view.evaluatingWith(providerName),
       };
       render();
 
@@ -226,6 +231,7 @@ export function summaryScreen(app: App, videoId: string, start: number | null): 
         {
           apiKey,
           model: s.models[provider],
+          taal: s.taal,
           factCheckApiKey,
           fetch: nativeFetch,
         },
@@ -241,7 +247,9 @@ export function summaryScreen(app: App, videoId: string, start: number | null): 
       state = {
         kind: 'error',
         message: msg,
-        showSettings: /sleutel|instellingen|toegang/i.test(msg),
+        showSettings: /sleutel|instellingen|toegang|key|settings|clé|Schlüssel|clave|chiave|chave/i.test(
+          msg,
+        ),
       };
       render();
     }
@@ -251,7 +259,7 @@ export function summaryScreen(app: App, videoId: string, start: number | null): 
   void evaluate(false);
 
   return {
-    title: 'Analyse',
+    title: t.app.analysisTitle,
     el,
     refresh: render,
     setPlayer(on) {

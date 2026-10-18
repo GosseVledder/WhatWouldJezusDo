@@ -1,6 +1,6 @@
 // App shell: hash routing between home, evaluation and settings, plus incoming shares.
 import { App as CapApp } from '@capacitor/app';
-import { ICONS } from '@wwjd/core';
+import { ICONS, messages } from '@wwjd/core';
 import { NavStack, parseRoute, summaryHash, type App, type Screen } from './app';
 import './app.css';
 import { homeScreen } from './screens/home';
@@ -27,6 +27,12 @@ const app: App = {
   settings: createSettingsStore(preferencesKV),
   keys: createKeyStore(secureKV),
   cache: createEvaluationCache(preferencesKV),
+  t: messages('nl'),
+  setLanguage(lang) {
+    app.t = messages(lang);
+    applyChrome();
+    show();
+  },
   go(hash) {
     nav.push(hash);
     show();
@@ -99,10 +105,17 @@ backBtn.innerHTML =
 settingsBtn.innerHTML = ICONS.settings;
 
 function updatePlayerButton() {
-  const label = app.playerOn ? 'YouTube-player verbergen' : 'YouTube-player tonen';
+  const label = app.playerOn ? app.t.app.hidePlayer : app.t.app.showPlayer;
   playerBtn.setAttribute('aria-pressed', String(app.playerOn));
   playerBtn.setAttribute('aria-label', label);
   playerBtn.title = label;
+}
+
+function applyChrome() {
+  document.documentElement.lang = app.t.locale.split('-')[0]!;
+  backBtn.setAttribute('aria-label', app.t.app.back);
+  settingsBtn.setAttribute('aria-label', app.t.app.settings);
+  updatePlayerButton();
 }
 
 // "Smart display": a play triangle in a screen.
@@ -118,17 +131,24 @@ onShare((e) => {
   if (v) {
     nav.reset(summaryHash(v.videoId, v.start));
     show();
-  } else app.toast('Geen YouTube-video gevonden in wat je deelde.');
+  } else app.toast(app.t.app.shareNoVideo);
 });
 
-void migrateLegacyStorage().finally(() => {
-  const params = new URLSearchParams(window.location.search);
-  const sharedUrl = params.get('url') || params.get('text');
-  const sharedVideo = sharedUrl ? videoFromShare(sharedUrl) : null;
-  if (sharedVideo) {
-    nav.reset(summaryHash(sharedVideo.videoId, sharedVideo.start));
-  } else {
-    nav.reset(location.hash || '#/');
-  }
-  show();
-});
+void migrateLegacyStorage()
+  .then(() => app.settings.get())
+  .then((s) => {
+    app.t = messages(s.taal);
+  })
+  .catch(() => undefined)
+  .finally(() => {
+    applyChrome();
+    const params = new URLSearchParams(window.location.search);
+    const sharedUrl = params.get('url') || params.get('text');
+    const sharedVideo = sharedUrl ? videoFromShare(sharedUrl) : null;
+    if (sharedVideo) {
+      nav.reset(summaryHash(sharedVideo.videoId, sharedVideo.start));
+    } else {
+      nav.reset(location.hash || '#/');
+    }
+    show();
+  });

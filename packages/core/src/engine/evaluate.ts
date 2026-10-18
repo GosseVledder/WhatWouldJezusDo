@@ -1,5 +1,6 @@
 import { searchGoogleFactCheck } from '../factcheck/googleFactCheck';
-import { getGuidelineById } from '../guidelines/jesus';
+import { getGuidelineById, normalizeLang } from '../guidelines/jesus';
+import { messages } from '../i18n/messages';
 import { buildSystemPrompt, buildUserPrompt } from './prompt';
 import { generateClaude } from './providers/claude';
 import { generateGemini } from './providers/gemini';
@@ -42,12 +43,18 @@ export async function evaluateVideo(
   providerId: ProviderId,
   opts: ProviderOptions,
 ): Promise<WwjdEvaluation> {
+  const taal = normalizeLang(opts.taal);
+  const t = messages(taal);
   const transcriptText = formatTranscriptForPrompt(input.transcript);
-  const systemPrompt = buildSystemPrompt();
-  const userPrompt = buildUserPrompt(transcriptText, {
-    titel: input.meta?.titel,
-    kanaal: input.meta?.kanaal,
-  });
+  const systemPrompt = buildSystemPrompt(taal);
+  const userPrompt = buildUserPrompt(
+    transcriptText,
+    {
+      titel: input.meta?.titel,
+      kanaal: input.meta?.kanaal,
+    },
+    taal,
+  );
 
   const chatRequest = {
     system: systemPrompt,
@@ -118,7 +125,7 @@ export async function evaluateVideo(
         if (match) {
           // Officiële factcheck match gevonden: neem oordeel en bron direct over
           stmt.verdict = match.verdict;
-          stmt.historicalAnalysis = `[Geverifieerd via ${match.publisherName} (oordeel: "${match.textualRating}")]: ${stmt.historicalAnalysis}`;
+          stmt.historicalAnalysis = `${t.view.verifiedVia(match.publisherName, match.textualRating)}: ${stmt.historicalAnalysis}`;
 
           const existingSources = stmt.sources ?? [];
           const seenUrls = new Set(existingSources.map((s) => s.url));
@@ -135,7 +142,14 @@ export async function evaluateVideo(
     );
   }
 
-  return assembleEvaluation(input.videoId, modelOutput, providerId, rawOutput.model, input.meta);
+  return assembleEvaluation(
+    input.videoId,
+    modelOutput,
+    providerId,
+    rawOutput.model,
+    input.meta,
+    taal,
+  );
 }
 
 export function assembleEvaluation(
@@ -144,11 +158,13 @@ export function assembleEvaluation(
   provider: ProviderId,
   model: string,
   meta?: VideoMeta,
+  taal = 'nl',
 ): WwjdEvaluation {
-  // Enrich each relevant guideline with real scripture links from our local database
+  const normLang = normalizeLang(taal);
+  // Enrich each relevant guideline with real scripture links from our local database in the chosen language
   const enrichedGuidelines: ScoredGuideline[] = modelOutput.relevantGuidelines
     .map((g) => {
-      const dbEntry = getGuidelineById(g.guidelineId);
+      const dbEntry = getGuidelineById(g.guidelineId, normLang);
       if (!dbEntry) return null;
 
       // Bound score strictly between 0 and 10
@@ -182,6 +198,7 @@ export function assembleEvaluation(
     videoId,
     videoTitle: meta?.titel,
     channelName: meta?.kanaal,
+    taal: normLang,
     finalScore,
     verdictSummary: modelOutput.verdictSummary,
     factcheckDossier: modelOutput.factcheckDossier,

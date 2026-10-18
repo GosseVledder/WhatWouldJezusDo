@@ -2,6 +2,8 @@ import {
   checkForUpdate,
   evaluateVideo,
   getTranscriptById,
+  messages,
+  normalizeLang,
   testClaudeConnection,
   testFactCheckConnection,
   testGeminiConnection,
@@ -94,7 +96,9 @@ async function handleMessage(msg: { type: string; [key: string]: unknown }): Pro
 
     case 'getCached': {
       const videoId = String(msg.videoId);
-      return getCachedEvaluation(videoId);
+      const taal =
+        typeof msg.taal === 'string' ? msg.taal : (await getSettings()).taal;
+      return getCachedEvaluation(videoId, taal);
     }
 
     case 'cacheStats':
@@ -143,18 +147,21 @@ async function handleMessage(msg: { type: string; [key: string]: unknown }): Pro
 
     case 'evaluate': {
       const videoId = String(msg.videoId);
+      const settings = await getSettings();
+      const taal = normalizeLang(settings.taal);
+      const t = messages(taal);
+      const jobKey = `${videoId}:${taal}`;
 
       if (!msg.force) {
-        const cached = await getCachedEvaluation(videoId);
+        const cached = await getCachedEvaluation(videoId, taal);
         if (cached) return cached;
-        const existing = inflightEvaluations.get(videoId);
+        const existing = inflightEvaluations.get(jobKey);
         if (existing) return existing;
       }
 
       const job = (async (): Promise<WwjdEvaluation> => {
-        const settings = await getSettings();
         if (!settings.actief) {
-          throw new Error('WWJD analyse is uitgeschakeld in de extensie-instellingen.');
+          throw new Error(t.extension.disabledError);
         }
 
         const provider = settings.provider;
@@ -163,7 +170,7 @@ async function handleMessage(msg: { type: string; [key: string]: unknown }): Pro
 
         if (!apiKey) {
           throw new Error(
-            `Geen API-sleutel gevonden voor ${provider === 'claude' ? 'Claude' : 'Gemini'}. Vul je sleutel in via de WWJD-instellingen.`,
+            t.extension.noKeyError(provider === 'claude' ? 'Claude' : 'Gemini'),
           );
         }
 
@@ -176,7 +183,7 @@ async function handleMessage(msg: { type: string; [key: string]: unknown }): Pro
         const transcriptRes = await getTranscriptById(videoId);
         if (!transcriptRes.transcript) {
           throw new Error(
-            `Kon geen transcript ophalen voor deze video (${transcriptRes.reden ?? 'geen ondertitels'}).`,
+            t.extension.noTranscriptError(transcriptRes.reden ?? 'no captions'),
           );
         }
 
@@ -190,6 +197,7 @@ async function handleMessage(msg: { type: string; [key: string]: unknown }): Pro
           {
             apiKey,
             model,
+            taal,
             factCheckApiKey,
             onCall: (entry: CallLog) => {
               const line = { ...entry, videoId, tijd: new Date().toISOString() };
@@ -205,12 +213,12 @@ async function handleMessage(msg: { type: string; [key: string]: unknown }): Pro
         return evaluation;
       })();
 
-      inflightEvaluations.set(videoId, job);
+      inflightEvaluations.set(jobKey, job);
       try {
         return await job;
       } finally {
-        if (inflightEvaluations.get(videoId) === job) {
-          inflightEvaluations.delete(videoId);
+        if (inflightEvaluations.get(jobKey) === job) {
+          inflightEvaluations.delete(jobKey);
         }
       }
     }

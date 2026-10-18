@@ -1,4 +1,4 @@
-// Settings: AI service, keys and models (with "Test verbinding"), Google Fact Check API,
+// Settings: language, AI service, keys and models (with "Test connection"), Google Fact Check API,
 // display options, cache and updates; an ⓘ explains each setting. Every change is saved
 // directly. Same design as the extension's options page: grouped cards with switches and
 // stacked fields.
@@ -8,14 +8,17 @@ import {
   KEY_URLS,
   keySteps,
   MODEL_SUGGESTIONS,
-  SETTINGS_TIPS,
   testClaudeConnection,
   testFactCheckConnection,
   testGeminiConnection,
   tooltips,
+  UI_LANGUAGE_NAMES,
+  UI_LANGUAGES,
+  type Messages,
   type ProviderId,
   type ReleaseAsset,
   type TipKey,
+  type UiLang,
   type WwjdSettings,
 } from '@wwjd/core';
 import type { App, Screen } from '../app';
@@ -50,13 +53,13 @@ function debounce<A extends unknown[]>(fn: (...a: A) => void, ms: number): (...a
 }
 
 /** ⓘ that shows the explanation `key` from the tips (tap to open, tap elsewhere to close). */
-function tipButton(key: TipKey, topic: string): HTMLButtonElement {
+function tipButton(t: Messages, key: TipKey, topic: string): HTMLButtonElement {
   const button = h('button', {
     class: 'tip',
     html: ICONS.info,
-    'aria-label': `Uitleg: ${topic}`,
+    'aria-label': `${t.settings.tipLabel}: ${topic}`,
   });
-  tooltips().bind(button, () => SETTINGS_TIPS[key]);
+  tooltips().bind(button, () => t.tips[key]);
   return button;
 }
 
@@ -105,21 +108,42 @@ const switchRow = (
   );
 
 export function settingsScreen(app: App): Screen {
-  const el = h('div', { class: 'screen settings' }, h('p', { class: 'hint loading' }, 'Laden…'));
+  const el = h(
+    'div',
+    { class: 'screen settings' },
+    h('p', { class: 'hint loading' }, app.t.settings.loading),
+  );
   void build(app, el);
   return {
-    title: 'Instellingen',
+    title: app.t.settings.title,
     el,
     dispose: () => tooltips().hide(),
   };
 }
 
 async function build(app: App, el: HTMLElement): Promise<void> {
+  const t = app.t;
+  const T = t.settings;
   let s: WwjdSettings = await app.settings.get();
   const keys = await app.keys.get();
   const save = async (patch: Partial<WwjdSettings>) => {
     s = await app.settings.save(patch);
   };
+
+  // Language selector
+  const taalSelect = h(
+    'select',
+    {
+      onChange: async (e: Event) => {
+        const lang = (e.target as HTMLSelectElement).value as UiLang;
+        await save({ taal: lang });
+        app.setLanguage(lang);
+      },
+    },
+    ...UI_LANGUAGES.map((code) =>
+      h('option', { value: code, selected: code === s.taal }, UI_LANGUAGE_NAMES[code]),
+    ),
+  );
 
   // AI service: the chosen provider's key block.
   const blocks = Object.fromEntries(
@@ -149,12 +173,8 @@ async function build(app: App, el: HTMLElement): Promise<void> {
     ),
   );
   aiCard.append(
-    h('div', { class: 'segmented', role: 'radiogroup', 'aria-label': 'AI-dienst' }, ...segments),
-    h(
-      'p',
-      { class: 'card-intro' },
-      'De gekozen dienst extraheert uitspraken uit het transcript, controleert de feiten en toetst de video aan de 25 richtlijnen en geboden van Jezus.',
-    ),
+    h('div', { class: 'segmented', role: 'radiogroup', 'aria-label': T.aiService }, ...segments),
+    h('p', { class: 'card-intro' }, T.providerHint),
     ...PROVIDER_IDS.map((p) => blocks[p]),
   );
 
@@ -176,10 +196,10 @@ async function build(app: App, el: HTMLElement): Promise<void> {
   const count = h('span', { class: 'row-hint' }, '…');
   const updateCount = async () => {
     const n = (await app.cache.recent()).length;
-    count.textContent = n === 1 ? '1 analyse' : `${n} analyses`;
+    count.textContent = T.analysisCount(n);
   };
   const clear = async () => {
-    if (!window.confirm('Alle opgeslagen analyses wissen?')) return;
+    if (!window.confirm(T.confirmClear)) return;
     await app.cache.clear();
     await updateCount();
   };
@@ -187,49 +207,59 @@ async function build(app: App, el: HTMLElement): Promise<void> {
   const version = installedVersion();
   const versionText = h('span', {});
   el.replaceChildren(
+    group(
+      T.languageHeading,
+      null,
+      field(
+        T.languageLabel,
+        taalSelect,
+        T.languageHint,
+        tipButton(t, 'language', T.languageLabel),
+      ),
+    ),
     h(
       'section',
       { class: 'group' },
       h(
         'div',
         { class: 'group-head' },
-        h('h2', {}, 'AI-dienst'),
-        tipButton('provider', 'AI-dienst'),
+        h('h2', {}, T.aiService),
+        tipButton(t, 'provider', T.aiService),
       ),
       aiCard,
     ),
     fcSection,
     group(
-      'Weergave',
+      T.displayHeading,
       null,
       switchRow(
-        'Onderbouwing standaard inklappen',
-        'Toon eerst alleen de eindscore (0–10) en de korte conclusie.',
+        T.collapsedLabel,
+        T.collapsedHint,
         collapsedSwitch,
-        tipButton('collapsed', 'Onderbouwing standaard inklappen'),
+        tipButton(t, 'collapsed', T.collapsedLabel),
       ),
     ),
     group(
-      'Opgeslagen analyses',
+      T.savedAnalyses,
       null,
       h(
         'div',
         { class: 'row' },
-        h('span', { class: 'row-text' }, titleLine('Cache', tipButton('cache', 'Cache')), count),
-        h('button', { class: 'btn danger', onClick: () => void clear() }, 'Wissen'),
+        h(
+          'span',
+          { class: 'row-text' },
+          titleLine(T.cacheHeading, tipButton(t, 'cache', T.cacheHeading)),
+          count,
+        ),
+        h('button', { class: 'btn danger', onClick: () => void clear() }, T.clear),
       ),
     ),
-    updateGroup(version),
-    h(
-      'footer',
-      { class: 'foot' },
-      versionText,
-      h('span', {}, 'Instellingen worden direct opgeslagen.'),
-    ),
+    updateGroup(app, version),
+    h('footer', { class: 'foot' }, versionText, h('span', {}, T.autoSaved)),
   );
   updateBlocks();
   void updateCount();
-  void version.then((v) => v && (versionText.textContent = `What Would Jezus Do ${v}`));
+  void version.then((v) => v && (versionText.textContent = `WWJD ${v}`));
 }
 
 function factcheckGroup(
@@ -238,13 +268,15 @@ function factcheckGroup(
   current: () => WwjdSettings,
   save: (patch: Partial<WwjdSettings>) => Promise<void>,
 ): HTMLElement {
+  const t = app.t;
+  const T = t.settings;
   const keyInput = h('input', {
     type: 'password',
     autocomplete: 'off',
     spellcheck: 'false',
     placeholder: 'AIza…',
     value: initialKey,
-    'aria-label': 'API-sleutel Fact Check',
+    'aria-label': T.factcheckKeyLabel,
   });
   keyInput.addEventListener(
     'input',
@@ -257,10 +289,10 @@ function factcheckGroup(
       onClick: () => {
         const show = keyInput.type === 'password';
         keyInput.type = show ? 'text' : 'password';
-        toggle.textContent = show ? 'Verberg' : 'Toon';
+        toggle.textContent = show ? T.hide : T.show;
       },
     },
-    'Toon',
+    T.show,
   );
 
   const result = h('span', { class: 'test-result', 'aria-live': 'polite' });
@@ -272,38 +304,38 @@ function factcheckGroup(
         const apiKey = keyInput.value.trim();
         if (!apiKey) {
           result.className = 'test-result bad';
-          result.textContent = 'Vul eerst een API-sleutel in.';
+          result.textContent = T.fillKeyFirst;
           return;
         }
         result.className = 'test-result';
-        result.textContent = 'Bezig…';
+        result.textContent = T.busy;
         try {
           await app.keys.set('factcheck', apiKey);
           await testFactCheckConnection(apiKey, { fetch: nativeFetch, timeoutMs: 15_000 });
           result.className = 'test-result ok';
-          result.textContent = 'Verbinding werkt';
+          result.textContent = T.testOkShort;
         } catch (e) {
           result.className = 'test-result bad';
           result.textContent = e instanceof Error ? e.message : String(e);
         }
       },
     },
-    'Test verbinding',
+    T.testConnection,
   );
 
   const keyField = field(
-    'API-sleutel Fact Check',
+    T.factcheckKeyLabel,
     h('span', { class: 'input-group' }, keyInput, toggle),
     h(
       'span',
       {},
-      'Maak een gratis sleutel aan op ',
+      T.factcheckKeyHintDevice[0],
       h('a', { href: KEY_URLS.factcheck }, 'console.cloud.google.com'),
-      '. De sleutel staat versleuteld op dit toestel.',
+      T.factcheckKeyHintDevice[1],
     ),
-    tipButton('factcheckKey', 'API-sleutel Fact Check'),
+    tipButton(t, 'factcheckKey', T.factcheckKeyLabel),
   );
-  const steps = keySteps('factcheck');
+  const steps = keySteps('factcheck', t);
   const actionsRow = h('div', { class: 'actions' }, testBtn, result);
 
   const updateDim = () => {
@@ -329,20 +361,21 @@ function factcheckGroup(
   updateDim();
 
   return group(
-    'Feitencontrole',
-    tipButton('factcheck', 'Feitencontrole'),
+    T.factcheckHeading,
+    tipButton(t, 'factcheck', T.factcheckHeading),
     switchRow(
-      'Google Fact Check Tools API gebruiken',
-      'Doorzoekt eerst razendsnel bestaande officiële factchecks van erkende organisaties.',
+      T.factcheckToggle,
+      T.factcheckHint,
       fcSwitch,
-      tipButton('factcheck', 'Google Fact Check Tools API'),
+      tipButton(t, 'factcheck', T.factcheckToggle),
     ),
     h('div', { class: 'provider' }, keyField, steps, actionsRow),
   );
 }
 
-function updateGroup(version: Promise<string | null>): HTMLElement {
-  const title = h('span', { class: 'row-title' }, 'Geïnstalleerde versie: …');
+function updateGroup(app: App, version: Promise<string | null>): HTMLElement {
+  const U = app.t.update;
+  const title = h('span', { class: 'row-title' }, U.installed('…'));
   const status = h('span', { class: 'row-hint update-status', 'aria-live': 'polite' });
   const panel = h('div', { class: 'update-panel', hidden: true });
   let current: string | null = null;
@@ -360,36 +393,35 @@ function updateGroup(version: Promise<string | null>): HTMLElement {
         onClick: async () => {
           install.disabled = true;
           progress.className = 'row-hint';
-          progress.textContent = 'Downloaden…';
+          progress.textContent = U.downloading;
           try {
-            await downloadAndInstall(asset, (p) => (progress.textContent = `Downloaden… ${p}%`));
-            progress.textContent = 'Installatie wordt geopend…';
+            await downloadAndInstall(
+              asset,
+              (p) => (progress.textContent = `${U.downloading} ${p}%`),
+            );
+            progress.textContent = U.opening;
           } catch (e) {
             progress.className = 'row-hint bad';
             progress.textContent =
               e instanceof UpdateError && e.code === 'checksum'
-                ? 'Het gedownloade bestand klopt niet (SHA-256). Probeer het opnieuw.'
-                : `Downloaden mislukt: ${e instanceof Error ? e.message : String(e)}`;
+                ? U.checksumFailed
+                : U.downloadFailed(e instanceof Error ? e.message : String(e));
           }
           install.disabled = false;
         },
       },
-      'Downloaden en installeren',
+      U.downloadInstall,
     );
     panel.replaceChildren(
       h(
         'p',
         { class: 'update-head' },
-        h('b', {}, `Versie ${asset.version} is beschikbaar.`),
-        h('a', { href: page }, 'Wat is er nieuw?'),
+        h('b', {}, U.available(asset.version)),
+        h('a', { href: page }, U.whatsNew),
       ),
       install,
       progress,
-      h(
-        'span',
-        { class: 'row-hint' },
-        'De eerste keer vraagt Android om installeren via What Would Jezus Do toe te staan; tik daarna zo nodig nog een keer op deze knop. Je sleutels, instellingen en analyses blijven bewaard.',
-      ),
+      h('span', { class: 'row-hint' }, U.installHint),
     );
     panel.hidden = false;
   };
@@ -403,37 +435,32 @@ function updateGroup(version: Promise<string | null>): HTMLElement {
         if (!current) return;
         check.disabled = true;
         panel.hidden = true;
-        setStatus('Controleren…', 'checking');
+        setStatus(U.checking, 'checking');
         try {
           const r = await checkAppUpdate(current);
           if (r.status === 'available') {
             setStatus('', 'available');
             showAvailable(r.asset, r.page);
           } else {
-            setStatus(
-              r.status === 'current'
-                ? 'Je hebt de nieuwste versie.'
-                : 'Nog geen versie gevonden op GitHub.',
-              r.status,
-            );
+            setStatus(r.status === 'current' ? U.upToDate : U.none, r.status);
           }
         } catch (e) {
-          setStatus(`Controleren mislukt: ${e instanceof Error ? e.message : String(e)}`, 'error');
+          setStatus(U.failed(e instanceof Error ? e.message : String(e)), 'error');
         }
         check.disabled = false;
       },
     },
-    'Controleren op updates',
+    U.check,
   );
   void version.then((v) => {
     current = v;
-    title.textContent = `Geïnstalleerde versie: ${v ?? '–'}`;
+    title.textContent = U.installed(v ?? '–');
     check.disabled = !v;
   });
 
   return group(
-    'Updates',
-    tipButton('updates', 'Updates'),
+    U.heading,
+    tipButton(app.t, 'updates', U.heading),
     h('div', { class: 'field' }, title, status),
     h('div', { class: 'actions' }, check),
     panel,
@@ -448,13 +475,15 @@ function providerBlock(
   save: (patch: Partial<WwjdSettings>) => Promise<void>,
 ): HTMLElement {
   const info = PROVIDER_INFO[p];
+  const t = app.t;
+  const T = t.settings;
   const keyInput = h('input', {
     type: 'password',
     autocomplete: 'off',
     spellcheck: 'false',
     placeholder: info.placeholder,
     value: key,
-    'aria-label': `API-sleutel ${info.name}`,
+    'aria-label': T.apiKeyOf(info.name),
   });
   keyInput.addEventListener(
     'input',
@@ -467,10 +496,10 @@ function providerBlock(
       onClick: () => {
         const show = keyInput.type === 'password';
         keyInput.type = show ? 'text' : 'password';
-        toggle.textContent = show ? 'Verberg' : 'Toon';
+        toggle.textContent = show ? T.hide : T.show;
       },
     },
-    'Toon',
+    T.show,
   );
 
   const listId = `models-${p}`;
@@ -478,7 +507,7 @@ function providerBlock(
     list: listId,
     spellcheck: 'false',
     value: current().models[p],
-    'aria-label': `Model ${info.name}`,
+    'aria-label': T.modelOf(info.name),
   });
   model.addEventListener(
     'input',
@@ -496,11 +525,11 @@ function providerBlock(
     const apiKey = keyInput.value.trim();
     if (!apiKey) {
       result.className = 'test-result bad';
-      result.textContent = 'Vul eerst een API-sleutel in.';
+      result.textContent = T.fillKeyFirst;
       return;
     }
     result.className = 'test-result';
-    result.textContent = 'Bezig…';
+    result.textContent = T.busy;
     try {
       await app.keys.set(p, apiKey);
       const modelName = model.value.trim() || current().models[p];
@@ -520,7 +549,7 @@ function providerBlock(
         });
       }
       result.className = 'test-result ok';
-      result.textContent = 'Verbinding werkt';
+      result.textContent = T.testOkShort;
     } catch (e) {
       result.className = 'test-result bad';
       result.textContent = e instanceof Error ? e.message : String(e);
@@ -532,24 +561,24 @@ function providerBlock(
     { class: 'provider', 'data-provider': p },
     h('div', { class: 'provider-head' }, h('h3', {}, info.name)),
     field(
-      'API-sleutel',
+      T.apiKey,
       h('span', { class: 'input-group' }, keyInput, toggle),
       h(
         'span',
         {},
-        'Maak een sleutel aan op ',
+        T.keyHintDevice[0],
         h('a', { href: info.url }, new URL(info.url).hostname),
-        '. De sleutel staat versleuteld op dit toestel.',
+        T.keyHintDevice[1],
       ),
-      tipButton('apiKey', `API-sleutel ${info.name}`),
+      tipButton(t, 'apiKey', T.apiKeyOf(info.name)),
     ),
-    keySteps(p),
-    field('Model', model, null, tipButton('model', `Model ${info.name}`)),
+    keySteps(p, t),
+    field(T.model, model, null, tipButton(t, 'model', T.modelOf(info.name))),
     h('datalist', { id: listId }, ...MODEL_SUGGESTIONS[p].map((m) => h('option', { value: m }))),
     h(
       'div',
       { class: 'actions' },
-      h('button', { class: 'btn', onClick: () => void test() }, 'Test verbinding'),
+      h('button', { class: 'btn', onClick: () => void test() }, T.testConnection),
       result,
     ),
   );

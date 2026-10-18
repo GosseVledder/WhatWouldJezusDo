@@ -1,10 +1,14 @@
 // What every screen gets: the stores and navigation.
+import type { Messages, UiLang } from '@wwjd/core';
 import type { EvaluationCache, KeyStore, SettingsStore } from './storage/stores';
 
 export interface App {
   settings: SettingsStore;
   keys: KeyStore;
   cache: EvaluationCache;
+  /** Interface and evaluation texts for the active language. */
+  t: Messages;
+  setLanguage(lang: UiLang): void;
   /** Navigate to a hash route ("#/", "#/v/<id>", "#/instellingen"). */
   go(hash: string): void;
   /** One screen back (header arrow and Android back); leaves the app on home. */

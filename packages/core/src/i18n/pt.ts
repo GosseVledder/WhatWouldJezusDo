@@ -1,0 +1,252 @@
+import type { Messages } from './messages';
+
+export const pt: Messages = {
+  locale: 'pt-PT',
+  languageNames: {
+    nl: 'neerlandês',
+    en: 'inglês',
+    de: 'alemão',
+    fr: 'francês',
+    es: 'espanhol',
+    it: 'italiano',
+    pt: 'português',
+  },
+
+  view: {
+    switchAria: 'Ligar ou desligar o WWJD',
+    turnOff: 'Desligar o WWJD',
+    turnOn: 'Ligar o WWJD',
+    showDetails: 'Mostrar fundamentação ▼',
+    hideDetails: 'Ocultar fundamentação ▲',
+    jesusAlignment: 'Alinhamento com Jesus',
+    section1Title: '1. Verificação de factos e Integridade (Atividade 1)',
+    coreActivity: 'Núcleo da atividade:',
+    sentimentAndAttitude: 'Sentimento e atitude:',
+    contradictionAlert: 'Autocontradição detetada (= mentir por definição):',
+    statementLabel: 'Declaração:',
+    factcheckLabel: 'Verificação:',
+    sourcesLabel: 'Fonte(s):',
+    verdicts: {
+      bevestigd: 'confirmado',
+      ontkracht: 'refutado',
+      tegenspraak: 'contradição',
+      gemengd_of_context: 'misto / contexto',
+      opinie: 'opinião',
+    },
+    section2Title: (n) =>
+      `2. Avaliação segundo os ensinamentos de Jesus (${n} pontos relevantes ponderados)`,
+    linkedToMoment: 'Ligado ao momento:',
+    fromCache: (d) => `Da cache · ${d}`,
+    justAnalyzed: 'Acabado de analisar',
+    off: 'O WWJD está desligado: não são feitas análises.',
+    analyzeVideo: 'Analisar vídeo',
+    loadingStep: 'A verificar factos e a avaliar o vídeo segundo os ensinamentos de Jesus e os Dez Mandamentos…',
+    fetchingTranscript: 'A obter a transcrição…',
+    evaluatingWith: (p) => `A verificar factos e a avaliar segundo Jesus com ${p}…`,
+    openSettings: 'Abrir definições',
+    retry: 'Tentar novamente',
+    verifiedVia: (pub, rating) => `[Verificado via ${pub} (classificação: «${rating}»)]`,
+  },
+
+  settings: {
+    title: 'Definições',
+    loading: 'A carregar…',
+    autoSaved: 'As definições são guardadas imediatamente.',
+    saved: 'Guardado',
+    languageHeading: 'Idioma',
+    languageLabel: 'Idioma (interface, análise e referências bíblicas)',
+    languageHint:
+      'Define o idioma da interface, da análise de IA e dos textos bíblicos associados.',
+    aiService: 'Serviço de IA',
+    providerHint:
+      'O serviço escolhido extrai declarações da transcrição, verifica os factos e avalia o vídeo segundo os 25 ensinamentos e mandamentos de Jesus.',
+    apiKey: 'Chave de API',
+    apiKeyOf: (p) => `Chave de API ${p}`,
+    modelOf: (p) => `Modelo ${p}`,
+    show: 'Mostrar',
+    hide: 'Ocultar',
+    keyHintBrowser: ['Crie uma chave em ', '. A chave fica apenas neste navegador.'],
+    keyHintDevice: ['Crie uma chave em ', '. A chave é guardada encriptada neste dispositivo.'],
+    keyStepsTitle: 'Como obtenho uma chave?',
+    keySteps: {
+      gemini: [
+        'Abra {site} e inicie sessão com a sua conta Google.',
+        'Aceite os termos (só da primeira vez).',
+        'Clique em «Create API key»; se for pedido, escolha um projeto ou deixe criar um.',
+        'Copie a chave (começa por AIza) e cole-a acima em Chave de API.',
+        'Clique em «Testar ligação».',
+      ],
+      claude: [
+        'Abra {site} e crie uma conta ou inicie sessão.',
+        'Compre crédito em «Billing» (pré-pago); de preferência, defina também um limite de gastos.',
+        'Escolha «Create key» nas chaves de API e dê um nome à chave.',
+        'Copie a chave (começa por sk-ant-) de imediato: só é mostrada uma vez. Cole-a acima em Chave de API.',
+        'Clique em «Testar ligação».',
+      ],
+      factcheck: [
+        'Abra {site} e inicie sessão com a sua conta Google (sem necessidade de cartão de crédito).',
+        'Escolha no topo um projeto existente ou clique em «New Project» e dê-lhe o nome p. ex. WWJD.',
+        'Abra a Fact Check Tools API na biblioteca de APIs (console.cloud.google.com/apis/library/factchecktools.googleapis.com) e clique em «Enable».',
+        'Vá a «Credentials», clique em «+ Create Credentials» → «API key», copie a chave (começa por AIza) e cole-a acima.',
+        'Clique em «Testar ligação».',
+      ],
+    },
+    keyCost: {
+      gemini:
+        'Grátis enquanto não associar faturação (billing) ao projeto Google. Conte com cerca de 10 análises por minuto e 200 por dia; a Google pode alterar isto e o seu limite aparece no AI Studio. Cada vídeo novo custa uma chamada, um vídeo já analisado nada.',
+      claude: 'Pago: cada análise é descontada do seu crédito. Sem crédito, a chave não funciona.',
+      factcheck:
+        '100% grátis (até 10 000 pesquisas por dia, sem cartão de crédito). Usado para verificar afirmações diretamente junto de organizações de fact-checking reconhecidas.',
+    },
+    keyModels: {
+      gemini:
+        'Grátis via AI Studio: os modelos Flash e Flash-Lite (gemini-flash-latest, gemini-3.8-flash, gemini-flash-lite-latest). Pagos: os modelos Pro (gemini-pro-latest); só funcionam com faturação.',
+      claude: 'Todos os modelos Claude são pagos; o Haiku é o mais barato e o Opus o mais caro.',
+      factcheck:
+        'Dica: se usar o mesmo projeto Google Cloud da chave Gemini, pode usar a mesma chave AIza após ativar a Fact Check Tools API.',
+    },
+    model: 'Modelo',
+    testConnection: 'Testar ligação',
+    busy: 'Um momento…',
+    testOk: '✓ A ligação funciona e o modelo existe.',
+    testOkFactcheck: '✓ A ligação à Google Fact Check API funciona.',
+    testOkShort: 'A ligação funciona',
+    testFailed: 'A ligação falhou.',
+    fillKeyFirst: 'Introduza primeiro uma chave de API.',
+    factcheckHeading: 'Verificação de factos (Google Fact Check API)',
+    factcheckToggle: 'Usar a Google Fact Check Tools API',
+    factcheckHint:
+      'Pesquisa rapidamente verificações de factos oficiais existentes de organizações reconhecidas em todo o mundo.',
+    factcheckKeyLabel: 'Chave de API Fact Check',
+    factcheckKeyHintBrowser: [
+      'Crie uma chave gratuita em ',
+      '. A chave fica apenas neste navegador.',
+    ],
+    factcheckKeyHintDevice: [
+      'Crie uma chave gratuita em ',
+      '. A chave é guardada encriptada neste dispositivo.',
+    ],
+    evalHeading: 'Análise e visualização',
+    displayHeading: 'Visualização',
+    activeLabel: 'Extensão ativa no YouTube',
+    activeHint: 'Desligado: o painel WWJD no YouTube está desativado.',
+    autoLabel: 'Analisar automaticamente ao abrir um vídeo',
+    autoHint: 'Desligado: clique em «Analisar vídeo» no painel.',
+    collapsedLabel: 'Recolher fundamentação por predefinição',
+    collapsedHint: 'Mostrar primeiro apenas a pontuação final (0–10) e a conclusão curta.',
+    tipLabel: 'Explicação',
+    cacheHeading: 'Cache',
+    savedAnalyses: 'Análises guardadas',
+    cacheText:
+      'Cada vídeo é analisado uma só vez por idioma; depois, a análise vem da cache.',
+    clearCache: 'Limpar cache',
+    clear: 'Apagar',
+    cacheCount: (n) => (n === 1 ? '1 análise guardada' : `${n} análises guardadas`),
+    analysisCount: (n) => (n === 1 ? '1 análise' : `${n} análises`),
+    confirmClear: 'Apagar todas as análises guardadas?',
+    advanced: 'Avançado',
+    debugHeading: 'Registo de depuração',
+    debugCheck: 'Registar por chamada o fornecedor, o modelo, o tamanho, a duração e os tokens',
+    showLog: 'Mostrar registo',
+    clearLog: 'Apagar registo',
+    logEmpty: 'Ainda não há chamadas registadas.',
+    logHead: [
+      'Hora',
+      'Vídeo',
+      'Passo',
+      'Fornecedor',
+      'Modelo',
+      'Entrada (caracteres)',
+      'Duração',
+      'Tokens entrada/saída',
+      'Erro',
+    ],
+  },
+
+  tips: {
+    language:
+      'Escolha o idioma para a interface, a análise de IA e as referências bíblicas.',
+    provider:
+      'Que IA analisa o vídeo e o avalia segundo os 25 ensinamentos de Jesus. O Gemini pode ser usado gratuitamente (com um limite diário); o Claude paga-se por análise.',
+    apiKey:
+      'Um código secreto com que o WWJD usa o serviço de IA em seu nome; os eventuais custos vão para a sua conta. A chave fica neste dispositivo e só é enviada para esse serviço.',
+    model:
+      'O modelo de IA que cria a análise. Mantenha o predefinido, a não ser que queira experimentar outro; «Testar ligação» verifica se existe. Com uma chave Gemini gratuita só funcionam os modelos Flash e Flash-Lite; o Pro exige faturação.',
+    factcheck:
+      'A Google Fact Check Tools API pesquisa rapidamente milhares de verificações de organizações reconhecidas (como Reuters, AP, PolitiFact). Se não houver verificação prévia para uma afirmação, a IA realiza uma análise histórica dos factos.',
+    factcheckKey:
+      'Uma chave de API gratuita da Google Cloud Console para chamar a Fact Check Tools API. A chave fica neste dispositivo e só é enviada à Google.',
+    actief:
+      'Ligado: o painel WWJD aparece nas páginas de vídeos do YouTube. Desligado: a extensão não faz nada no YouTube.',
+    auto: 'Ligado: cada vídeo que abre é analisado de imediato; um vídeo novo custa uma chamada à IA. Desligado: só quando clica em «Analisar vídeo».',
+    collapsed:
+      'Ligado: mostra primeiro apenas a pontuação de Jesus (0–10) e a conclusão curta; expanda a verificação completa e as referências bíblicas quando as quiser ler.',
+    updates:
+      'Procura no GitHub a versão mais recente do WWJD. Não são enviadas chaves nem outros dados.',
+    cache:
+      'Cada análise é guardada, por isso voltar a abrir o mesmo vídeo não custa nada. Limpar remove todas as análises guardadas; as suas chaves e definições mantêm-se.',
+    debug:
+      'Para resolver problemas: regista por cada chamada à IA que modelo foi usado, quanto tempo demorou e quantos tokens custou. A sua chave nunca é incluída.',
+  },
+
+  update: {
+    heading: 'Atualizações',
+    installed: (v) => `Versão instalada: ${v}`,
+    check: 'Procurar atualizações',
+    checking: 'A verificar…',
+    upToDate: 'Tem a versão mais recente.',
+    available: (v) => `A versão ${v} está disponível.`,
+    none: 'Ainda não foi encontrada nenhuma versão no GitHub.',
+    failed: (e) => `A verificação falhou: ${e}`,
+    whatsNew: 'Novidades',
+    download: (v) => `Transferir a versão ${v}`,
+    extensionSteps: [
+      'Transfira o zip com a nova versão.',
+      'Extraia-o por cima da pasta do WWJD (substitua os ficheiros).',
+      'Clique em Recarregar; esta página volta a abrir-se.',
+    ],
+    reload: 'Recarregar',
+    downloadInstall: 'Transferir e instalar',
+    downloading: 'A transferir…',
+    opening: 'A abrir a instalação…',
+    installHint:
+      'Na primeira vez, o Android pede-lhe que permita instalações a partir do WWJD; depois, se necessário, toque novamente neste botão. As suas chaves, definições e análises são mantidas.',
+    checksumFailed: 'O ficheiro transferido não corresponde (SHA-256). Tente novamente.',
+    downloadFailed: (e) => `A transferência falhou: ${e}`,
+  },
+
+  extension: {
+    actionTitle: 'WWJD – definições',
+    disabledError: 'A análise WWJD está desativada nas definições da extensão.',
+    noKeyError: (p) =>
+      `Nenhuma chave de API encontrada para ${p}. Introduza a sua chave nas definições do WWJD.`,
+    noTranscriptError: (r) => `Não foi possível obter a transcrição para este vídeo (${r}).`,
+    unknownError: 'Erro desconhecido durante a avaliação.',
+  },
+
+  app: {
+    analysisTitle: 'Análise',
+    shareAction: 'Partilhar → WWJD',
+    back: 'Voltar',
+    settings: 'Definições',
+    showPlayer: 'Mostrar o leitor do YouTube',
+    hidePlayer: 'Ocultar o leitor do YouTube',
+    pastePlaceholder: 'Cole uma ligação do YouTube',
+    linkAria: 'Ligação do YouTube ou ID do vídeo',
+    notRecognized: 'Nenhum vídeo do YouTube reconhecido nesta ligação.',
+    shareHint: ['Na aplicação do YouTube, toque em ', '.'],
+    analyzeButton: 'Analisar',
+    recent: 'Recentes',
+    noAnalyses: 'Ainda não há análises.',
+    shareNoVideo: 'Não foi encontrado nenhum vídeo do YouTube no que partilhou.',
+    cannotPlay: (c) => `O vídeo não pode ser reproduzido aqui (erro ${c}).`,
+    openInYouTube: 'Abrir no YouTube',
+    seekTitle: (t) => `Ir para ${t} no vídeo`,
+    playerOff: 'O leitor do YouTube está desligado.',
+    showPlayerAndSeek: (t) => `Mostrar o leitor e ir para ${t}`,
+    openInYouTubeAt: (t) => `Abrir na aplicação do YouTube em ${t}`,
+    openedInYouTube: (t) => `O YouTube salta para ${t}`,
+    cancel: 'Cancelar',
+    noKeyError: 'Ainda não foi definida nenhuma chave de API.',
+  },
+};

@@ -1,4 +1,25 @@
+import {
+  BIBLE_VERSIONS,
+  buildBibleUrl,
+  localizeBibleReference,
+  localizeBibleSource,
+  localizeGuideline,
+  normalizeLang,
+  SUPPORTED_LANGUAGES,
+  type SupportedLang,
+} from './translations';
 import type { JesusGuideline } from './types';
+
+export {
+  BIBLE_VERSIONS,
+  buildBibleUrl,
+  localizeBibleReference,
+  localizeBibleSource,
+  localizeGuideline,
+  normalizeLang,
+  SUPPORTED_LANGUAGES,
+  type SupportedLang,
+};
 
 export const JESUS_GUIDELINES: JesusGuideline[] = [
   // -------------------------------------------------------------
@@ -1004,14 +1025,22 @@ export const JESUS_GUIDELINES: JesusGuideline[] = [
   },
 ];
 
-export function getAllGuidelines(): JesusGuideline[] {
-  return JESUS_GUIDELINES;
+export function getAllGuidelines(lang?: string): JesusGuideline[] {
+  const normalized = normalizeLang(lang);
+  if (normalized === 'nl') return JESUS_GUIDELINES;
+  return JESUS_GUIDELINES.map((g) => localizeGuideline(g, normalized));
 }
 
-export function getGuidelineById(id: string): JesusGuideline | undefined {
-  return JESUS_GUIDELINES.find((g) => g.id === id);
+export function getGuidelineById(id: string, lang?: string): JesusGuideline | undefined {
+  const found = JESUS_GUIDELINES.find((g) => g.id === id);
+  if (!found) return undefined;
+  const normalized = normalizeLang(lang);
+  return normalized === 'nl' ? found : localizeGuideline(found, normalized);
 }
 
-export function getGuidelinesByCategory(category: JesusGuideline['category']): JesusGuideline[] {
-  return JESUS_GUIDELINES.filter((g) => g.category === category);
+export function getGuidelinesByCategory(
+  category: JesusGuideline['category'],
+  lang?: string,
+): JesusGuideline[] {
+  return getAllGuidelines(lang).filter((g) => g.category === category);
 }

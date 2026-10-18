@@ -5,11 +5,11 @@ export default defineConfig({
   srcDir: 'src',
   manifestVersion: 3,
   manifest: {
-    name: 'What Would Jezus Do (WWJD)',
+    name: 'WWJD',
     description:
       "Factcheckt YouTube-video's en toetst uitspraken en gedrag aan de Tien Geboden en de leer van Jezus.",
     permissions: ['storage', 'unlimitedStorage', 'declarativeNetRequestWithHostAccess'],
-    action: { default_title: 'What Would Jezus Do – instellingen' },
+    action: { default_title: 'WWJD – instellingen' },
     host_permissions: [
       'https://www.youtube.com/*',
       'https://api.anthropic.com/*',

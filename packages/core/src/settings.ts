@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { DEFAULT_MODELS } from './engine/config';
+import { UI_LANGUAGES } from './i18n/messages';
 
 export const wwjdSettingsSchema = z.object({
   /** Extensie: aan/uit-schakelaar */
@@ -15,8 +16,8 @@ export const wwjdSettingsSchema = z.object({
   googleFactCheckActief: z.boolean().catch(true),
   /** Automatisch analyseren bij openen van een videopagina */
   automatisch: z.boolean().catch(true),
-  /** Taal van de beoordeling en UI */
-  taal: z.string().min(2).catch('nl'),
+  /** Taal van de beoordeling, Bijbelverwijzingen en UI */
+  taal: z.enum(UI_LANGUAGES).catch('nl'),
   debugLog: z.boolean().catch(false),
   paneelIngeklapt: z.boolean().catch(false),
 });

@@ -1,5 +1,6 @@
 import {
   DEFAULT_WWJD_SETTINGS,
+  messages,
   parseVideoId,
   renderWwjdStateView,
   type WwjdEvaluation,
@@ -89,6 +90,7 @@ export default defineContentScript({
         {
           collapsed,
           enabled: settings.actief,
+          taal: settings.taal,
         },
       );
     }
@@ -134,7 +136,7 @@ export default defineContentScript({
 
       // Check cache first even if auto is off
       const cachedResp = (await browser.runtime
-        .sendMessage({ type: 'getCached', videoId })
+        .sendMessage({ type: 'getCached', videoId, taal: settings.taal })
         .catch(() => null)) as { ok: boolean; data?: WwjdEvaluation | null } | null;
 
       if (currentVideoId !== videoId) return;
@@ -155,9 +157,10 @@ export default defineContentScript({
     }
 
     async function runEvaluation(videoId: string, force: boolean) {
+      const t = messages(settings.taal);
       state = {
         kind: 'loading',
-        step: "Video factchecken en toetsen aan Jezus' richtlijnen en De Tien Geboden…",
+        step: t.view.loadingStep,
       };
       render();
 
@@ -171,11 +174,13 @@ export default defineContentScript({
         if (currentVideoId !== videoId) return;
 
         if (!response?.ok || !response.data) {
-          const msg = response?.error ?? 'Onbekende fout bij evaluatie.';
+          const msg = response?.error ?? t.extension.unknownError;
           state = {
             kind: 'error',
             message: msg,
-            showSettings: /sleutel|instellingen|toegang/i.test(msg),
+            showSettings: /sleutel|instellingen|toegang|key|settings|clé|Schlüssel|clave|chiave|chave/i.test(
+              msg,
+            ),
           };
           render();
           return;
@@ -189,7 +194,9 @@ export default defineContentScript({
           state = {
             kind: 'error',
             message: msg,
-            showSettings: /sleutel|instellingen|toegang/i.test(msg),
+            showSettings: /sleutel|instellingen|toegang|key|settings|clé|Schlüssel|clave|chiave|chave/i.test(
+              msg,
+            ),
           };
           render();
         }
@@ -232,9 +239,12 @@ export default defineContentScript({
     const stopSettings = onSettingsChanged((next) => {
       const enabledChanged = next.actief !== settings.actief;
       const collapsedChanged = next.paneelIngeklapt !== settings.paneelIngeklapt;
+      const langChanged = next.taal !== settings.taal;
       settings = next;
       if (collapsedChanged) collapsed = next.paneelIngeklapt;
-      if (enabledChanged && next.actief && currentVideoId && state.kind === 'idle') {
+      if (langChanged && currentVideoId) {
+        void mountPanel(currentVideoId);
+      } else if (enabledChanged && next.actief && currentVideoId && state.kind === 'idle') {
         void runEvaluation(currentVideoId, false);
       } else {
         render();

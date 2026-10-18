@@ -1,15 +1,35 @@
-import { JESUS_GUIDELINES } from '../guidelines/jesus';
+import { getAllGuidelines, normalizeLang } from '../guidelines/jesus';
 
-export function buildSystemPrompt(): string {
-  const guidelinesSummary = JESUS_GUIDELINES.map(
-    (g) =>
-      `[${g.id}] (#${g.number}) "${g.title}"\n` +
-      `  - Categorie: ${g.category}\n` +
-      `  - Ruimere betekenis / Jezus' verdieping: ${g.broaderContext}\n` +
-      `  - Score 0-3 criteria: ${g.evaluationCriteria.score0to3}\n` +
-      `  - Score 4-6 criteria: ${g.evaluationCriteria.score4to6}\n` +
-      `  - Score 7-10 criteria: ${g.evaluationCriteria.score7to10}`,
-  ).join('\n\n');
+export const LANGUAGES: Record<string, string> = {
+  nl: 'Nederlands (Dutch)',
+  en: 'English (Engels)',
+  de: 'Deutsch (German)',
+  fr: 'Français (French)',
+  es: 'Español (Spanish)',
+  it: 'Italiano (Italian)',
+  pt: 'Português (Portuguese)',
+};
+
+export function languageName(code: string | undefined): string {
+  const norm = normalizeLang(code);
+  return LANGUAGES[norm] ?? norm;
+}
+
+export function buildSystemPrompt(taal = 'nl'): string {
+  const norm = normalizeLang(taal);
+  const langLabel = languageName(norm);
+  const guidelines = getAllGuidelines(norm);
+  const guidelinesSummary = guidelines
+    .map(
+      (g) =>
+        `[${g.id}] (#${g.number}) "${g.title}"\n` +
+        `  - Categorie: ${g.category}\n` +
+        `  - Ruimere betekenis / Jezus' verdieping: ${g.broaderContext}\n` +
+        `  - Score 0-3 criteria: ${g.evaluationCriteria.score0to3}\n` +
+        `  - Score 4-6 criteria: ${g.evaluationCriteria.score4to6}\n` +
+        `  - Score 7-10 criteria: ${g.evaluationCriteria.score7to10}`,
+    )
+    .join('\n\n');
 
   return `Je bent een diepgaande en nauwkeurige ethische en Bijbelse analyse-engine genaamd "What Would Jezus Do" (WWJD).
 Jouw doel is om een YouTube-video objectief, feitelijk en volgens de leer van Jezus Christus te evalueren.
@@ -49,25 +69,33 @@ DATABASE MET DE 25 RICHTLIJNEN VAN JEZUS
 ${guidelinesSummary}
 
 =======================================================
+TAAL VAN DE UITVOER / OUTPUT LANGUAGE: ${langLabel} (${norm})
+=======================================================
+Schrijf ALLE tekstuele beoordelingsvelden in de JSON-uitvoer (\`verdictSummary\`, \`coreActivity\`, \`sentimentAndAttitude\`, \`contradictionsDetected\`, \`claim\`, \`historicalAnalysis\` en \`reasoning\`) volledig in het **${langLabel}** (taalcode: \`${norm}\`), ongeacht de gesproken taal van de video.
+Let op:
+- Het veld \`verdict\` MOET exact een van deze vaste schema-waarden zijn: \`bevestigd\`, \`ontkracht\`, \`tegenspraak\`, \`gemengd_of_context\`, \`opinie\`.
+- Het veld \`guidelineId\` MOET het exacte ID uit de lijst hierboven zijn (bijv. \`cmd-09-truthfulness\`).
+
+=======================================================
 VEREIST JSON-UITVOERFORMAAT
 =======================================================
 Geef UITSLUITEND een geldig JSON-object terug dat exact voldoet aan deze structuur (zonder markdown codeblokken):
 {
-  "verdictSummary": "Korte samenvattende eindconclusie in het Nederlands: wat zou Jezus van deze video vinden?",
+  "verdictSummary": "Korte samenvattende eindconclusie in ${langLabel}: wat zou Jezus van deze video vinden?",
   "factcheckDossier": {
-    "coreActivity": "De kern van de activiteit en daadwerkelijke handeling in of rondom de video",
-    "sentimentAndAttitude": "Boodschap, toon en de houding ten opzichte van de naaste of tegenstander",
+    "coreActivity": "De kern van de activiteit en daadwerkelijke handeling in of rondom de video (in ${langLabel})",
+    "sentimentAndAttitude": "Boodschap, toon en de houding ten opzichte van de naaste of tegenstander (in ${langLabel})",
     "contradictionsDetected": [
-      "Expliciete beschrijving van gedetecteerde zelf-tegenspraak tussen woorden en daden (of lege array [] indien geen)"
+      "Expliciete beschrijving van gedetecteerde zelf-tegenspraak tussen woorden en daden in ${langLabel} (of lege array [] indien geen)"
     ],
     "statements": [
       {
         "quote": "Letterlijk citaat of kernuitspraak uit de video",
         "startSeconds": 65,
         "timestampLabel": "01:05",
-        "claim": "Korte feitelijke zoekclaim of stelling voor factchecking",
+        "claim": "Korte feitelijke zoekclaim of stelling voor factchecking (in ${langLabel})",
         "verdict": "bevestigd | ontkracht | tegenspraak | gemengd_of_context | opinie",
-        "historicalAnalysis": "Korte historische en feitelijke analyse die de claim bevestigt of ontkracht"
+        "historicalAnalysis": "Korte historische en feitelijke analyse die de claim bevestigt of ontkracht (in ${langLabel})"
       }
     ]
   },
@@ -75,7 +103,7 @@ Geef UITSLUITEND een geldig JSON-object terug dat exact voldoet aan deze structu
     {
       "guidelineId": "Exact ID uit de lijst hierboven, bijv. cmd-09-truthfulness",
       "score": 2.0,
-      "reasoning": "Grondige onderbouwing die de video-uitspraak, de factcheck en Jezus' onderwijs verbindt",
+      "reasoning": "Grondige onderbouwing in ${langLabel} die de video-uitspraak, de factcheck en Jezus' onderwijs verbindt",
       "relatedQuotes": [
         {
           "quote": "Relevant citaat uit de video",
@@ -87,20 +115,23 @@ Geef UITSLUITEND een geldig JSON-object terug dat exact voldoet aan deze structu
   ]
 }
 
-Antwoord strikt in het gevraagde JSON-formaat. Wees objectief, rechtvaardig en feitelijk.`;
+Antwoord strikt in het gevraagde JSON-formaat en schrijf de analyse in ${langLabel}. Wees objectief, rechtvaardig en feitelijk.`;
 }
 
 export function buildUserPrompt(
   transcriptText: string,
   videoMeta?: { titel?: string; kanaal?: string },
+  taal = 'nl',
 ): string {
+  const norm = normalizeLang(taal);
+  const langLabel = languageName(norm);
   const metaHeader = videoMeta
     ? `Video-titel: "${videoMeta.titel ?? ''}" | Kanaal: "${videoMeta.kanaal ?? ''}"\n\n`
     : '';
 
-  return `${metaHeader}Analyseer de onderstaande video-inhoud conform de twee activiteiten:
+  return `${metaHeader}Analyseer de onderstaande video-inhoud conform de twee activiteiten (schrijf de volledige analyse in ${langLabel} [${norm}]):
 1. Factcheck de gemaakte uitspraken en claims historisch/feitelijk en spoor eventuele leugens en zelf-tegenspraak op.
-2. Leg de gefactcheckte bevindingen naast de relevante richtlijnen van Jezus en geef per relevant punt een score (0-10) en onderbouwing.
+2. Leg de gefactcheckte bevindingen naast de relevante richtlijnen van Jezus en geef per relevant punt een score (0-10) en onderbouwing in ${langLabel}.
 
 TRANSCRIPT VAN DE VIDEO:
 ${transcriptText}`;

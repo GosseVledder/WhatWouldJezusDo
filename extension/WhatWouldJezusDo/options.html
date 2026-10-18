@@ -4,10 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <title>What Would Jezus Do – instellingen</title>
+    <title>WWJD – instellingen</title>
     <meta name="manifest.open_in_tab" content="true">
     <link rel="icon" href="/icon/32.png">
-    <script type="module" crossorigin src="/chunks/options-DhLSRMop.js"></script>
+    <script type="module" crossorigin src="/chunks/options-CTo6Ing9.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/options-CrdWZGB8.css">
   </head>
   <body>
@@ -15,18 +15,32 @@
       <div class="topbar-inner">
         <img class="brand" src="/icon/128.png" alt="" width="36" height="36">
         <div class="brand-text">
-          <h1>What Would Jezus Do</h1>
-          <p>Instellingen</p>
+          <h1>WWJD</h1>
+          <p data-i18n="title">Instellingen</p>
         </div>
         <span id="saved" class="saved" role="status" aria-live="polite"></span>
       </div>
     </header>
 
     <main>
+      <section class="group" aria-labelledby="h-language">
+        <h2 id="h-language" data-i18n="languageHeading">Taal</h2>
+        <div class="card">
+          <div class="row">
+            <div class="row-text">
+              <label class="row-title" for="taal" data-i18n="languageLabel" data-tip="language">Taal (interface, analyse &amp; Bijbelverwijzingen)</label>
+              <span class="row-hint" data-i18n="languageHint">Bepaalt de taal van de interface, de AI-analyse én de Bijbelbronnen waarnaar wordt
+                verwezen.</span>
+            </div>
+            <div class="row-control"><select id="taal"></select></div>
+          </div>
+        </div>
+      </section>
+
       <section class="group" aria-labelledby="h-ai">
-        <h2 id="h-ai" data-tip="provider">AI-dienst</h2>
+        <h2 id="h-ai" data-i18n="aiService" data-tip="provider">AI-dienst</h2>
         <div class="card" id="ai-card">
-          <div class="segmented" role="radiogroup" aria-label="AI-dienst">
+          <div class="segmented" role="radiogroup" data-i18n-aria="aiService" aria-label="AI-dienst">
             <label class="segment">
               <input type="radio" name="provider" value="gemini">
               <span><b>Gemini</b><small>Google</small></span>
@@ -36,7 +50,7 @@
               <span><b>Claude</b><small>Anthropic</small></span>
             </label>
           </div>
-          <p class="card-intro">
+          <p class="card-intro" data-i18n="providerHint">
             De gekozen dienst extraheert uitspraken uit het transcript, controleert de feiten en
             toetst de video aan de 25 richtlijnen en geboden van Jezus.
           </p>
@@ -47,10 +61,9 @@
             </div>
             <div class="row">
               <div class="row-text">
-                <label class="row-title" for="key-gemini" data-tip="apiKey">API-sleutel</label>
+                <label class="row-title" for="key-gemini" data-i18n="apiKey" data-tip="apiKey">API-sleutel</label>
                 <p class="row-hint">
-                  Maak een sleutel aan op
-                  <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">aistudio.google.com</a>. De sleutel blijft alleen in deze browser.
+                  <span data-i18n="keyHintBrowser.0">Maak een sleutel aan op </span><a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">aistudio.google.com</a><span data-i18n="keyHintBrowser.1">. De sleutel blijft alleen in deze browser.</span>
                 </p>
               </div>
               <div class="row-control wide">
@@ -62,7 +75,7 @@
             </div>
             <div class="row">
               <div class="row-text">
-                <label class="row-title" for="model-gemini" data-tip="model">Model</label>
+                <label class="row-title" for="model-gemini" data-i18n="model" data-tip="model">Model</label>
               </div>
               <div class="row-control wide">
                 <input id="model-gemini" list="models-gemini" spellcheck="false">
@@ -74,7 +87,9 @@
                 <span class="test-result" id="test-gemini" aria-live="polite"></span>
               </div>
               <div class="row-control">
-                <button type="button" class="btn" data-test="gemini">Test verbinding</button>
+                <button type="button" class="btn" data-test="gemini" data-i18n="testConnection">
+                  Test verbinding
+                </button>
               </div>
             </div>
           </div>
@@ -83,10 +98,9 @@
             <div class="provider-head"><h3>Claude</h3></div>
             <div class="row">
               <div class="row-text">
-                <label class="row-title" for="key-claude" data-tip="apiKey">API-sleutel</label>
+                <label class="row-title" for="key-claude" data-i18n="apiKey" data-tip="apiKey">API-sleutel</label>
                 <p class="row-hint">
-                  Maak een sleutel aan op
-                  <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noreferrer">console.anthropic.com</a>. De sleutel blijft alleen in deze browser.
+                  <span data-i18n="keyHintBrowser.0">Maak een sleutel aan op </span><a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noreferrer">console.anthropic.com</a><span data-i18n="keyHintBrowser.1">. De sleutel blijft alleen in deze browser.</span>
                 </p>
               </div>
               <div class="row-control wide">
@@ -98,7 +112,7 @@
             </div>
             <div class="row">
               <div class="row-text">
-                <label class="row-title" for="model-claude" data-tip="model">Model</label>
+                <label class="row-title" for="model-claude" data-i18n="model" data-tip="model">Model</label>
               </div>
               <div class="row-control wide">
                 <input id="model-claude" list="models-claude" spellcheck="false">
@@ -110,7 +124,9 @@
                 <span class="test-result" id="test-claude" aria-live="polite"></span>
               </div>
               <div class="row-control">
-                <button type="button" class="btn" data-test="claude">Test verbinding</button>
+                <button type="button" class="btn" data-test="claude" data-i18n="testConnection">
+                  Test verbinding
+                </button>
               </div>
             </div>
           </div>
@@ -118,12 +134,14 @@
       </section>
 
       <section class="group" aria-labelledby="h-factcheck">
-        <h2 id="h-factcheck" data-tip="factcheck">Feitencontrole (Google Fact Check API)</h2>
+        <h2 id="h-factcheck" data-i18n="factcheckHeading" data-tip="factcheck">
+          Feitencontrole (Google Fact Check API)
+        </h2>
         <div class="card">
           <label class="row">
             <span class="row-text">
-              <span class="row-title" data-tip="factcheck">Google Fact Check Tools API gebruiken</span>
-              <span class="row-hint">Doorzoekt razendsnel bestaande officiële factchecks van erkende organisaties
+              <span class="row-title" data-i18n="factcheckToggle" data-tip="factcheck">Google Fact Check Tools API gebruiken</span>
+              <span class="row-hint" data-i18n="factcheckHint">Doorzoekt razendsnel bestaande officiële factchecks van erkende organisaties
                 wereldwijd.</span>
             </span>
             <input type="checkbox" class="switch" role="switch" id="googleFactCheckActief">
@@ -131,10 +149,9 @@
           <div id="factcheck-group" class="dim-group">
             <div class="row" id="factcheck-key-row">
               <div class="row-text">
-                <label class="row-title" for="key-factcheck" data-tip="factcheckKey">API-sleutel Fact Check</label>
+                <label class="row-title" for="key-factcheck" data-i18n="factcheckKeyLabel" data-tip="factcheckKey">API-sleutel Fact Check</label>
                 <p class="row-hint">
-                  Maak een gratis sleutel aan op
-                  <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noreferrer">console.cloud.google.com</a>. De sleutel blijft alleen in deze browser.
+                  <span data-i18n="factcheckKeyHintBrowser.0">Maak een gratis sleutel aan op </span><a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noreferrer">console.cloud.google.com</a><span data-i18n="factcheckKeyHintBrowser.1">. De sleutel blijft alleen in deze browser.</span>
                 </p>
               </div>
               <div class="row-control wide">
@@ -149,7 +166,9 @@
                 <span class="test-result" id="test-factcheck" aria-live="polite"></span>
               </div>
               <div class="row-control">
-                <button type="button" class="btn" data-test="factcheck">Test verbinding</button>
+                <button type="button" class="btn" data-test="factcheck" data-i18n="testConnection">
+                  Test verbinding
+                </button>
               </div>
             </div>
           </div>
@@ -157,26 +176,26 @@
       </section>
 
       <section class="group" aria-labelledby="h-eval">
-        <h2 id="h-eval">Analyse &amp; weergave</h2>
+        <h2 id="h-eval" data-i18n="evalHeading">Analyse &amp; weergave</h2>
         <div class="card">
           <label class="row">
             <span class="row-text">
-              <span class="row-title" data-tip="actief">Extensie actief op YouTube</span>
-              <span class="row-hint">Uit: het What Would Jezus Do-paneel op YouTube is uitgeschakeld.</span>
+              <span class="row-title" data-i18n="activeLabel" data-tip="actief">Extensie actief op YouTube</span>
+              <span class="row-hint" data-i18n="activeHint">Uit: het WWJD-paneel op YouTube is uitgeschakeld.</span>
             </span>
             <input type="checkbox" class="switch" role="switch" id="actief">
           </label>
           <label class="row">
             <span class="row-text">
-              <span class="row-title" data-tip="auto">Automatisch analyseren bij het openen van een video</span>
-              <span class="row-hint">Uit: klik op "Analyseer video" in het paneel.</span>
+              <span class="row-title" data-i18n="autoLabel" data-tip="auto">Automatisch analyseren bij het openen van een video</span>
+              <span class="row-hint" data-i18n="autoHint">Uit: klik op "Analyseer video" in het paneel.</span>
             </span>
             <input type="checkbox" class="switch" role="switch" id="automatisch">
           </label>
           <label class="row">
             <span class="row-text">
-              <span class="row-title" data-tip="collapsed">Onderbouwing standaard inklappen</span>
-              <span class="row-hint">Toon eerst alleen de eindscore (0–10) en de korte conclusie.</span>
+              <span class="row-title" data-i18n="collapsedLabel" data-tip="collapsed">Onderbouwing standaard inklappen</span>
+              <span class="row-hint" data-i18n="collapsedHint">Toon eerst alleen de eindscore (0–10) en de korte conclusie.</span>
             </span>
             <input type="checkbox" class="switch" role="switch" id="paneelIngeklapt">
           </label>
@@ -184,7 +203,7 @@
       </section>
 
       <section class="group" aria-labelledby="h-update">
-        <h2 id="h-update" data-tip="updates">Updates</h2>
+        <h2 id="h-update" data-i18n="update:heading" data-tip="updates">Updates</h2>
         <div class="card">
           <div class="row">
             <div class="row-text">
@@ -192,25 +211,29 @@
               <span class="row-hint" id="update-status" aria-live="polite"></span>
             </div>
             <div class="row-control">
-              <button type="button" class="btn" id="check-update">Controleren op updates</button>
+              <button type="button" class="btn" id="check-update" data-i18n="update:check">
+                Controleren op updates
+              </button>
             </div>
           </div>
           <div class="update-panel" id="update-panel" hidden>
             <p class="update-head">
               <b id="update-available"></b>
-              <a id="update-notes" target="_blank" rel="noreferrer">Wat is er nieuw?</a>
+              <a id="update-notes" target="_blank" rel="noreferrer" data-i18n="update:whatsNew">Wat is er nieuw?</a>
             </p>
             <ol class="steps">
               <li>
-                <span>Download de zip met de nieuwe versie.</span>
+                <span data-i18n="update:extensionSteps.0">Download de zip met de nieuwe versie.</span>
                 <a class="btn primary" id="update-download" target="_blank" rel="noreferrer"></a>
               </li>
               <li>
-                <span>Pak hem uit over de map van What Would Jezus Do heen (bestanden vervangen).</span>
+                <span data-i18n="update:extensionSteps.1">Pak hem uit over de map van WWJD heen (bestanden vervangen).</span>
               </li>
               <li>
-                <span>Klik op Herladen; deze pagina opent daarna opnieuw.</span>
-                <button type="button" class="btn" id="update-reload">Herladen</button>
+                <span data-i18n="update:extensionSteps.2">Klik op Herladen; deze pagina opent daarna opnieuw.</span>
+                <button type="button" class="btn" id="update-reload" data-i18n="update:reload">
+                  Herladen
+                </button>
               </li>
             </ol>
           </div>
@@ -221,32 +244,39 @@
         <details class="card advanced">
           <summary>
             <span class="row-text">
-              <span class="row-title">Geavanceerd</span>
-              <span class="row-hint">Cache · Debuglog</span>
+              <span class="row-title" data-i18n="advanced">Geavanceerd</span>
+              <span class="row-hint"><span data-i18n="cacheHeading">Cache</span> ·
+                <span data-i18n="debugHeading">Debuglog</span></span>
             </span>
           </summary>
           <div class="row">
             <div class="row-text">
-              <span class="row-title" data-tip="cache">Cache</span>
-              <span class="row-hint">Elke video wordt één keer geanalyseerd; daarna komt de analyse uit de cache. Met de
-                verversknop in het paneel maak je een nieuwe.</span>
+              <span class="row-title" data-i18n="cacheHeading" data-tip="cache">Cache</span>
+              <span class="row-hint" data-i18n="cacheText">Elke video wordt één keer per taal geanalyseerd; daarna komt de analyse uit de
+                cache.</span>
               <span class="row-hint strong" id="cache-count">…</span>
             </div>
             <div class="row-control">
-              <button type="button" class="btn danger" id="clear-cache">Cache wissen</button>
+              <button type="button" class="btn danger" id="clear-cache" data-i18n="clearCache">
+                Cache wissen
+              </button>
             </div>
           </div>
           <label class="row">
             <span class="row-text">
-              <span class="row-title" data-tip="debug">Debuglog</span>
-              <span class="row-hint">Per aanroep provider, model, invoerlengte, duur en tokens bijhouden</span>
+              <span class="row-title" data-i18n="debugHeading" data-tip="debug">Debuglog</span>
+              <span class="row-hint" data-i18n="debugCheck">Per aanroep provider, model, invoerlengte, duur en tokens bijhouden</span>
             </span>
             <input type="checkbox" class="switch" role="switch" id="debugLog">
           </label>
           <div class="row log-row">
             <div class="row-control">
-              <button type="button" class="btn" id="show-log">Log tonen</button>
-              <button type="button" class="btn quiet" id="clear-log">Log wissen</button>
+              <button type="button" class="btn" id="show-log" data-i18n="showLog">
+                Log tonen
+              </button>
+              <button type="button" class="btn quiet" id="clear-log" data-i18n="clearLog">
+                Log wissen
+              </button>
             </div>
             <div id="log" class="log" hidden></div>
           </div>
@@ -255,7 +285,7 @@
 
       <footer class="foot">
         <span id="version"></span>
-        <span>Instellingen worden direct opgeslagen.</span>
+        <span data-i18n="autoSaved">Instellingen worden direct opgeslagen.</span>
       </footer>
     </main>
   </body>
