@@ -23,6 +23,7 @@ export default defineContentScript({
     let hostEl: HTMLElement | null = null;
     let state: WwjdViewState = { kind: 'idle' };
     let collapsed = settings.paneelIngeklapt;
+    let panelCollapsed = !settings.actief;
 
     function currentTheme(): 'dark' | 'light' {
       return document.documentElement.hasAttribute('dark') ? 'dark' : 'light';
@@ -77,11 +78,23 @@ export default defineContentScript({
             collapsed = nextCollapsed;
             void saveSettings({ paneelIngeklapt: nextCollapsed });
           },
+          onTogglePanelCollapse: (nextPanelCollapsed) => {
+            panelCollapsed = nextPanelCollapsed;
+            if (nextPanelCollapsed) {
+              collapsed = true;
+            }
+          },
           onToggleEnabled: (enabled) => {
             settings = { ...settings, actief: enabled };
+            if (enabled) {
+              panelCollapsed = false;
+            } else {
+              panelCollapsed = true;
+              collapsed = true;
+            }
             void saveSettings({ actief: enabled });
             if (enabled && state.kind === 'idle') {
-              void runEvaluation(videoId, false);
+              void startForVideo(videoId);
             } else {
               render();
             }
@@ -89,6 +102,7 @@ export default defineContentScript({
         },
         {
           collapsed,
+          panelCollapsed,
           enabled: settings.actief,
           taal: settings.taal,
         },
@@ -133,7 +147,17 @@ export default defineContentScript({
       placeHost();
 
       collapsed = settings.paneelIngeklapt;
+      if (!settings.actief) {
+        panelCollapsed = true;
+        state = { kind: 'idle' };
+        render();
+        return;
+      }
 
+      await startForVideo(videoId);
+    }
+
+    async function startForVideo(videoId: string) {
       // Check cache first even if auto is off
       const cachedResp = (await browser.runtime
         .sendMessage({ type: 'getCached', videoId, taal: settings.taal })
@@ -242,10 +266,14 @@ export default defineContentScript({
       const langChanged = next.taal !== settings.taal;
       settings = next;
       if (collapsedChanged) collapsed = next.paneelIngeklapt;
+      if (enabledChanged) {
+        panelCollapsed = !next.actief;
+        if (!next.actief) collapsed = true;
+      }
       if (langChanged && currentVideoId) {
         void mountPanel(currentVideoId);
       } else if (enabledChanged && next.actief && currentVideoId && state.kind === 'idle') {
-        void runEvaluation(currentVideoId, false);
+        void startForVideo(currentVideoId);
       } else {
         render();
       }

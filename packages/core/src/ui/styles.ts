@@ -53,6 +53,35 @@ a:hover { text-decoration: underline; }
   gap: 12px;
 }
 
+.wwjd-card.collapsed {
+  padding: 12px;
+  gap: 0;
+}
+
+.wwjd-card.collapsed .off,
+.wwjd-card.collapsed .wwjd-score-banner,
+.wwjd-card.collapsed #wwjd-details-body,
+.wwjd-card.collapsed .toggle-details-btn,
+.wwjd-card.collapsed .loading,
+.wwjd-card.collapsed .actions,
+.wwjd-card.collapsed .error-msg {
+  display: none !important;
+}
+
+.wwjd-card.collapsed .peek {
+  display: block;
+}
+
+.peek {
+  display: none;
+  margin-top: 6px;
+  color: var(--yt-text-2);
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .wwjd-header {
   display: flex;
   align-items: center;

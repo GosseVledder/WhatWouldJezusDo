@@ -16,6 +16,8 @@ export const de: Messages = {
     switchAria: 'WWJD ein oder aus',
     turnOff: 'WWJD ausschalten',
     turnOn: 'WWJD einschalten',
+    expand: 'Ausklappen',
+    collapse: 'Einklappen',
     showDetails: 'Begründung anzeigen ▼',
     hideDetails: 'Begründung einklappen ▲',
     jesusAlignment: 'Jesus-Übereinstimmung',

@@ -16,6 +16,8 @@ export const nl: Messages = {
     switchAria: 'WWJD aan of uit',
     turnOff: 'WWJD uitzetten',
     turnOn: 'WWJD aanzetten',
+    expand: 'Uitklappen',
+    collapse: 'Inklappen',
     showDetails: 'Toon onderbouwing ▼',
     hideDetails: 'Onderbouwing inklappen ▲',
     jesusAlignment: 'Jezus-overeenkomst',

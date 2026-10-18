@@ -2,7 +2,7 @@
   "name": "@wwjd/mobile",
   "description": "Android and web app: Share a YouTube video to factcheck and evaluate against Jesus' guidelines",
   "private": true,
-  "version": "0.2.5",
+  "version": "0.2.6",
   "license": "MIT",
   "type": "module",
   "scripts": {

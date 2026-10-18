@@ -16,6 +16,8 @@ export const pt: Messages = {
     switchAria: 'Ligar ou desligar o WWJD',
     turnOff: 'Desligar o WWJD',
     turnOn: 'Ligar o WWJD',
+    expand: 'Expandir',
+    collapse: 'Recolher',
     showDetails: 'Mostrar fundamentação ▼',
     hideDetails: 'Ocultar fundamentação ▲',
     jesusAlignment: 'Alinhamento com Jesus',

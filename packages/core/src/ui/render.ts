@@ -2,7 +2,7 @@ import type { ScoredGuideline, WwjdEvaluation } from '../engine/types';
 import { getGuidelineById, localizeBibleSource, normalizeLang } from '../guidelines/jesus';
 import { messages, type Messages } from '../i18n/messages';
 import { getScaleIllustration } from './scaleImages';
-import { WWJD_BASE_CSS } from './styles';
+import { ICONS, WWJD_BASE_CSS } from './styles';
 
 type Child = Node | string | null | undefined | false;
 
@@ -32,9 +32,11 @@ export function h<K extends keyof HTMLElementTagNameMap>(
 export interface RenderOptions {
   onSeek?: (seconds: number) => void;
   initiallyCollapsed?: boolean;
+  panelCollapsed?: boolean;
   onRefresh?: () => void;
   onOpenOptions?: () => void;
   onToggleCollapse?: (collapsed: boolean) => void;
+  onTogglePanelCollapse?: (panelCollapsed: boolean) => void;
   onToggleEnabled?: (enabled: boolean) => void;
   enabled?: boolean;
   fromCache?: boolean;
@@ -54,6 +56,7 @@ export interface WwjdStateHandlers {
   onOpenOptions?: () => void;
   onSeek?: (seconds: number) => void;
   onToggleCollapse?: (collapsed: boolean) => void;
+  onTogglePanelCollapse?: (panelCollapsed: boolean) => void;
   onToggleEnabled?: (enabled: boolean) => void;
 }
 
@@ -81,8 +84,11 @@ export function renderWwjdView(
   styleEl.textContent = WWJD_BASE_CSS;
   container.appendChild(styleEl);
 
+  let isPanelCollapsed = !!options.panelCollapsed;
+  let isCollapsed = isPanelCollapsed ? true : !!options.initiallyCollapsed;
+
   const card = document.createElement('div');
-  card.className = 'wwjd-card';
+  card.className = isPanelCollapsed ? 'wwjd-card collapsed' : 'wwjd-card';
 
   // Determine score color class
   let scoreClass = 'score-mid';
@@ -102,9 +108,43 @@ export function renderWwjdView(
       class: 'toggle-details-btn',
       id: 'wwjd-toggle-btn',
     },
-    options.initiallyCollapsed ? v.showDetails : v.hideDetails,
+    isCollapsed ? v.showDetails : v.hideDetails,
   );
   actions.append(toggleBtnEl);
+
+  // Details Container (Collapsible)
+  const detailsContainer = document.createElement('div');
+  detailsContainer.id = 'wwjd-details-body';
+  if (isCollapsed) {
+    detailsContainer.style.display = 'none';
+  }
+
+  if (options.onTogglePanelCollapse || options.onToggleEnabled) {
+    const collapseLabel = isPanelCollapsed ? v.expand : v.collapse;
+    const collapseIconBtn = h('button', {
+      type: 'button',
+      class: 'icon-btn',
+      title: collapseLabel,
+      'aria-label': collapseLabel,
+      html: isPanelCollapsed ? ICONS.chevronDown : ICONS.chevronUp,
+      onClick: () => {
+        isPanelCollapsed = !isPanelCollapsed;
+        card.classList.toggle('collapsed', isPanelCollapsed);
+        const nextLabel = isPanelCollapsed ? v.expand : v.collapse;
+        collapseIconBtn.title = nextLabel;
+        collapseIconBtn.setAttribute('aria-label', nextLabel);
+        collapseIconBtn.innerHTML = isPanelCollapsed ? ICONS.chevronDown : ICONS.chevronUp;
+        if (isPanelCollapsed) {
+          isCollapsed = true;
+          detailsContainer.style.display = 'none';
+          toggleBtnEl.textContent = v.showDetails;
+          options.onToggleCollapse?.(true);
+        }
+        options.onTogglePanelCollapse?.(isPanelCollapsed);
+      },
+    });
+    actions.append(collapseIconBtn);
+  }
 
   if (options.onToggleEnabled) {
     const enabled = options.enabled !== false;
@@ -156,13 +196,6 @@ export function renderWwjdView(
     </div>
   `;
   card.appendChild(scoreBanner);
-
-  // Details Container (Collapsible)
-  const detailsContainer = document.createElement('div');
-  detailsContainer.id = 'wwjd-details-body';
-  if (options.initiallyCollapsed) {
-    detailsContainer.style.display = 'none';
-  }
 
   // --- SECTIE 1: FEITENCHECK & INTEGRITEIT (ACTIVITEIT 1) ---
   const factcheckSection = document.createElement('div');
@@ -287,11 +320,17 @@ export function renderWwjdView(
   );
 
   card.appendChild(detailsContainer);
+  card.appendChild(
+    h(
+      'div',
+      { class: 'peek' },
+      `${evaluation.finalScore.toFixed(1)} / 10 · ${evaluation.verdictSummary}`,
+    ),
+  );
   container.appendChild(card);
 
   // Wire up collapse toggle button
   const toggleBtn = container.querySelector('#wwjd-toggle-btn');
-  let isCollapsed = !!options.initiallyCollapsed;
   toggleBtn?.addEventListener('click', () => {
     isCollapsed = !isCollapsed;
     detailsContainer.style.display = isCollapsed ? 'none' : 'block';
@@ -314,7 +353,13 @@ export function renderWwjdStateView(
   container: HTMLElement,
   state: WwjdViewState,
   handlers: WwjdStateHandlers = {},
-  opts: { collapsed?: boolean; enabled?: boolean; taal?: string; t?: Messages } = {},
+  opts: {
+    collapsed?: boolean;
+    panelCollapsed?: boolean;
+    enabled?: boolean;
+    taal?: string;
+    t?: Messages;
+  } = {},
 ): void {
   const lang = normalizeLang(
     opts.taal ?? (state.kind === 'done' ? state.evaluation.taal : undefined) ?? 'nl',
@@ -327,9 +372,11 @@ export function renderWwjdStateView(
     renderWwjdView(container, state.evaluation, {
       onSeek: handlers.onSeek,
       initiallyCollapsed: opts.collapsed,
+      panelCollapsed: opts.panelCollapsed,
       onRefresh: handlers.onRefresh,
       onOpenOptions: handlers.onOpenOptions,
       onToggleCollapse: handlers.onToggleCollapse,
+      onTogglePanelCollapse: handlers.onTogglePanelCollapse,
       onToggleEnabled: handlers.onToggleEnabled,
       enabled,
       fromCache: state.fromCache,
@@ -344,7 +391,44 @@ export function renderWwjdStateView(
   styleEl.textContent = WWJD_BASE_CSS;
   container.appendChild(styleEl);
 
+  let isPanelCollapsed = !!opts.panelCollapsed;
   const actions = h('div', { class: 'wwjd-header-actions' });
+  const header = h(
+    'div',
+    { class: 'wwjd-header' },
+    h('div', { class: 'title', role: 'heading', 'aria-level': '2' }, 'WWJD'),
+    actions,
+  );
+  const card = h(
+    'div',
+    { class: isPanelCollapsed ? 'wwjd-card collapsed' : 'wwjd-card', 'aria-live': 'polite' },
+    header,
+  );
+
+  if (handlers.onTogglePanelCollapse || handlers.onToggleEnabled) {
+    const collapseLabel = isPanelCollapsed ? v.expand : v.collapse;
+    const collapseIconBtn = h('button', {
+      type: 'button',
+      class: 'icon-btn',
+      title: collapseLabel,
+      'aria-label': collapseLabel,
+      html: isPanelCollapsed ? ICONS.chevronDown : ICONS.chevronUp,
+      onClick: () => {
+        isPanelCollapsed = !isPanelCollapsed;
+        card.classList.toggle('collapsed', isPanelCollapsed);
+        const nextLabel = isPanelCollapsed ? v.expand : v.collapse;
+        collapseIconBtn.title = nextLabel;
+        collapseIconBtn.setAttribute('aria-label', nextLabel);
+        collapseIconBtn.innerHTML = isPanelCollapsed ? ICONS.chevronDown : ICONS.chevronUp;
+        if (isPanelCollapsed) {
+          handlers.onToggleCollapse?.(true);
+        }
+        handlers.onTogglePanelCollapse?.(isPanelCollapsed);
+      },
+    });
+    actions.append(collapseIconBtn);
+  }
+
   if (handlers.onToggleEnabled) {
     actions.append(
       h(
@@ -362,15 +446,6 @@ export function renderWwjdStateView(
       ),
     );
   }
-
-  const header = h(
-    'div',
-    { class: 'wwjd-header' },
-    h('div', { class: 'title', role: 'heading', 'aria-level': '2' }, 'WWJD'),
-    actions,
-  );
-
-  const card = h('div', { class: 'wwjd-card', 'aria-live': 'polite' }, header);
 
   if (!enabled) {
     card.append(h('p', { class: 'off' }, v.off));
@@ -391,20 +466,17 @@ export function renderWwjdStateView(
       ),
     );
   } else if (state.kind === 'loading') {
+    const stepText = state.step ?? v.loadingStep;
     card.append(
       h(
         'div',
         { class: 'loading', role: 'status' },
-        h(
-          'div',
-          { class: 'step' },
-          h('span', { class: 'spinner' }),
-          state.step ?? v.loadingStep,
-        ),
+        h('div', { class: 'step' }, h('span', { class: 'spinner' }), stepText),
         h('div', { class: 'bar w90' }),
         h('div', { class: 'bar w80' }),
         h('div', { class: 'bar w60' }),
       ),
+      h('div', { class: 'peek' }, stepText),
     );
   } else if (state.kind === 'error') {
     const errActions = h('div', { class: 'actions' });
@@ -422,7 +494,11 @@ export function renderWwjdStateView(
         h('button', { type: 'button', class: 'btn', onClick: handlers.onRefresh }, v.retry),
       );
     }
-    card.append(h('div', { class: 'error-msg', role: 'alert' }, state.message), errActions);
+    card.append(
+      h('div', { class: 'error-msg', role: 'alert' }, state.message),
+      errActions,
+      h('div', { class: 'peek' }, state.message),
+    );
   }
 
   container.appendChild(card);

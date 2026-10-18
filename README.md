@@ -14,8 +14,8 @@ Ready to use: download, install, and enter your API keys. No build tools require
 
 | Platform | Download | Installation Guide |
 |---|---|---|
-| 📱 **Android App**<br>Phone and tablet, Android 7.0 or newer | [**WhatWouldJezusDo-0.2.5.apk**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/apk/WhatWouldJezusDo-0.2.5.apk)<br>3.1 MB | [Install on Android](#installing-the-android-app) |
-| 🧩 **Chrome & Edge Extension**<br>Windows, macOS, Linux | [**WhatWouldJezusDo-extension-0.2.5.zip**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.2.5.zip)<br>320 kB | [Install in Chrome or Edge](#installing-the-extension-in-chrome-or-edge) |
+| 📱 **Android App**<br>Phone and tablet, Android 7.0 or newer | [**WhatWouldJezusDo-0.2.6.apk**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/apk/WhatWouldJezusDo-0.2.6.apk)<br>3.1 MB | [Install on Android](#installing-the-android-app) |
+| 🧩 **Chrome & Edge Extension**<br>Windows, macOS, Linux | [**WhatWouldJezusDo-extension-0.2.6.zip**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.2.6.zip)<br>322 kB | [Install in Chrome or Edge](#installing-the-extension-in-chrome-or-edge) |
 
 **What Would Jezus Do is completely <ins>free</ins> to use:** you need an LLM API key (**either** a **free Gemini key**, **or** a **paid Gemini key**, **or** a **paid Claude key**) **and** a **free Google Fact Check Tools API key**; see [Configuring API Keys](#configuring-api-keys). All releases and their SHA-256 checksums are available under [Releases](https://github.com/GosseVledder/WhatWouldJezusDo/releases); both the app and the extension can check for updates directly via *Instellingen › Updates*.
 
@@ -85,11 +85,11 @@ Once the statements and actions have been fact-checked, the verified dossier is 
 
 | Property | Details |
 |---|---|
-| **File** | [`WhatWouldJezusDo-0.2.5.apk`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/apk/WhatWouldJezusDo-0.2.5.apk) (also in [`apk/`](apk/)) |
-| **Version** | 0.2.5 (versionCode 7) |
+| **File** | [`WhatWouldJezusDo-0.2.6.apk`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/apk/WhatWouldJezusDo-0.2.6.apk) (also in [`apk/`](apk/)) |
+| **Version** | 0.2.6 (versionCode 8) |
 | **Requires** | Android 7.0 or newer |
 | **Size** | 3.1 MB |
-| **SHA-256** | `bbe76c7fd59fad14cfec3ed3a080697625b99f046e8cfc2b22cc8ded92fddb02` |
+| **SHA-256** | `2482a94366c9e5e14fa10e0cda12bf24a83bde6b722248275a13fc646bb2fc20` |
 
 The APK is a signed release build distributed directly via GitHub.
 
@@ -113,13 +113,13 @@ The APK is a signed release build distributed directly via GitHub.
 
 | Property | Details |
 |---|---|
-| **File** | [`WhatWouldJezusDo-extension-0.2.5.zip`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.2.5.zip) (also unpacked in [`extension/WhatWouldJezusDo/`](extension/WhatWouldJezusDo/)) |
-| **Version** | 0.2.5 |
+| **File** | [`WhatWouldJezusDo-extension-0.2.6.zip`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.2.6.zip) (also unpacked in [`extension/WhatWouldJezusDo/`](extension/WhatWouldJezusDo/)) |
+| **Version** | 0.2.6 |
 | **Browsers** | Google Chrome and Microsoft Edge (Manifest V3) |
-| **Size** | 320 kB |
-| **SHA-256** | `0bf650c22acc6aa5950d59d8fac2c1b0db0ddd0f8c4c1df9aff43fd4801b68ee` |
+| **Size** | 322 kB |
+| **SHA-256** | `2e68f30b1214c4b67a030cf22c015f0b446fcec20b9a68139a367f610d77e370` |
 
-1. **Download** [`WhatWouldJezusDo-extension-0.2.5.zip`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.2.5.zip).
+1. **Download** [`WhatWouldJezusDo-extension-0.2.6.zip`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.2.6.zip).
 2. **Extract** the zip file to a permanent folder on your computer (for example, `Documents\WhatWouldJezusDo`). Keep this folder in place—the browser loads the extension from it.
 3. Open `chrome://extensions` (Chrome) or `edge://extensions` (Edge).
 4. Enable **Developer mode** (top-right in Chrome; left sidebar in Edge).
@@ -127,7 +127,7 @@ The APK is a signed release build distributed directly via GitHub.
 6. Pin **What Would Jezus Do** to your browser toolbar and click its icon to open the settings tab and configure your [API keys](#configuring-api-keys).
 
 ### Using the Extension (Layout & Settings)
-- **Watch-Page Panel**: On any YouTube watch page, the **WWJD** panel mounts at the top of the right-hand sidebar (or directly below The Point if both extensions are installed). Its header includes the **WWJD** badge, an **on/off switch**, and a toggle to expand or collapse the detailed substantiation.
+- **Watch-Page Panel**: On any YouTube watch page, the **WWJD** panel mounts at the top of the right-hand sidebar (or directly below The Point if both extensions are installed). Its header includes the **WWJD** title, a **collapse/expand icon** directly before the **on/off switch** (both off and collapsed by default so AI is only used when you turn it on), and a button to expand or collapse the detailed substantiation (which also collapses automatically when the panel is collapsed).
 - **Full-Tab Settings Page**: Clicking the extension icon in the browser toolbar opens the settings page in a full browser tab with sticky header and instant auto-save (`✓ Opgeslagen` / `✓ Saved`):
   - **Taal / Language**: Choose the language (`Nederlands`, `English`, `Deutsch`, `Français`, `Español`, `Italiano`, `Português`) for the interface, the AI analysis, and the linked Bible passages (`debijbel.nl` NBV21 for Dutch; localized BibleGateway versions such as `NIV` for English and other languages).
   - **AI-dienst**: Choose **Gemini** (Google) or **Claude** (Anthropic), enter your API key (`Toon`/`Verberg`), select or type a model (`<datalist>`), read *"Hoe kom ik aan een sleutel?"*, and verify with **Test verbinding**.

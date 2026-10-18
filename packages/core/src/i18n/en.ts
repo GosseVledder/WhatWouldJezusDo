@@ -16,6 +16,8 @@ export const en: Messages = {
     switchAria: 'WWJD on or off',
     turnOff: 'Turn WWJD off',
     turnOn: 'Turn WWJD on',
+    expand: 'Expand',
+    collapse: 'Collapse',
     showDetails: 'Show substantiation ▼',
     hideDetails: 'Hide substantiation ▲',
     jesusAlignment: 'Jesus alignment',

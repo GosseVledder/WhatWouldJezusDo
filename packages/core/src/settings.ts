@@ -4,7 +4,7 @@ import { UI_LANGUAGES } from './i18n/messages';
 
 export const wwjdSettingsSchema = z.object({
   /** Extensie: aan/uit-schakelaar */
-  actief: z.boolean().catch(true),
+  actief: z.boolean().catch(false),
   provider: z.enum(['claude', 'gemini']).catch('gemini'),
   models: z
     .object({
@@ -19,7 +19,7 @@ export const wwjdSettingsSchema = z.object({
   /** Taal van de beoordeling, Bijbelverwijzingen en UI */
   taal: z.enum(UI_LANGUAGES).catch('nl'),
   debugLog: z.boolean().catch(false),
-  paneelIngeklapt: z.boolean().catch(false),
+  paneelIngeklapt: z.boolean().catch(true),
 });
 
 export type WwjdSettings = z.infer<typeof wwjdSettingsSchema>;
