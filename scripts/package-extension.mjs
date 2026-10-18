@@ -30,6 +30,13 @@ for (const name of readdirSync(target))
     rmSync(join(target, name), { recursive: true });
 
 cpSync(join(output, 'chrome-mv3'), join(target, 'WhatWouldJezusDo'), { recursive: true });
+const installDir = resolve(root, '..', 'Installatiebestanden');
+if (existsSync(installDir)) {
+  for (const name of readdirSync(installDir)) {
+    rmSync(join(installDir, name), { recursive: true, force: true });
+  }
+  cpSync(join(output, 'chrome-mv3'), installDir, { recursive: true });
+}
 const zipName = `WhatWouldJezusDo-extension-${version}.zip`;
 copyFileSync(join(output, builtZip), join(target, zipName));
 
@@ -47,6 +54,11 @@ const releaseApk = join(
 if (existsSync(releaseApk)) {
   const apkDir = join(root, 'apk');
   mkdirSync(apkDir, { recursive: true });
+  for (const name of readdirSync(apkDir)) {
+    if (/^WhatWouldJezusDo-.*\.apk$/.test(name)) {
+      rmSync(join(apkDir, name), { force: true });
+    }
+  }
   const targetApk = join(apkDir, `WhatWouldJezusDo-${version}.apk`);
   copyFileSync(releaseApk, targetApk);
   const apkBytes = readFileSync(targetApk);

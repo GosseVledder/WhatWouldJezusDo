@@ -1,115 +1,262 @@
 <!DOCTYPE html>
 <html lang="nl">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WWJD – Instellingen & API-sleutels</title>
-    <style>:root{--primary:#065fd4;--bg:#f8f9fa;--card:#fff;--text:#1f2937;--text-sub:#4b5563;--border:#e5e7eb;--success:#15803d;--error:#b91c1c}body{background:var(--bg);color:var(--text);margin:0;padding:32px 16px;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif}.container{max-width:640px;margin:0 auto}header{align-items:center;gap:12px;margin-bottom:24px;display:flex}.logo-badge{background:var(--primary);color:#fff;border-radius:6px;padding:4px 10px;font-size:14px;font-weight:800}h1{margin:0;font-size:20px;font-weight:700}.card{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;padding:20px;box-shadow:0 1px 3px #0000000d}h2{margin-top:0;margin-bottom:12px;font-size:15px;font-weight:600}.form-group{margin-bottom:16px}.form-group:last-child{margin-bottom:0}label{color:var(--text);margin-bottom:6px;font-size:13px;font-weight:500;display:block}.help-text{color:var(--text-sub);margin-top:4px;font-size:12px;line-height:16px}input[type=text],input[type=password],select{border:1px solid var(--border);box-sizing:border-box;border-radius:6px;width:100%;padding:8px 12px;font-size:14px}input:focus,select:focus{outline:2px solid var(--primary);border-color:#0000}.switch-label{cursor:pointer;align-items:center;gap:10px;font-size:14px;display:flex}.btn{background:var(--primary);color:#fff;cursor:pointer;border:0;border-radius:6px;padding:8px 16px;font-size:14px;font-weight:500}.btn:hover{filter:brightness(.9)}.status-msg{border-radius:6px;margin-top:12px;padding:8px 12px;font-size:13px;display:none}.status-msg.ok{color:var(--success);background:#dcfce7;display:block}.status-msg.err{color:var(--error);background:#fee2e2;display:block}a{color:var(--primary)}</style>
-    <script type="module" crossorigin src="/chunks/options-T6D4sP-t.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>What Would Jezus Do – instellingen</title>
+    <meta name="manifest.open_in_tab" content="true">
+    <link rel="icon" href="/icon/32.png">
+    <script type="module" crossorigin src="/chunks/options-DhLSRMop.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/options-CrdWZGB8.css">
   </head>
   <body>
-    <div class="container">
-      <header>
-        <span class="logo-badge">WWJD</span>
-        <h1>What Would Jezus Do – Instellingen</h1>
-      </header>
-
-      <!-- AI Provider & Sleutel -->
-      <div class="card">
-        <h2>1. AI-Dienst (LLM)</h2>
-        <div class="form-group">
-          <label for="provider-select">Kies AI-provider</label>
-          <select id="provider-select">
-            <option value="gemini">Google Gemini (standaard &amp; gratis)</option>
-            <option value="claude">Anthropic Claude</option>
-          </select>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <img class="brand" src="/icon/128.png" alt="" width="36" height="36">
+        <div class="brand-text">
+          <h1>What Would Jezus Do</h1>
+          <p>Instellingen</p>
         </div>
-
-        <div class="form-group" id="gemini-key-group">
-          <label for="gemini-key">Google Gemini API-sleutel</label>
-          <input type="password" id="gemini-key" placeholder="AIzaSy...">
-          <div class="help-text">
-            Gratis aan te maken in
-            <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio</a>.
-          </div>
-        </div>
-
-        <div class="form-group" id="claude-key-group" style="display: none">
-          <label for="claude-key">Anthropic Claude API-sleutel</label>
-          <input type="password" id="claude-key" placeholder="sk-ant-...">
-          <div class="help-text">
-            Aan te maken in
-            <a href="https://console.anthropic.com/" target="_blank" rel="noopener">Anthropic Console</a>.
-          </div>
-        </div>
+        <span id="saved" class="saved" role="status" aria-live="polite"></span>
       </div>
+    </header>
 
-      <!-- Google Fact Check Tools API (Aanvullend) -->
-      <div class="card">
-        <h2>2. Google Fact Check Tools API (Snelle primaire factcheck)</h2>
-        <div class="form-group">
-          <label class="switch-label">
-            <input type="checkbox" id="factcheck-enabled" checked>
-            <span>Google Fact Check Tools API inschakelen</span>
-          </label>
-          <div class="help-text">
-            Haalt in een fractie van een seconde bestaande officiële factchecks op van erkende
-            factcheck-organisaties.
+    <main>
+      <section class="group" aria-labelledby="h-ai">
+        <h2 id="h-ai" data-tip="provider">AI-dienst</h2>
+        <div class="card" id="ai-card">
+          <div class="segmented" role="radiogroup" aria-label="AI-dienst">
+            <label class="segment">
+              <input type="radio" name="provider" value="gemini">
+              <span><b>Gemini</b><small>Google</small></span>
+            </label>
+            <label class="segment">
+              <input type="radio" name="provider" value="claude">
+              <span><b>Claude</b><small>Anthropic</small></span>
+            </label>
+          </div>
+          <p class="card-intro">
+            De gekozen dienst extraheert uitspraken uit het transcript, controleert de feiten en
+            toetst de video aan de 25 richtlijnen en geboden van Jezus.
+          </p>
+
+          <div class="provider" data-provider="gemini">
+            <div class="provider-head">
+              <h3>Gemini</h3>
+            </div>
+            <div class="row">
+              <div class="row-text">
+                <label class="row-title" for="key-gemini" data-tip="apiKey">API-sleutel</label>
+                <p class="row-hint">
+                  Maak een sleutel aan op
+                  <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">aistudio.google.com</a>. De sleutel blijft alleen in deze browser.
+                </p>
+              </div>
+              <div class="row-control wide">
+                <div class="input-group">
+                  <input id="key-gemini" type="password" autocomplete="off" spellcheck="false" placeholder="AIza…">
+                  <button type="button" data-toggle="key-gemini">Toon</button>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="row-text">
+                <label class="row-title" for="model-gemini" data-tip="model">Model</label>
+              </div>
+              <div class="row-control wide">
+                <input id="model-gemini" list="models-gemini" spellcheck="false">
+                <datalist id="models-gemini"></datalist>
+              </div>
+            </div>
+            <div class="row test-row">
+              <div class="row-text">
+                <span class="test-result" id="test-gemini" aria-live="polite"></span>
+              </div>
+              <div class="row-control">
+                <button type="button" class="btn" data-test="gemini">Test verbinding</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="provider" data-provider="claude">
+            <div class="provider-head"><h3>Claude</h3></div>
+            <div class="row">
+              <div class="row-text">
+                <label class="row-title" for="key-claude" data-tip="apiKey">API-sleutel</label>
+                <p class="row-hint">
+                  Maak een sleutel aan op
+                  <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noreferrer">console.anthropic.com</a>. De sleutel blijft alleen in deze browser.
+                </p>
+              </div>
+              <div class="row-control wide">
+                <div class="input-group">
+                  <input id="key-claude" type="password" autocomplete="off" spellcheck="false" placeholder="sk-ant-…">
+                  <button type="button" data-toggle="key-claude">Toon</button>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="row-text">
+                <label class="row-title" for="model-claude" data-tip="model">Model</label>
+              </div>
+              <div class="row-control wide">
+                <input id="model-claude" list="models-claude" spellcheck="false">
+                <datalist id="models-claude"></datalist>
+              </div>
+            </div>
+            <div class="row test-row">
+              <div class="row-text">
+                <span class="test-result" id="test-claude" aria-live="polite"></span>
+              </div>
+              <div class="row-control">
+                <button type="button" class="btn" data-test="claude">Test verbinding</button>
+              </div>
+            </div>
           </div>
         </div>
+      </section>
 
-        <div class="form-group">
-          <label for="factcheck-key">Google Fact Check API-sleutel</label>
-          <input type="password" id="factcheck-key" placeholder="AIzaSy...">
-          <div class="help-text">
-            100% gratis (geen creditcard nodig). Tot 10.000 factchecks per dag.
+      <section class="group" aria-labelledby="h-factcheck">
+        <h2 id="h-factcheck" data-tip="factcheck">Feitencontrole (Google Fact Check API)</h2>
+        <div class="card">
+          <label class="row">
+            <span class="row-text">
+              <span class="row-title" data-tip="factcheck">Google Fact Check Tools API gebruiken</span>
+              <span class="row-hint">Doorzoekt razendsnel bestaande officiële factchecks van erkende organisaties
+                wereldwijd.</span>
+            </span>
+            <input type="checkbox" class="switch" role="switch" id="googleFactCheckActief">
+          </label>
+          <div id="factcheck-group" class="dim-group">
+            <div class="row" id="factcheck-key-row">
+              <div class="row-text">
+                <label class="row-title" for="key-factcheck" data-tip="factcheckKey">API-sleutel Fact Check</label>
+                <p class="row-hint">
+                  Maak een gratis sleutel aan op
+                  <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noreferrer">console.cloud.google.com</a>. De sleutel blijft alleen in deze browser.
+                </p>
+              </div>
+              <div class="row-control wide">
+                <div class="input-group">
+                  <input id="key-factcheck" type="password" autocomplete="off" spellcheck="false" placeholder="AIza…">
+                  <button type="button" data-toggle="key-factcheck">Toon</button>
+                </div>
+              </div>
+            </div>
+            <div class="row test-row">
+              <div class="row-text">
+                <span class="test-result" id="test-factcheck" aria-live="polite"></span>
+              </div>
+              <div class="row-control">
+                <button type="button" class="btn" data-test="factcheck">Test verbinding</button>
+              </div>
+            </div>
           </div>
-          <details style="margin-top: 10px; font-size: 12px; color: var(--text-sub); background: #f3f4f6; padding: 10px 12px; border-radius: 6px;">
-            <summary style="cursor: pointer; font-weight: 600; color: var(--text);">
-              📖 Handleiding (For Dummies): Hoe maak ik een gratis Google Fact Check API-sleutel aan?
-            </summary>
-            <ol style="margin: 8px 0 0 18px; padding: 0; line-height: 18px;">
+        </div>
+      </section>
+
+      <section class="group" aria-labelledby="h-eval">
+        <h2 id="h-eval">Analyse &amp; weergave</h2>
+        <div class="card">
+          <label class="row">
+            <span class="row-text">
+              <span class="row-title" data-tip="actief">Extensie actief op YouTube</span>
+              <span class="row-hint">Uit: het What Would Jezus Do-paneel op YouTube is uitgeschakeld.</span>
+            </span>
+            <input type="checkbox" class="switch" role="switch" id="actief">
+          </label>
+          <label class="row">
+            <span class="row-text">
+              <span class="row-title" data-tip="auto">Automatisch analyseren bij het openen van een video</span>
+              <span class="row-hint">Uit: klik op "Analyseer video" in het paneel.</span>
+            </span>
+            <input type="checkbox" class="switch" role="switch" id="automatisch">
+          </label>
+          <label class="row">
+            <span class="row-text">
+              <span class="row-title" data-tip="collapsed">Onderbouwing standaard inklappen</span>
+              <span class="row-hint">Toon eerst alleen de eindscore (0–10) en de korte conclusie.</span>
+            </span>
+            <input type="checkbox" class="switch" role="switch" id="paneelIngeklapt">
+          </label>
+        </div>
+      </section>
+
+      <section class="group" aria-labelledby="h-update">
+        <h2 id="h-update" data-tip="updates">Updates</h2>
+        <div class="card">
+          <div class="row">
+            <div class="row-text">
+              <span class="row-title" id="installed-version"></span>
+              <span class="row-hint" id="update-status" aria-live="polite"></span>
+            </div>
+            <div class="row-control">
+              <button type="button" class="btn" id="check-update">Controleren op updates</button>
+            </div>
+          </div>
+          <div class="update-panel" id="update-panel" hidden>
+            <p class="update-head">
+              <b id="update-available"></b>
+              <a id="update-notes" target="_blank" rel="noreferrer">Wat is er nieuw?</a>
+            </p>
+            <ol class="steps">
               <li>
-                Open de <a href="https://console.cloud.google.com/" target="_blank" rel="noopener">Google Cloud Console</a> en log in met je gewone Google/Gmail-account.
-                <em>(Negeer eventuele meldingen over een gratis proefperiode of creditcard; die heb je niet nodig).</em>
+                <span>Download de zip met de nieuwe versie.</span>
+                <a class="btn primary" id="update-download" target="_blank" rel="noreferrer"></a>
               </li>
               <li>
-                Klik helemaal bovenin (naast het Google Cloud-logo) op het <strong>Project-keuzemenu</strong>. Kies een bestaand project (bijv. je Gemini-project) of klik rechtsboven op <strong>Nieuw project</strong>, noem het <code>WWJD-FactCheck</code> en klik op <strong>Maken</strong>.
+                <span>Pak hem uit over de map van What Would Jezus Do heen (bestanden vervangen).</span>
               </li>
               <li>
-                Open de <a href="https://console.cloud.google.com/apis/library/factchecktools.googleapis.com" target="_blank" rel="noopener">Fact Check Tools API-pagina</a> en klik op de blauwe knop <strong>Inschakelen (Enable)</strong>.
-              </li>
-              <li>
-                Ga naar <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Inloggegevens (Credentials)</a>, klik bovenin op <strong>+ Inloggegevens maken (+ Create Credentials)</strong> en kies <strong>API-sleutel (API key)</strong>.
-              </li>
-              <li>
-                Kopieer de sleutel (begint met <code>AIzaSy...</code>), plak hem in het veld hierboven en klik onderaan op <strong>Opslaan</strong>!
+                <span>Klik op Herladen; deze pagina opent daarna opnieuw.</span>
+                <button type="button" class="btn" id="update-reload">Herladen</button>
               </li>
             </ol>
-          </details>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Algemene instellingen -->
-      <div class="card">
-        <h2>3. Voorkeuren</h2>
-        <div class="form-group">
-          <label class="switch-label">
-            <input type="checkbox" id="active-enabled" checked>
-            <span>Extensie actief op YouTube</span>
+      <section class="group">
+        <details class="card advanced">
+          <summary>
+            <span class="row-text">
+              <span class="row-title">Geavanceerd</span>
+              <span class="row-hint">Cache · Debuglog</span>
+            </span>
+          </summary>
+          <div class="row">
+            <div class="row-text">
+              <span class="row-title" data-tip="cache">Cache</span>
+              <span class="row-hint">Elke video wordt één keer geanalyseerd; daarna komt de analyse uit de cache. Met de
+                verversknop in het paneel maak je een nieuwe.</span>
+              <span class="row-hint strong" id="cache-count">…</span>
+            </div>
+            <div class="row-control">
+              <button type="button" class="btn danger" id="clear-cache">Cache wissen</button>
+            </div>
+          </div>
+          <label class="row">
+            <span class="row-text">
+              <span class="row-title" data-tip="debug">Debuglog</span>
+              <span class="row-hint">Per aanroep provider, model, invoerlengte, duur en tokens bijhouden</span>
+            </span>
+            <input type="checkbox" class="switch" role="switch" id="debugLog">
           </label>
-        </div>
-        <div class="form-group">
-          <label class="switch-label">
-            <input type="checkbox" id="auto-enabled" checked>
-            <span>Automatisch analyseren bij openen video</span>
-          </label>
-        </div>
-      </div>
+          <div class="row log-row">
+            <div class="row-control">
+              <button type="button" class="btn" id="show-log">Log tonen</button>
+              <button type="button" class="btn quiet" id="clear-log">Log wissen</button>
+            </div>
+            <div id="log" class="log" hidden></div>
+          </div>
+        </details>
+      </section>
 
-      <button type="button" class="btn" id="save-btn">Instellingen &amp; Sleutels Opslaan</button>
-      <div id="status-box" class="status-msg"></div>
-    </div>
-
+      <footer class="foot">
+        <span id="version"></span>
+        <span>Instellingen worden direct opgeslagen.</span>
+      </footer>
+    </main>
   </body>
 </html>

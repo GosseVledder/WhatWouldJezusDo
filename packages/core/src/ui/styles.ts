@@ -57,7 +57,178 @@ a:hover { text-decoration: underline; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
+}
+
+.wwjd-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.icon-btn {
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--yt-text);
+  flex: none;
+}
+
+.icon-btn:hover {
+  background: var(--yt-card-hover);
+}
+
+.icon-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+.switch {
+  position: relative;
+  flex: none;
+  width: 36px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: #909090;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.switch .knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  transition: left 0.15s;
+}
+
+.switch[aria-checked="true"] {
+  background: var(--yt-accent);
+}
+
+.switch[aria-checked="true"] .knob {
+  left: 18px;
+}
+
+.off {
+  margin: 4px 0 0;
+  color: var(--yt-text-2);
+  font-size: 13px;
+}
+
+.btn {
+  background: var(--yt-card-hover);
+  border: 0;
+  border-radius: 18px;
+  padding: 0 14px;
+  height: 32px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn:hover {
+  background: var(--yt-border);
+}
+
+.btn.primary {
+  background: var(--yt-text);
+  color: var(--yt-bg);
+}
+
+.btn.primary:hover {
+  opacity: 0.85;
+}
+
+.btn svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.loading .step {
+  color: var(--yt-text-2);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--yt-border);
+  border-top-color: var(--yt-accent);
+  animation: spin 0.8s linear infinite;
+  flex: none;
+}
+
+.bar {
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--yt-card) 0%, var(--yt-card-hover) 50%, var(--yt-card) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.bar.w80 { width: 80%; }
+.bar.w60 { width: 60%; }
+.bar.w90 { width: 90%; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+.error-msg {
+  margin-top: 4px;
+  color: var(--yt-text);
+}
+
+.error-msg::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--yt-red);
+  margin-right: 8px;
+  vertical-align: 1px;
+}
+
+.meta {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--yt-text-2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
 }
 
 .wwjd-brand {
@@ -301,3 +472,19 @@ a:hover { text-decoration: underline; }
   text-decoration: none;
 }
 `;
+
+export const ICONS = {
+  info: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16z"/></svg>',
+  logo: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 2h2v7h7v2h-7v11h-2V11H4V9h7V2z"/></svg>',
+  refresh:
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.65 6.35A7.96 7.96 0 0 0 12 4a8 8 0 1 0 7.73 10h-2.08A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>',
+  chevronUp:
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 15.41 12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>',
+  chevronDown:
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>',
+  close:
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>',
+  warn: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>',
+  settings:
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.14 12.94a7.3 7.3 0 0 0 0-1.88l2.03-1.58-1.92-3.32-2.39.96a7 7 0 0 0-1.63-.94L14.87 3.6h-3.84l-.36 2.58c-.59.24-1.13.56-1.63.94l-2.39-.96-1.92 3.32 2.03 1.58a7.3 7.3 0 0 0 0 1.88l-2.03 1.58 1.92 3.32 2.39-.96c.5.38 1.04.7 1.63.94l.36 2.58h3.84l.36-2.58c.59-.24 1.13-.56 1.63-.94l2.39.96 1.92-3.32-2.03-1.58zM12.95 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg>',
+};

@@ -102,8 +102,9 @@ export async function generateGemini(
     generationConfig,
   };
 
-  // Online factcheck search tool
-  if (req.enableWebSearch !== false) {
+  // Only enable google_search tool when responseJsonSchema is not set, as Gemini API
+  // rejects simultaneous google_search grounding + controlled JSON generation.
+  if (req.enableWebSearch && !req.schema) {
     body.tools = [{ google_search: {} }];
   }
 
@@ -116,9 +117,13 @@ export async function generateGemini(
       describeError,
     );
   } catch (err) {
-    // Some models don't support google_search tool with responseJsonSchema simultaneously; retry without tools if bad_request
-    if (err instanceof EngineError && err.code === 'bad_request' && body.tools) {
+    if (
+      err instanceof EngineError &&
+      err.code === 'bad_request' &&
+      (body.tools || generationConfig.responseJsonSchema)
+    ) {
       delete body.tools;
+      delete generationConfig.responseJsonSchema;
       res = await requestJson(
         `${API}/${modelPath(opts.model)}:generateContent`,
         { headers: headers(opts.apiKey), body },
@@ -168,4 +173,13 @@ export async function generateGemini(
       outputTokens: (u?.candidatesTokenCount ?? 0) + (u?.thoughtsTokenCount ?? 0) || undefined,
     },
   };
+}
+
+export async function testGeminiConnection(opts: ProviderOptions): Promise<void> {
+  await requestJson(
+    `${API}/${modelPath(opts.model)}`,
+    { method: 'GET', headers: headers(opts.apiKey) },
+    opts,
+    describeError,
+  );
 }

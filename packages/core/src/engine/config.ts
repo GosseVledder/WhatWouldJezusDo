@@ -6,7 +6,12 @@ export const DEFAULT_MODELS: Record<ProviderId, string> = {
 };
 
 export const MODEL_SUGGESTIONS: Record<ProviderId, string[]> = {
-  gemini: ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-flash-lite-latest'],
+  gemini: [
+    'gemini-flash-latest',
+    'gemini-3.8-flash',
+    'gemini-pro-latest',
+    'gemini-flash-lite-latest',
+  ],
   claude: ['claude-haiku-5-5', 'claude-sonnet-5-5', 'claude-opus-5-5'],
 };
 

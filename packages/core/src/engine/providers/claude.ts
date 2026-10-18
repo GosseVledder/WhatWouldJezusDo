@@ -110,3 +110,12 @@ export async function generateClaude(
     usage: { inputTokens: data.usage?.input_tokens, outputTokens: data.usage?.output_tokens },
   };
 }
+
+export async function testClaudeConnection(opts: ProviderOptions): Promise<void> {
+  await requestJson(
+    `${API}/models/${encodeURIComponent(opts.model)}`,
+    { method: 'GET', headers: headers(opts.apiKey) },
+    opts,
+    describeError,
+  );
+}

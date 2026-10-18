@@ -1,86 +1,339 @@
-import type { WwjdSettings } from '@wwjd/core';
-import { readKeys, writeKeys } from '../../storage/secrets';
+import {
+  ICONS,
+  keySteps,
+  MODEL_SUGGESTIONS,
+  SETTINGS_TIPS,
+  tooltips,
+  type KeyKind,
+  type ProviderId,
+  type TipKey,
+  type UpdateCheck,
+  type WwjdSettings,
+} from '@wwjd/core';
+import type { DebugEntry } from '../../storage/debuglog';
+import { getApiKeys, setApiKey } from '../../storage/secrets';
+import { getSettings, saveSettings } from '../../storage/settings';
 
-async function init() {
-  const providerSelect = document.getElementById('provider-select') as HTMLSelectElement;
-  const geminiGroup = document.getElementById('gemini-key-group') as HTMLElement;
-  const claudeGroup = document.getElementById('claude-key-group') as HTMLElement;
-  const geminiKeyInput = document.getElementById('gemini-key') as HTMLInputElement;
-  const claudeKeyInput = document.getElementById('claude-key') as HTMLInputElement;
-  const factcheckKeyInput = document.getElementById('factcheck-key') as HTMLInputElement;
-  const factcheckEnabled = document.getElementById('factcheck-enabled') as HTMLInputElement;
-  const activeEnabled = document.getElementById('active-enabled') as HTMLInputElement;
-  const autoEnabled = document.getElementById('auto-enabled') as HTMLInputElement;
-  const saveBtn = document.getElementById('save-btn') as HTMLButtonElement;
-  const statusBox = document.getElementById('status-box') as HTMLElement;
+const REOPEN_OPTIONS_KEY = 'reopenOptions';
+const PROVIDERS: ProviderId[] = ['gemini', 'claude'];
+const $ = <T extends HTMLElement = HTMLElement>(sel: string) => document.querySelector<T>(sel)!;
 
-  // Toggle provider inputs
-  function updateProviderVisibility() {
-    if (providerSelect.value === 'claude') {
-      claudeGroup.style.display = 'block';
-      geminiGroup.style.display = 'none';
-    } else {
-      claudeGroup.style.display = 'none';
-      geminiGroup.style.display = 'block';
-    }
-  }
-  providerSelect.addEventListener('change', updateProviderVisibility);
+interface RuntimeResponse<T = unknown> {
+  ok: boolean;
+  data?: T;
+  error?: string;
+}
 
-  // Load stored keys and settings
-  const keys = await readKeys();
-  geminiKeyInput.value = keys.gemini || '';
-  claudeKeyInput.value = keys.claude || '';
-  factcheckKeyInput.value = keys.factcheck || '';
+const send = <T>(msg: Record<string, unknown>) =>
+  browser.runtime.sendMessage(msg) as Promise<RuntimeResponse<T>>;
 
-  const resp = (await browser.runtime.sendMessage({ type: 'getSettings' })) as {
-    ok: boolean;
-    data?: WwjdSettings;
+let savedTimer: number | undefined;
+function flashSaved(): void {
+  const el = $('#saved');
+  el.textContent = 'Opgeslagen';
+  el.classList.add('show');
+  window.clearTimeout(savedTimer);
+  savedTimer = window.setTimeout(() => el.classList.remove('show'), 1500);
+}
+
+async function save(patch: Partial<WwjdSettings>): Promise<void> {
+  await saveSettings(patch);
+  flashSaved();
+}
+
+function debounce<A extends unknown[]>(fn: (...a: A) => void, ms: number): (...a: A) => void {
+  let timer: number | undefined;
+  return (...a) => {
+    window.clearTimeout(timer);
+    timer = window.setTimeout(() => fn(...a), ms);
   };
-  if (resp?.ok && resp.data) {
-    const s = resp.data;
-    providerSelect.value = s.provider || 'gemini';
-    factcheckEnabled.checked = s.googleFactCheckActief !== false;
-    activeEnabled.checked = s.actief !== false;
-    autoEnabled.checked = s.automatisch !== false;
-    updateProviderVisibility();
+}
+
+async function init(): Promise<void> {
+  const [s, keys] = await Promise.all([getSettings(), getApiKeys()]);
+  const version = browser.runtime.getManifest().version;
+  $('#version').textContent = `What Would Jezus Do ${version}`;
+  initTips();
+
+  // Provider radio buttons
+  document.querySelectorAll<HTMLInputElement>('input[name="provider"]').forEach((r) => {
+    r.checked = r.value === s.provider;
+    r.addEventListener('change', () => {
+      void save({ provider: r.value as ProviderId });
+      updateProviderSections();
+    });
+  });
+
+  // Keys and models for Gemini & Claude
+  for (const p of PROVIDERS) {
+    const key = $<HTMLInputElement>(`#key-${p}`);
+    const model = $<HTMLInputElement>(`#model-${p}`);
+    const list = $(`#models-${p}`);
+    key.value = keys[p];
+    model.value = s.models[p];
+    list.replaceChildren(
+      ...MODEL_SUGGESTIONS[p].map((m) =>
+        Object.assign(document.createElement('option'), { value: m }),
+      ),
+    );
+    const saveKey = debounce(async () => {
+      await setApiKey(p, key.value);
+      flashSaved();
+    }, 400);
+    const saveModel = debounce(async () => {
+      if (!model.value.trim()) return;
+      const cur = await getSettings();
+      await save({ models: { ...cur.models, [p]: model.value.trim() } });
+    }, 400);
+    key.addEventListener('input', saveKey);
+    model.addEventListener('input', saveModel);
+    model.addEventListener('blur', async () => {
+      if (!model.value.trim()) model.value = (await getSettings()).models[p];
+    });
+
+    // "Hoe kom ik aan een sleutel?" under the key row
+    key.closest('.row')!.after(keySteps(p));
   }
 
-  // Save handler
-  saveBtn.addEventListener('click', async () => {
-    saveBtn.disabled = true;
-    statusBox.className = 'status-msg';
-    statusBox.style.display = 'none';
+  // Google Fact Check Tools API key + steps
+  const fcKey = $<HTMLInputElement>('#key-factcheck');
+  fcKey.value = keys.factcheck;
+  fcKey.addEventListener(
+    'input',
+    debounce(async () => {
+      await setApiKey('factcheck', fcKey.value);
+      flashSaved();
+    }, 400),
+  );
+  $('#factcheck-key-row').after(keySteps('factcheck'));
 
-    try {
-      // Save keys in IndexedDB
-      await writeKeys({
-        gemini: geminiKeyInput.value.trim(),
-        claude: claudeKeyInput.value.trim(),
-        factcheck: factcheckKeyInput.value.trim(),
-      });
+  // Password show/hide toggles
+  document.querySelectorAll<HTMLButtonElement>('[data-toggle]').forEach((b) => {
+    const input = $<HTMLInputElement>(`#${b.dataset.toggle}`);
+    const updateLabel = () => {
+      b.textContent = input.type === 'password' ? 'Toon' : 'Verberg';
+    };
+    updateLabel();
+    b.addEventListener('click', () => {
+      input.type = input.type === 'password' ? 'text' : 'password';
+      updateLabel();
+    });
+  });
 
-      // Save settings
-      const settings = {
-        ...(resp?.data ?? {}),
-        provider: providerSelect.value,
-        googleFactCheckActief: factcheckEnabled.checked,
-        actief: activeEnabled.checked,
-        automatisch: autoEnabled.checked,
-      };
+  // Test connection buttons (gemini, claude, factcheck)
+  document.querySelectorAll<HTMLButtonElement>('[data-test]').forEach((b) => {
+    b.addEventListener('click', async () => {
+      const kind = b.dataset.test as KeyKind;
+      const out = $(`#test-${kind}`);
+      const apiKey = $<HTMLInputElement>(`#key-${kind}`).value.trim();
+      if (!apiKey) {
+        out.className = 'test-result error';
+        out.textContent = '✗ Vul eerst een API-sleutel in.';
+        return;
+      }
+      b.disabled = true;
+      out.className = 'test-result';
+      out.textContent = 'Bezig…';
+      await setApiKey(kind, apiKey);
+      const model =
+        kind === 'factcheck' ? '' : $<HTMLInputElement>(`#model-${kind}`).value.trim();
+      const res = await send<{ ok: boolean; error?: string }>({
+        type: 'testConnection',
+        kind,
+        apiKey,
+        model,
+      }).catch(
+        (e: unknown): RuntimeResponse<{ ok: boolean; error?: string }> => ({
+          ok: false,
+          error: String(e),
+        }),
+      );
+      b.disabled = false;
+      if (res.ok && res.data?.ok !== false) {
+        out.className = 'test-result ok';
+        out.textContent =
+          kind === 'factcheck'
+            ? '✓ Verbinding met Google Fact Check API werkt.'
+            : '✓ Verbinding werkt en het model bestaat.';
+      } else {
+        out.className = 'test-result error';
+        out.textContent = `✗ ${res.data?.error ?? res.error ?? 'Verbinding mislukt.'}`;
+      }
+    });
+  });
 
-      await browser.runtime.sendMessage({ type: 'saveSettings', settings });
+  // Switches
+  for (const id of [
+    'googleFactCheckActief',
+    'actief',
+    'automatisch',
+    'paneelIngeklapt',
+    'debugLog',
+  ] as const) {
+    const box = $<HTMLInputElement>(`#${id}`);
+    box.checked = s[id];
+    box.addEventListener('change', () => void save({ [id]: box.checked }));
+  }
 
-      statusBox.className = 'status-msg ok';
-      statusBox.textContent = 'Instellingen en API-sleutels succesvol opgeslagen!';
-      statusBox.style.display = 'block';
-    } catch (e) {
-      statusBox.className = 'status-msg err';
-      statusBox.textContent = `Fout bij opslaan: ${(e as Error).message}`;
-      statusBox.style.display = 'block';
-    } finally {
-      saveBtn.disabled = false;
+  const fcSwitch = $<HTMLInputElement>('#googleFactCheckActief');
+  const updateFactCheckDim = () => {
+    const on = fcSwitch.checked;
+    $('#factcheck-group').classList.toggle('dim', !on);
+    fcKey.disabled = !on;
+    $<HTMLButtonElement>('[data-test="factcheck"]').disabled = !on;
+  };
+  fcSwitch.addEventListener('change', updateFactCheckDim);
+  updateFactCheckDim();
+  updateProviderSections();
+
+  // Cache stats & clear
+  const refreshCount = async () => {
+    const res = await send<{ aantal: number }>({ type: 'cacheStats' });
+    const n = res.data?.aantal ?? 0;
+    $('#cache-count').textContent =
+      n === 1 ? '1 analyse opgeslagen' : `${n} analyses opgeslagen`;
+  };
+  void refreshCount();
+  $('#clear-cache').addEventListener('click', async () => {
+    if (!confirm('Alle opgeslagen analyses wissen?')) return;
+    await send({ type: 'clearCache' });
+    await refreshCount();
+  });
+
+  // Debug log
+  const LOG_HEAD = [
+    'Tijd',
+    'Video',
+    'Stap',
+    'Provider',
+    'Model',
+    'Invoer (tekens)',
+    'Duur',
+    'Tokens in/uit',
+    'Fout',
+  ];
+  const showLog = async () => {
+    const log = $('#log');
+    const res = await send<DebugEntry[]>({ type: 'getDebugLog' });
+    const entries = res.data ?? [];
+    log.hidden = false;
+    if (entries.length === 0) {
+      log.textContent = 'Nog geen aanroepen gelogd.';
+      return;
     }
+    const table = document.createElement('table');
+    table
+      .createTHead()
+      .insertRow()
+      .append(...LOG_HEAD.map((h) => Object.assign(document.createElement('th'), { textContent: h })));
+    const body = table.createTBody();
+    for (const e of entries.slice().reverse()) {
+      const row = body.insertRow();
+      const cells = [
+        new Date(e.tijd).toLocaleString('nl-NL'),
+        e.videoId,
+        e.stap,
+        e.provider,
+        e.model,
+        e.invoerTekens.toLocaleString('nl-NL'),
+        `${(e.duurMs / 1000).toLocaleString('nl-NL', { maximumFractionDigits: 1 })} s`,
+        e.usage ? `${e.usage.inputTokens ?? '–'} / ${e.usage.outputTokens ?? '–'}` : '–',
+        e.fout ?? '',
+      ];
+      cells.forEach((c, i) => {
+        const td = row.insertCell();
+        td.textContent = c;
+        if (i === cells.length - 1 && c) td.className = 'err';
+      });
+    }
+    log.replaceChildren(table);
+  };
+  $('#show-log').addEventListener('click', () => void showLog());
+  $('#clear-log').addEventListener('click', async () => {
+    await send({ type: 'clearDebugLog' });
+    $('#log').hidden = true;
+  });
+
+  initUpdate();
+}
+
+/**
+ * ⓘ next to every element with data-tip: the button sits beside the title and shows the
+ * explanation from SETTINGS_TIPS.
+ */
+function initTips(): void {
+  const tips = tooltips();
+  document.querySelectorAll<HTMLElement>('[data-tip]').forEach((el) => {
+    const key = el.dataset.tip as TipKey;
+    const line = document.createElement('span');
+    line.className = 'title-line';
+    el.replaceWith(line);
+    const button = document.createElement('button');
+    button.className = 'tip';
+    button.innerHTML = ICONS.info;
+    button.setAttribute('aria-label', `Uitleg: ${el.textContent}`);
+    line.append(el, button);
+    tips.bind(button, () => SETTINGS_TIPS[key]);
   });
 }
 
-document.addEventListener('DOMContentLoaded', init);
+function initUpdate(): void {
+  const version = browser.runtime.getManifest().version;
+  const button = $<HTMLButtonElement>('#check-update');
+  const status = $('#update-status');
+  const panel = $('#update-panel');
+  $('#installed-version').textContent = `Geïnstalleerde versie: ${version}`;
+
+  button.addEventListener('click', async () => {
+    button.disabled = true;
+    panel.hidden = true;
+    status.dataset.state = 'checking';
+    status.textContent = 'Controleren…';
+    const res = await send<{ ok: boolean; check?: UpdateCheck; error?: string }>({
+      type: 'checkUpdate',
+    }).catch(
+      (e: unknown): RuntimeResponse<{ ok: boolean; check?: UpdateCheck; error?: string }> => ({
+        ok: false,
+        error: String(e),
+      }),
+    );
+    button.disabled = false;
+
+    const payload = res.data;
+    if (!res.ok || !payload?.ok || !payload.check) {
+      status.dataset.state = 'error';
+      status.textContent = `Controleren mislukt: ${payload?.error ?? res.error ?? 'onbekende fout'}`;
+      return;
+    }
+
+    const check = payload.check;
+    status.dataset.state = check.status;
+    if (check.status === 'none') {
+      status.textContent = 'Nog geen versie gevonden op GitHub.';
+    } else if (check.status === 'current') {
+      status.textContent = 'Je hebt de nieuwste versie.';
+    } else {
+      status.textContent = '';
+      panel.hidden = false;
+      $('#update-available').textContent = `Versie ${check.asset.version} is beschikbaar.`;
+      $<HTMLAnchorElement>('#update-notes').href = check.page;
+      const download = $<HTMLAnchorElement>('#update-download');
+      download.href = check.asset.url;
+      download.textContent = `Versie ${check.asset.version} downloaden`;
+    }
+  });
+
+  $('#update-reload').addEventListener('click', async () => {
+    await browser.storage.local.set({ [REOPEN_OPTIONS_KEY]: true });
+    browser.runtime.reload();
+  });
+}
+
+function updateProviderSections(): void {
+  const p = document.querySelector<HTMLInputElement>('input[name="provider"]:checked')?.value;
+  document.querySelectorAll<HTMLElement>('[data-provider]').forEach((block) => {
+    block.hidden = block.dataset.provider !== p;
+  });
+}
+
+void init();

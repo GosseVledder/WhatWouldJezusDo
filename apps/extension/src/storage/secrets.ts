@@ -1,4 +1,4 @@
-import type { ProviderId } from '@wwjd/core';
+import type { KeyKind, ProviderId } from '@wwjd/core';
 
 export interface ApiKeys {
   claude: string;
@@ -68,4 +68,14 @@ export async function getApiKeyForProvider(provider: ProviderId): Promise<string
 export async function getFactCheckApiKey(): Promise<string> {
   const keys = await readKeys();
   return keys.factcheck || '';
+}
+
+export async function getApiKeys(): Promise<ApiKeys> {
+  return { ...EMPTY, ...(await readKeys()) };
+}
+
+export async function setApiKey(kind: KeyKind, key: string): Promise<ApiKeys> {
+  const next = { ...(await getApiKeys()), [kind]: key.trim() };
+  await writeKeys(next);
+  return next;
 }

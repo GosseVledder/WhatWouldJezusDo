@@ -3,7 +3,12 @@ import { getGuidelineById } from '../guidelines/jesus';
 import { buildSystemPrompt, buildUserPrompt } from './prompt';
 import { generateClaude } from './providers/claude';
 import { generateGemini } from './providers/gemini';
-import { WwjdModelOutputSchema, type WwjdModelOutput } from './schema';
+import {
+  extractJson,
+  wwjdModelOutputJsonSchema,
+  WwjdModelOutputSchema,
+  type WwjdModelOutput,
+} from './schema';
 import {
   EngineError,
   type ProviderId,
@@ -47,23 +52,41 @@ export async function evaluateVideo(
   const chatRequest = {
     system: systemPrompt,
     user: userPrompt,
-    enableWebSearch: true,
+    schema: wwjdModelOutputJsonSchema(),
+    enableWebSearch: false,
   };
 
   let rawOutput;
-  if (providerId === 'gemini') {
-    rawOutput = await generateGemini([{ text: userPrompt }], chatRequest, opts);
-  } else {
-    rawOutput = await generateClaude(chatRequest, opts);
+  const t0 = Date.now();
+  try {
+    if (providerId === 'gemini') {
+      rawOutput = await generateGemini([{ text: userPrompt }], chatRequest, opts);
+    } else {
+      rawOutput = await generateClaude(chatRequest, opts);
+    }
+    opts.onCall?.({
+      stap: 'evalueren',
+      provider: providerId,
+      model: rawOutput.model,
+      invoerTekens: userPrompt.length,
+      duurMs: Date.now() - t0,
+      usage: rawOutput.usage,
+    });
+  } catch (e) {
+    opts.onCall?.({
+      stap: 'evalueren',
+      provider: providerId,
+      model: opts.model,
+      invoerTekens: userPrompt.length,
+      duurMs: Date.now() - t0,
+      fout: e instanceof Error ? e.message : String(e),
+    });
+    throw e;
   }
 
   let parsedJson: unknown;
   try {
-    const cleaned = rawOutput.text
-      .replace(/^```json\s*/i, '')
-      .replace(/```\s*$/i, '')
-      .trim();
-    parsedJson = JSON.parse(cleaned);
+    parsedJson = extractJson(rawOutput.text);
   } catch (e) {
     throw new EngineError('parse', 'Het antwoord van de AI kon niet als JSON worden gelezen.', {
       details: rawOutput.text.slice(0, 500) + ' ' + String(e),
@@ -81,11 +104,14 @@ export async function evaluateVideo(
 
   // Primaire factcheck-laag: Google Fact Check Tools API (snel & gratis)
   // LLM-fallback blijft behouden voor claims zonder bestaande geregistreerde factcheck
-  if (opts.factCheckApiKey) {
+  const factCheckKey = opts.factCheckApiKey?.trim();
+  if (factCheckKey) {
     await Promise.all(
       modelOutput.factcheckDossier.statements.map(async (stmt) => {
-        const query = stmt.claim || stmt.quote;
-        const match = await searchGoogleFactCheck(query, opts.factCheckApiKey!, {
+        const query = stmt.claim?.trim() || stmt.quote?.trim();
+        if (!query) return;
+
+        const match = await searchGoogleFactCheck(query, factCheckKey, {
           fetch: opts.fetch,
         });
 
@@ -93,7 +119,17 @@ export async function evaluateVideo(
           // Officiële factcheck match gevonden: neem oordeel en bron direct over
           stmt.verdict = match.verdict;
           stmt.historicalAnalysis = `[Geverifieerd via ${match.publisherName} (oordeel: "${match.textualRating}")]: ${stmt.historicalAnalysis}`;
-          stmt.sources = [...(stmt.sources ?? []), ...match.sources];
+
+          const existingSources = stmt.sources ?? [];
+          const seenUrls = new Set(existingSources.map((s) => s.url));
+          const mergedSources = [...existingSources];
+          for (const src of match.sources) {
+            if (!seenUrls.has(src.url)) {
+              seenUrls.add(src.url);
+              mergedSources.push(src);
+            }
+          }
+          stmt.sources = mergedSources;
         }
       }),
     );

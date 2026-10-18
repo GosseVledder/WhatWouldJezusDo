@@ -1,3 +1,5 @@
+<img src="apps/extension/public/icon/128.png" width="72" alt="Logo of What Would Jezus Do">
+
 # What Would Jezus Do (WWJD)
 
 **Fact-check any YouTube video and evaluate how its statements, actions, and attitude align with the teachings of Jesus Christ and the Ten Commandments.**
@@ -10,10 +12,10 @@ Ready to use: download, install, and enter your API keys. No build tools require
 
 | Platform | Download | Installation Guide |
 |---|---|---|
-| 📱 **Android App**<br>Phone and tablet, Android 7.0 or newer | [**WhatWouldJezusDo-0.1.0.apk**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/apk/WhatWouldJezusDo-0.1.0.apk)<br>3.1 MB | [Install on Android](#installing-the-android-app) |
-| 🧩 **Chrome & Edge Extension**<br>Windows, macOS, Linux | [**WhatWouldJezusDo-extension-0.1.0.zip**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.1.0.zip)<br>55 kB | [Install in Chrome or Edge](#installing-the-extension-in-chrome-or-edge) |
+| 📱 **Android App**<br>Phone and tablet, Android 7.0 or newer | [**WhatWouldJezusDo-0.2.0.apk**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/apk/WhatWouldJezusDo-0.2.0.apk)<br>3.1 MB | [Install on Android](#installing-the-android-app) |
+| 🧩 **Chrome & Edge Extension**<br>Windows, macOS, Linux | [**WhatWouldJezusDo-extension-0.2.0.zip**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.2.0.zip)<br>86 kB | [Install in Chrome or Edge](#installing-the-extension-in-chrome-or-edge) |
 
-You will need your own LLM API key from **Google (Gemini, free)** or **Anthropic (Claude, paid)**, and optionally a free **Google Fact Check Tools API key**; see [Configuring API Keys](#configuring-api-keys). All releases and their SHA-256 checksums are available under [Releases](https://github.com/GosseVledder/WhatWouldJezusDo/releases).
+You will need your own LLM API key from **Google (Gemini, free)** or **Anthropic (Claude, paid)**, and optionally a free **Google Fact Check Tools API key**; see [Configuring API Keys](#configuring-api-keys). All releases and their SHA-256 checksums are available under [Releases](https://github.com/GosseVledder/WhatWouldJezusDo/releases); both the app and the extension can check for updates directly via *Instellingen › Updates*.
 
 ---
 
@@ -23,7 +25,7 @@ You will need your own LLM API key from **Google (Gemini, free)** or **Anthropic
 Statements made in a video are **never blindly accepted as truth**:
 - **Key Statements & Claims**: Extracts the most important statements and claims from the video transcript, each with a clickable timestamp (`[mm:ss]`) that jumps directly to that moment in the video.
 - **Primary Layer — Google Fact Check Tools API**: Queries `factchecktools.googleapis.com` in a fraction of a second to check whether independent fact-checking organizations (Reuters, AFP, Full Fact, PolitiFact, etc.) have already rated the claim (`True`, `False`, `Misleading`, etc.).
-- **Fallback Layer — AI Historical & Online Verification**: For claims without a pre-existing fact-check record, the AI engine performs a historical and online verification (using Google Search grounding) to determine whether the claim is supported or refuted by established consensus.
+- **Fallback Layer — AI Historical & Online Verification**: For claims without a pre-existing fact-check record, the AI engine performs a historical and online verification to determine whether the claim is supported or refuted by established consensus.
 - **Contradiction & Integrity Detection**: Explicitly checks whether the speaker contradicts themselves in word or deed (for example, promising *"I will not start a war"* and subsequently starting a war). **Self-contradiction is by definition classified as lying.**
 - **Core Activity & Attitude**: Identifies the core activity being performed or promoted and evaluates the speaker's sentiment and attitude toward others.
 
@@ -81,11 +83,11 @@ Once the statements and actions have been fact-checked, the verified dossier is 
 
 | Property | Details |
 |---|---|
-| **File** | [`WhatWouldJezusDo-0.1.0.apk`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/apk/WhatWouldJezusDo-0.1.0.apk) (also in [`apk/`](apk/)) |
-| **Version** | 0.1.0 (versionCode 1) |
+| **File** | [`WhatWouldJezusDo-0.2.0.apk`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/apk/WhatWouldJezusDo-0.2.0.apk) (also in [`apk/`](apk/)) |
+| **Version** | 0.2.0 (versionCode 2) |
 | **Requires** | Android 7.0 or newer |
 | **Size** | 3.1 MB |
-| **SHA-256** | `a9231a188d25c1eb637d92190f84538a3597ec831dcd30ac19a6803ef97e7a2c` |
+| **SHA-256** | `85a085dae7984b5de9d77e3b4e373cd14d9e16b2c86d4f1e7b4dfcf348ba3bce` |
 
 The APK is a signed release build distributed directly via GitHub.
 
@@ -93,12 +95,15 @@ The APK is a signed release build distributed directly via GitHub.
 2. **Open** the downloaded `.apk` file from your notifications or *Files › Downloads*.
 3. If prompted by Android, allow installation from this source (*Settings › Allow from this source*).
 4. Tap **Install**. If Google Play Protect shows an unknown-developer prompt, choose *Install anyway*.
-5. Open **What Would Jezus Do**, tap the **⚙️ Settings** icon, and enter your [API keys](#configuring-api-keys).
+5. Open **What Would Jezus Do**, tap the **⚙️ Settings** icon in the top bar, and enter your [API keys](#configuring-api-keys); use *Test verbinding* to verify them.
 
-### Using the Android App
-- **Share directly from YouTube**: In the YouTube app or browser, tap **Share › What Would Jezus Do**. The app opens and immediately starts analyzing the shared video.
-- **Paste a link**: You can also paste any YouTube URL or video ID directly into the input field on the home screen.
-- **Interactive Timestamps**: Tap any `[mm:ss]` timestamp in the fact-check or guideline breakdown to open the embedded player at that exact moment in the video.
+### Using the Android App (Layout & Screens)
+- **Home Screen & Recent History**: Share a video from the YouTube app (**Delen → What Would Jezus Do**) or paste any YouTube link on the start screen. Previously analyzed videos are listed under **Recent** with their thumbnail, title, WWJD score (`0.0–10.0`), and timestamp.
+- **Evaluation Screen & Optional Player**:
+  - Toggle the embedded **YouTube player** on or off using the ▶ button in the top bar (off by default).
+  - When the player is off, tapping any `[mm:ss]` timestamp opens a choice dialog: show the embedded player and jump to that moment, or open the video at that timestamp directly in the **YouTube app**.
+  - **Split-screen support**: When What Would Jezus Do is open next to the YouTube app in Android split-screen mode with the embedded player off, tapping a timestamp jumps the YouTube app in the other half of the screen directly to that moment.
+- **Settings Screen (`#/instellingen`)**: Full-screen settings menu sharing the same design language as the browser extension: grouped cards, segmented **Gemini** / **Claude** provider selector, `Toon`/`Verberg` key buttons, collapsible *"Hoe kom ik aan een sleutel?"* guides, `ⓘ` info tooltips, *"Test verbinding"* buttons, cache management, and one-tap **in-app APK updates**. Every change is saved immediately.
 
 ---
 
@@ -106,99 +111,77 @@ The APK is a signed release build distributed directly via GitHub.
 
 | Property | Details |
 |---|---|
-| **File** | [`WhatWouldJezusDo-extension-0.1.0.zip`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.1.0.zip) (also unpacked in [`extension/WhatWouldJezusDo/`](extension/WhatWouldJezusDo/)) |
-| **Version** | 0.1.0 |
+| **File** | [`WhatWouldJezusDo-extension-0.2.0.zip`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.2.0.zip) (also unpacked in [`extension/WhatWouldJezusDo/`](extension/WhatWouldJezusDo/)) |
+| **Version** | 0.2.0 |
 | **Browsers** | Google Chrome and Microsoft Edge (Manifest V3) |
-| **Size** | 55 kB |
-| **SHA-256** | `7b283f6ecabb30375877c3a6bce9e35bba32cd16c35a6c93c845e8b6f68b2837` |
+| **Size** | 86 kB |
+| **SHA-256** | `379fdb1961bbe231cfa3de75695468e164d25d2e3e0e9a74bcdb5f5ec9fd885d` |
 
-1. **Download** [`WhatWouldJezusDo-extension-0.1.0.zip`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.1.0.zip).
+1. **Download** [`WhatWouldJezusDo-extension-0.2.0.zip`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.2.0.zip).
 2. **Extract** the zip file to a permanent folder on your computer (for example, `Documents\WhatWouldJezusDo`). Keep this folder in place—the browser loads the extension from it.
 3. Open `chrome://extensions` (Chrome) or `edge://extensions` (Edge).
 4. Enable **Developer mode** (top-right in Chrome; left sidebar in Edge).
 5. Click **Load unpacked** and select the extracted folder (the folder containing `manifest.json`).
-6. Pin **What Would Jezus Do** to your browser toolbar and click its icon to open the settings page and configure your [API keys](#configuring-api-keys).
+6. Pin **What Would Jezus Do** to your browser toolbar and click its icon to open the settings tab and configure your [API keys](#configuring-api-keys).
+
+### Using the Extension (Layout & Settings)
+- **Watch-Page Panel**: On any YouTube watch page, the WWJD panel mounts at the top of the right-hand sidebar (or directly below The Point if both extensions are installed). Its header includes an **on/off switch**, a **refresh** button (`↻`), a **settings** button (`⚙`), and a toggle to expand or collapse the detailed substantiation.
+- **Full-Tab Settings Page**: Clicking the toolbar icon opens the settings page in a full browser tab with sticky header and instant auto-save (`✓ Opgeslagen`):
+  - **AI-dienst**: Choose **Gemini** (Google) or **Claude** (Anthropic), enter your API key (`Toon`/`Verberg`), select or type a model (`<datalist>`), read *"Hoe kom ik aan een sleutel?"*, and verify with **Test verbinding**.
+  - **Feitencontrole (Google Fact Check API)**: Toggle the primary fact-check lookup on or off, enter your free Google Fact Check API key, view step-by-step instructions, and test the connection with **Test verbinding**.
+  - **Analyse & weergave**: Toggle the extension on/off, automatic analysis on video open, and whether substantiation starts collapsed.
+  - **Updates**: Check GitHub Releases for a newer version, download the zip, and reload the extension in one click.
+  - **Geavanceerd**: View and clear cached evaluations or inspect the per-call **Debuglog** table (provider, model, input size, duration, and token usage).
 
 ---
 
 ## Configuring API Keys
 
-What Would Jezus Do runs directly on your device without a middleman server. You provide your own API keys:
+What Would Jezus Do runs directly on your device without a middleman server. Every setting is saved automatically as soon as you type or toggle it:
 
 | Service | Purpose | Cost | Where to Create | Default Model |
 |---|---|---|---|---|
-| **Google Gemini** | AI Evaluation & Search Grounding | Free tier available | <https://aistudio.google.com/app/apikey> | `gemini-flash-latest` |
+| **Google Gemini** | AI Evaluation & Fact-Check Fallback | Free tier available (± 10/min, ± 200/day) | <https://aistudio.google.com/apikey> | `gemini-flash-latest` |
 | **Anthropic Claude** | AI Evaluation (Alternative) | Paid (prepaid credit) | <https://console.anthropic.com/settings/keys> | `claude-haiku-5-5` |
-| **Google Fact Check Tools API** | Fast primary lookup of existing fact-checks | 100% Free | <https://console.cloud.google.com/apis/library/factchecktools.googleapis.com> | N/A |
+| **Google Fact Check Tools API** | Fast primary lookup of existing fact-checks | 100% Free (up to 10,000/day) | <https://console.cloud.google.com/apis/credentials> | N/A |
+
+### 1. Google Gemini API Key (Free)
+
+1. Open **<https://aistudio.google.com/apikey>** and sign in with your Google account.
+2. Accept the terms of service (first time only).
+3. Click **Create API key** (choose an existing project or let one be created).
+4. Copy the generated key (starts with `AIza...`).
+5. In the WWJD settings, select **Gemini**, paste the key under *API-sleutel* (it saves automatically), and click **Test verbinding**.
+   - As long as you do not link billing to the Google project, the Flash and Flash-Lite models (`gemini-flash-latest`, `gemini-3.8-flash`, `gemini-flash-lite-latest`) are free to use.
+
+### 2. Google Fact Check Tools API Key (Free)
+
+The **Google Fact Check Tools API** searches thousands of existing fact-checks from independent organizations worldwide (Reuters, AP, AFP, PolitiFact, Full Fact, etc.) in a fraction of a second. It is **100% free** (up to 10,000 queries/day) and requires **no credit card**.
+
+1. Open **<https://console.cloud.google.com/apis/credentials>** and sign in with your Google account.
+2. Select an existing project at the top (for example your Gemini project) or click **New Project** and name it `WWJD`.
+3. Open the **[Fact Check Tools API page](https://console.cloud.google.com/apis/library/factchecktools.googleapis.com)** and click **Enable**.
+4. Return to **[Credentials](https://console.cloud.google.com/apis/credentials)**, click **+ Create Credentials → API key**, and copy the key (`AIza...`).
+5. Paste the key into **API-sleutel Fact Check** in the WWJD settings and click **Test verbinding**.
+   > 💡 **Tip:** If you enable the *Fact Check Tools API* in the same Google Cloud project as your Gemini key, you can use the exact same `AIza...` key for both Gemini and Fact Check.
+
+### 3. Anthropic Claude API Key (Paid Alternative)
+
+1. Open **<https://console.anthropic.com/settings/keys>** and sign in.
+2. Purchase prepaid credit under **Billing**.
+3. Click **Create key**, copy the key (`sk-ant-...`), paste it under **Claude → API-sleutel** in the WWJD settings, and click **Test verbinding**.
 
 ---
 
-### Step-by-Step Guide (For Dummies): Google Fact Check Tools API Key
+## Updating
 
-The **Google Fact Check Tools API** lets the app search thousands of existing fact-checks from independent organizations worldwide (Reuters, AP, AFP, PolitiFact, Full Fact, etc.) in less than a second.
-
-- **Cost**: **100% Free** (up to 10,000 queries per day).
-- **Credit Card Needed?**: **No.** You do **not** need to enable billing or enter a credit card.
-
-#### Step 1 — Open Google Cloud Console
-1. Go to **<https://console.cloud.google.com/>** in your browser.
-2. Sign in with your regular Google / Gmail account.
-3. *First time visiting?* A welcome popup will ask you to accept the Terms of Service. Check the box and click **Agree and Continue**.
-   > 💡 **Important:** Ignore any banner at the top offering "$300 in free credit / Start Free Trial". You do **not** need a trial or credit card for the Fact Check Tools API.
-
-#### Step 2 — Select or Create a Project
-1. Look at the very top bar (just to the right of the **Google Cloud** logo) and click the **Project dropdown button** (it may say *Select a project* or *My First Project*).
-2. A popup window will appear:
-   - **Shortcut:** If you already created a Gemini key in Google AI Studio, you may already see a project in the list (such as `Default Gemini Project`). You can simply click that project to select it!
-   - **Or create a new project:** Click **New Project** in the top-right corner of the popup, enter a name like `WWJD-FactCheck`, and click **Create**. Wait a few seconds and make sure `WWJD-FactCheck` is selected in the top bar.
-
-#### Step 3 — Enable the "Fact Check Tools API"
-1. Click this direct link to open the Fact Check Tools API page:
-   👉 **<https://console.cloud.google.com/apis/library/factchecktools.googleapis.com>**
-   *(Alternatively: click the search bar at the top of Google Cloud Console, type `Fact Check Tools API`, and click the result with the blue API icon).*
-2. Click the blue **Enable** button.
-3. Wait 2–5 seconds until the page refreshes and shows that the API is enabled.
-
-#### Step 4 — Create and Copy Your API Key
-1. Click this direct link to open the Credentials page:
-   👉 **<https://console.cloud.google.com/apis/credentials>**
-   *(Alternatively: in the left sidebar menu, click **APIs & Services › Credentials**).*
-2. At the top of the page, click **+ Create Credentials** and choose **API key** from the dropdown menu.
-3. A box titled *API key created* will pop up showing a long code that starts with `AIzaSy...`.
-4. Click the **Copy** icon next to the key.
-
-#### Step 5 — (Optional) Restrict Your Key to Only the Fact Check API
-For extra peace of mind so the key cannot be used for anything else:
-1. Click on your newly created API key in the **Credentials** list.
-2. Under **API restrictions**, select **Restrict key**.
-3. Click the **Select APIs** dropdown, check **Fact Check Tools API**, click **OK**, and click **Save**.
-   > 💡 **Pro Tip:** If you enabled the *Fact Check Tools API* on the same Google Cloud project as your Gemini key and did not restrict your Gemini key to a single API, that single `AIzaSy...` key can actually be pasted into **both** the Gemini field and the Fact Check field!
-
-#### Step 6 — Paste the Key into What Would Jezus Do
-- **In the Chrome / Edge Extension**:
-  1. Click the **WWJD** icon in your browser toolbar to open the Settings page.
-  2. Under *2. Google Fact Check Tools API*, make sure **Google Fact Check Tools API inschakelen** is checked.
-  3. Paste your `AIzaSy...` key into **Google Fact Check API-sleutel**.
-  4. Click **Instellingen & Sleutels Opslaan** at the bottom.
-- **In the Android App**:
-  1. Tap the **⚙️ Settings** icon in the top-right corner.
-  2. Paste your `AIzaSy...` key into **Google Fact Check Tools API Key**.
-  3. Tap **Opslaan**.
-
----
-
-### Step-by-Step Guide: Google Gemini API Key (Free)
-
-1. Open **<https://aistudio.google.com/app/apikey>** and sign in with your Google account.
-2. Accept the terms of service if prompted.
-3. Click **Create API key** (choose an existing project or click *Create API key in new project*).
-4. Copy the generated key (starts with `AIzaSy...`).
-5. Paste it into the **Gemini API key** field in the WWJD settings and click **Save**.
-   - As long as you do not attach a billing account to the Google project, the Flash models (`gemini-flash-latest`) are completely free to use within Google's free-tier rate limits.
+Both the Android app and the browser extension can check for updates via **Instellingen › Updates › Controleren op updates**:
+- **Android App**: Tap **Downloaden en installeren**. The app downloads the new APK, verifies its SHA-256 checksum, and opens the Android package installer. Your keys, settings, and cached evaluations are preserved.
+- **Browser Extension**: Download the new zip, extract it over your existing extension folder (replacing the files), and click **Herladen**.
 
 ### Privacy & Security
 - **Browser Extension**: API keys are stored exclusively in the extension's isolated `IndexedDB` (`wwjd-secrets`), inaccessible to YouTube page scripts.
-- **Android App**: App backups are disabled (`android:allowBackup="false"`), and requests are sent directly from your device to YouTube, Google, or Anthropic.
+- **Android App**: API keys are stored encrypted in the Android Keystore (`@aparajita/capacitor-secure-storage`), and cloud/device backups are disabled (`android:allowBackup="false"`).
 - **No Intermediary Server**: Your keys and video history are never sent to any third-party backend.
 
 ---
@@ -209,17 +192,18 @@ The repository is organized as a TypeScript monorepo using `npm workspaces`:
 
 ```
 WhatWouldJezusDo/
-├── packages/core/              # Platform-neutral engine (@wwjd/core)
+├── packages/core/              # Platform-neutral engine & shared UI (@wwjd/core)
 │   ├── src/
 │   │   ├── guidelines/         # Database of 25 Jesus guidelines & Ten Commandments with Bible links
-│   │   ├── factcheck/          # Google Fact Check Tools API client & verdict mapper
+│   │   ├── factcheck/          # Google Fact Check Tools API client, verdict mapper & connection test
 │   │   ├── engine/             # Two-stage evaluation engine, Zod schemas, Gemini/Claude providers
 │   │   ├── youtube/            # InnerTube transcript fetcher & YouTube URL parser
-│   │   ├── ui/                 # Shared Shadow DOM scorecard & expandable breakdown UI
-│   │   └── settings.ts         # Shared settings schema
+│   │   ├── ui/                 # Shared Shadow DOM view, tooltips (ⓘ) & collapsible keySteps
+│   │   ├── settings.ts         # Shared settings schema
+│   │   └── update.ts           # GitHub Releases update checker
 │   └── scripts/try.ts          # CLI evaluation runner
 ├── apps/extension/             # Chrome & Edge extension (@wwjd/extension, WXT Manifest V3)
-├── apps/mobile/                # Android & Web app (@wwjd/mobile, Capacitor + Vite)
+├── apps/mobile/                # Android app (@wwjd/mobile, Capacitor + Vite)
 ├── apk/                        # Signed Android release APK
 └── extension/                  # Packaged unpacked extension & zip archive
 ```
@@ -235,15 +219,14 @@ npm install
 # Build the Chrome/Edge extension (output in apps/extension/.output/chrome-mv3)
 npm run build
 
-# Package the extension into extension/ and update apk/
-npm run package:extension
-
 # Build the mobile web assets & sync Capacitor Android
-npm run build -w @wwjd/mobile
-cd apps/mobile && npx cap sync android
+npm run android -w @wwjd/mobile
 
 # Build the Android APK (inside apps/mobile/android)
 ./gradlew assembleRelease      # Windows: gradlew.bat assembleRelease
+
+# Package the extension into extension/ and copy the release APK into apk/
+npm run package:extension
 ```
 
 ### Development Commands

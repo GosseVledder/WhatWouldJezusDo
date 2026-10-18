@@ -2,7 +2,7 @@
   "name": "@wwjd/extension",
   "description": "WWJD Chromium extension: WWJD factcheck & Jesus guidance evaluation on YouTube",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "MIT",
   "type": "module",
   "scripts": {
@@ -10,7 +10,8 @@
     "dev:edge": "wxt -b edge",
     "build": "wxt build",
     "zip": "wxt zip",
-    "typecheck": "wxt prepare && tsc --noEmit"
+    "typecheck": "wxt prepare && tsc --noEmit",
+    "icons": "tsx scripts/make-icons.ts"
   },
   "dependencies": {
     "@wwjd/core": "0.1.0"

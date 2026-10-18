@@ -3,122 +3,18 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
     <title>What Would Jezus Do</title>
-    <link rel="stylesheet" href="/src/app.css" />
   </head>
   <body>
-    <header class="app-bar">
-      <div class="brand">
-        <span class="logo-pill">WWJD</span>
-        <h1>What Would Jezus Do</h1>
-      </div>
-      <button id="btn-settings" class="icon-btn" title="Instellingen">⚙️</button>
+    <header class="bar">
+      <button id="back" class="icon" aria-label="Terug" hidden></button>
+      <h1 id="title">What Would Jezus Do</h1>
+      <button id="toggle-player" class="icon" aria-pressed="false" hidden></button>
+      <button id="open-settings" class="icon" aria-label="Instellingen"></button>
     </header>
-
-    <main class="app-content">
-      <!-- Input Card -->
-      <section class="card input-card">
-        <label for="video-url-input">Voer een YouTube-link in:</label>
-        <div class="input-row">
-          <input
-            type="text"
-            id="video-url-input"
-            placeholder="https://www.youtube.com/watch?v=..."
-          />
-          <button id="btn-evaluate" class="btn primary">Analyseer</button>
-        </div>
-      </section>
-
-      <!-- Player (Optional/When playing) -->
-      <div id="player-container" class="player-wrapper" style="display: none">
-        <iframe
-          id="yt-player"
-          src=""
-          frameborder="0"
-          allow="
-            accelerometer;
-            autoplay;
-            clipboard-write;
-            encrypted-media;
-            gyroscope;
-            picture-in-picture;
-          "
-          allowfullscreen
-        ></iframe>
-      </div>
-
-      <!-- Result View -->
-      <section id="results-view"></section>
-
-      <!-- Settings Dialog -->
-      <dialog id="settings-dialog" class="dialog">
-        <form method="dialog">
-          <h2>WWJD Instellingen & Sleutels</h2>
-          <div class="field">
-            <label for="mob-provider">AI Provider</label>
-            <select id="mob-provider">
-              <option value="gemini">Google Gemini</option>
-              <option value="claude">Anthropic Claude</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="mob-key">Gemini / Claude API Key</label>
-            <input type="password" id="mob-key" placeholder="AIzaSy... of sk-ant-..." />
-          </div>
-          <div class="field">
-            <label for="mob-factcheck-key">Google Fact Check Tools API Key</label>
-            <input type="password" id="mob-factcheck-key" placeholder="AIzaSy..." />
-            <small
-              >Optioneel & 100% gratis (geen creditcard nodig) voor directe officiële
-              factchecks.</small
-            >
-            <details
-              style="margin-top: 8px; font-size: 12px; color: var(--text-muted); line-height: 1.5"
-            >
-              <summary style="cursor: pointer; font-weight: 600; color: var(--text)">
-                📖 Stap-voor-stap handleiding (For Dummies)
-              </summary>
-              <ol style="margin: 6px 0 0 18px; padding: 0">
-                <li>
-                  Open
-                  <a href="https://console.cloud.google.com/" target="_blank" rel="noopener"
-                    >console.cloud.google.com</a
-                  >
-                  met je Google-account.
-                </li>
-                <li>Kies bovenin een project (of maak een nieuw project <code>WWJD</code> aan).</li>
-                <li>
-                  Open
-                  <a
-                    href="https://console.cloud.google.com/apis/library/factchecktools.googleapis.com"
-                    target="_blank"
-                    rel="noopener"
-                    >Fact Check Tools API</a
-                  >
-                  en tik op <strong>Enable / Inschakelen</strong>.
-                </li>
-                <li>
-                  Ga naar
-                  <a
-                    href="https://console.cloud.google.com/apis/credentials"
-                    target="_blank"
-                    rel="noopener"
-                    >Credentials</a
-                  >
-                  → <strong>+ Create Credentials</strong> → <strong>API key</strong>.
-                </li>
-                <li>Kopieer de <code>AIzaSy...</code> sleutel en plak hem hierboven.</li>
-              </ol>
-            </details>
-          </div>
-          <div class="dialog-actions">
-            <button type="submit" id="mob-save-settings" class="btn primary">Opslaan</button>
-            <button type="button" id="mob-close-settings" class="btn">Sluiten</button>
-          </div>
-        </form>
-      </dialog>
-    </main>
-
+    <main id="screen"></main>
+    <div id="toast" class="toast" role="status" hidden></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

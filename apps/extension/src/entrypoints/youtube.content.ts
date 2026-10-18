@@ -1,15 +1,101 @@
-import { parseVideoId, renderWwjdView, type WwjdEvaluation } from '@wwjd/core';
+import {
+  DEFAULT_WWJD_SETTINGS,
+  parseVideoId,
+  renderWwjdStateView,
+  type WwjdEvaluation,
+  type WwjdSettings,
+  type WwjdViewState,
+} from '@wwjd/core';
+import { getSettings, onSettingsChanged, saveSettings } from '../storage/settings';
 
 export default defineContentScript({
   matches: ['*://www.youtube.com/*'],
+  runAt: 'document_idle',
   cssInjectionMode: 'manual',
 
-  main() {
+  async main(ctx) {
+    console.log('[wwjd] geladen');
+
+    let settings: WwjdSettings = await getSettings().catch(() => DEFAULT_WWJD_SETTINGS);
     let currentVideoId: string | null = null;
+    let lastUrl = '';
     let hostEl: HTMLElement | null = null;
+    let state: WwjdViewState = { kind: 'idle' };
+    let collapsed = settings.paneelIngeklapt;
+
+    function currentTheme(): 'dark' | 'light' {
+      return document.documentElement.hasAttribute('dark') ? 'dark' : 'light';
+    }
+
+    function syncTheme() {
+      if (hostEl) {
+        hostEl.dataset.theme = currentTheme();
+      }
+    }
+
+    const themeObserver = new MutationObserver(syncTheme);
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['dark'],
+    });
+
+    function placeHost() {
+      if (!hostEl) return;
+      const flexy = document.querySelector('ytd-watch-flexy');
+      const twoColumns = flexy?.hasAttribute('is-two-columns_') ?? true;
+      const target = twoColumns
+        ? (document.querySelector('ytd-watch-flexy #secondary-inner') ??
+          document.querySelector('ytd-watch-flexy #secondary'))
+        : document.querySelector('ytd-watch-flexy #below');
+
+      if (!target) return;
+
+      const thePointPanel = target.querySelector(':scope > #the-point-panel');
+      if (thePointPanel) {
+        if (thePointPanel.nextElementSibling !== hostEl) {
+          thePointPanel.after(hostEl);
+        }
+      } else if (hostEl.parentElement !== target || target.firstElementChild !== hostEl) {
+        target.prepend(hostEl);
+      }
+    }
+
+    function render() {
+      if (!hostEl || !currentVideoId) return;
+      const videoId = currentVideoId;
+      const shadow = hostEl.shadowRoot ?? hostEl.attachShadow({ mode: 'open' });
+      renderWwjdStateView(
+        shadow as unknown as HTMLElement,
+        state,
+        {
+          onStart: () => void runEvaluation(videoId, false),
+          onRefresh: () => void runEvaluation(videoId, true),
+          onOpenOptions: () => void browser.runtime.sendMessage({ type: 'openOptions' }),
+          onSeek: (seconds) => seekVideo(seconds),
+          onToggleCollapse: (nextCollapsed) => {
+            collapsed = nextCollapsed;
+            void saveSettings({ paneelIngeklapt: nextCollapsed });
+          },
+          onToggleEnabled: (enabled) => {
+            settings = { ...settings, actief: enabled };
+            void saveSettings({ actief: enabled });
+            if (enabled && state.kind === 'idle') {
+              void runEvaluation(videoId, false);
+            } else {
+              render();
+            }
+          },
+        },
+        {
+          collapsed,
+          enabled: settings.actief,
+        },
+      );
+    }
 
     function handleNavigation() {
-      const videoId = parseVideoId(window.location.href);
+      const onWatch = window.location.pathname === '/watch';
+      const videoId = onWatch ? parseVideoId(window.location.href) : null;
       if (videoId === currentVideoId) return;
 
       currentVideoId = videoId;
@@ -21,81 +107,93 @@ export default defineContentScript({
         return;
       }
 
-      mountPanel(videoId);
+      void mountPanel(videoId);
     }
 
     async function mountPanel(videoId: string) {
-      // Find insertion point on YouTube watch page
       const target = await waitForElement([
-        '#secondary-inner',
-        '#secondary',
-        '#below',
-        '#primary-inner',
+        'ytd-watch-flexy #secondary-inner',
+        'ytd-watch-flexy #secondary',
+        'ytd-watch-flexy #below',
       ]);
       if (!target || currentVideoId !== videoId) return;
 
       if (!hostEl) {
         hostEl = document.createElement('div');
         hostEl.id = 'wwjd-root';
+        hostEl.style.display = 'block';
         hostEl.style.marginBottom = '16px';
-        target.prepend(hostEl);
+        for (const t of ['keydown', 'keyup', 'keypress']) {
+          hostEl.addEventListener(t, (e) => e.stopPropagation());
+        }
+      }
+      syncTheme();
+      placeHost();
+
+      collapsed = settings.paneelIngeklapt;
+
+      // Check cache first even if auto is off
+      const cachedResp = (await browser.runtime
+        .sendMessage({ type: 'getCached', videoId })
+        .catch(() => null)) as { ok: boolean; data?: WwjdEvaluation | null } | null;
+
+      if (currentVideoId !== videoId) return;
+
+      if (cachedResp?.ok && cachedResp.data) {
+        state = { kind: 'done', evaluation: cachedResp.data, fromCache: true };
+        render();
+        return;
       }
 
-      const shadow = hostEl.shadowRoot ?? hostEl.attachShadow({ mode: 'open' });
-      renderLoading(shadow);
+      if (!settings.actief || !settings.automatisch) {
+        state = { kind: 'idle' };
+        render();
+        return;
+      }
+
+      await runEvaluation(videoId, false);
+    }
+
+    async function runEvaluation(videoId: string, force: boolean) {
+      state = {
+        kind: 'loading',
+        step: "Video factchecken en toetsen aan Jezus' richtlijnen en De Tien Geboden…",
+      };
+      render();
 
       try {
         const response = (await browser.runtime.sendMessage({
           type: 'evaluate',
           videoId,
+          force,
         })) as { ok: boolean; data?: WwjdEvaluation; error?: string };
 
         if (currentVideoId !== videoId) return;
 
-        if (!response.ok || !response.data) {
-          renderError(shadow, response.error ?? 'Onbekende fout bij evaluatie.');
+        if (!response?.ok || !response.data) {
+          const msg = response?.error ?? 'Onbekende fout bij evaluatie.';
+          state = {
+            kind: 'error',
+            message: msg,
+            showSettings: /sleutel|instellingen|toegang/i.test(msg),
+          };
+          render();
           return;
         }
 
-        renderWwjdView(shadow as unknown as HTMLElement, response.data, {
-          onSeek(seconds) {
-            seekVideo(seconds);
-          },
-        });
+        state = { kind: 'done', evaluation: response.data, fromCache: false };
+        render();
       } catch (err) {
         if (currentVideoId === videoId) {
-          renderError(shadow, (err as Error).message);
+          const msg = (err as Error).message;
+          state = {
+            kind: 'error',
+            message: msg,
+            showSettings: /sleutel|instellingen|toegang/i.test(msg),
+          };
+          render();
         }
       }
-    }
-
-    function renderLoading(root: ShadowRoot) {
-      root.innerHTML = `
-        <div style="background: rgba(0,0,0,0.05); border-radius: 12px; padding: 16px; font-family: Roboto, sans-serif; font-size: 14px; color: #0f0f0f; border: 1px solid rgba(0,0,0,0.1);">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="background: #065fd4; color: #fff; font-weight: 700; font-size: 11px; padding: 2px 6px; border-radius: 4px;">WWJD</span>
-            <strong>What Would Jezus Do</strong>
-          </div>
-          <div style="margin-top: 10px; color: #606060;">
-            ⏳ Video factchecken en toetsen aan Jezus' richtlijnen en De Tien Geboden...
-          </div>
-        </div>
-      `;
-    }
-
-    function renderError(root: ShadowRoot, errorMsg: string) {
-      root.innerHTML = `
-        <div style="background: #fce8e6; color: #c5221f; border-radius: 12px; padding: 14px; font-family: Roboto, sans-serif; font-size: 13px; border: 1px solid #c5221f;">
-          <div style="font-weight: 600; margin-bottom: 4px;">WWJD Analyse kon niet worden voltooid</div>
-          <div>${escapeHtml(errorMsg)}</div>
-          <div style="margin-top: 8px;">
-            <button id="wwjd-open-opt" style="background: #c5221f; color: #fff; border: 0; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">Instellingen openen</button>
-          </div>
-        </div>
-      `;
-      root.querySelector('#wwjd-open-opt')?.addEventListener('click', () => {
-        browser.runtime.sendMessage({ type: 'openOptions' });
-      });
     }
 
     function seekVideo(seconds: number) {
@@ -104,10 +202,6 @@ export default defineContentScript({
         video.currentTime = Math.max(0, seconds);
         video.play().catch(() => {});
       }
-    }
-
-    function escapeHtml(str: string): string {
-      return str.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>');
     }
 
     function waitForElement(selectors: string[]): Promise<Element | null> {
@@ -127,16 +221,51 @@ export default defineContentScript({
           }
         });
 
-        observer.observe(document.body, { childList: true, subtree: true });
+        observer.observe(document.documentElement, { childList: true, subtree: true });
         setTimeout(() => {
           observer.disconnect();
           resolve(null);
-        }, 8000);
+        }, 12_000);
       });
     }
 
+    const stopSettings = onSettingsChanged((next) => {
+      const enabledChanged = next.actief !== settings.actief;
+      const collapsedChanged = next.paneelIngeklapt !== settings.paneelIngeklapt;
+      settings = next;
+      if (collapsedChanged) collapsed = next.paneelIngeklapt;
+      if (enabledChanged && next.actief && currentVideoId && state.kind === 'idle') {
+        void runEvaluation(currentVideoId, false);
+      } else {
+        render();
+      }
+    });
+
+    document.addEventListener('yt-navigate-finish', handleNavigation);
     window.addEventListener('yt-navigate-finish', handleNavigation);
     window.addEventListener('popstate', handleNavigation);
+
+    const interval = window.setInterval(() => {
+      if (window.location.href !== lastUrl) {
+        lastUrl = window.location.href;
+        handleNavigation();
+      }
+      if (currentVideoId && hostEl && !hostEl.isConnected) {
+        placeHost();
+      }
+    }, 1000);
+
+    ctx.onInvalidated(() => {
+      stopSettings();
+      themeObserver.disconnect();
+      window.clearInterval(interval);
+      document.removeEventListener('yt-navigate-finish', handleNavigation);
+      window.removeEventListener('yt-navigate-finish', handleNavigation);
+      window.removeEventListener('popstate', handleNavigation);
+      hostEl?.remove();
+    });
+
+    lastUrl = window.location.href;
     handleNavigation();
   },
 });

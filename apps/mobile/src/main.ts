@@ -1,160 +1,134 @@
-import {
-  DEFAULT_MODELS,
-  evaluateVideo,
-  getTranscriptById,
-  parseVideoId,
-  renderWwjdView,
-  type ProviderId,
-} from '@wwjd/core';
-import { nativeFetch } from './nativeFetch';
+// App shell: hash routing between home, evaluation and settings, plus incoming shares.
+import { App as CapApp } from '@capacitor/app';
+import { ICONS } from '@wwjd/core';
+import { NavStack, parseRoute, summaryHash, type App, type Screen } from './app';
+import './app.css';
+import { homeScreen } from './screens/home';
+import { settingsScreen } from './screens/settings';
+import { summaryScreen } from './screens/summary';
+import { videoFromShare } from './share';
 import { onShare } from './shareIntent';
+import { preferencesKV, secureKV } from './storage/native';
+import { createEvaluationCache, createKeyStore, createSettingsStore } from './storage/stores';
 
-const STORAGE_KEYS = {
-  provider: 'wwjd_mob_provider',
-  apiKey: 'wwjd_mob_api_key',
-  factcheckKey: 'wwjd_mob_factcheck_key',
+const $ = (id: string) => document.getElementById(id)!;
+const screenEl = $('screen');
+const titleEl = $('title');
+const backBtn = $('back') as HTMLButtonElement;
+const settingsBtn = $('open-settings') as HTMLButtonElement;
+const playerBtn = $('toggle-player') as HTMLButtonElement;
+const toastEl = $('toast');
+
+let current: Screen | null = null;
+const nav = new NavStack();
+let toastTimer: number | undefined;
+
+const app: App = {
+  settings: createSettingsStore(preferencesKV),
+  keys: createKeyStore(secureKV),
+  cache: createEvaluationCache(preferencesKV),
+  go(hash) {
+    nav.push(hash);
+    show();
+  },
+  back() {
+    if (current?.back?.()) return;
+    if (nav.back()) show();
+    else void CapApp.exitApp().catch(() => undefined);
+  },
+  playerOn: false,
+  setPlayerOn(on) {
+    app.playerOn = on;
+    updatePlayerButton();
+    current?.setPlayer?.(on);
+  },
+  toast(message) {
+    toastEl.textContent = message;
+    toastEl.hidden = false;
+    window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => (toastEl.hidden = true), 4000);
+  },
 };
 
-function getStored(key: string, def = ''): string {
-  return localStorage.getItem(key) || def;
-}
-
-function setStored(key: string, val: string) {
-  localStorage.setItem(key, val);
-}
-
-/** Extract a YouTube URL or video ID from shared text (e.g. "Title https://youtu.be/abc"). */
-function extractYouTubeFromSharedText(text: string): string | null {
-  const urlMatch = text.match(/https?:\/\/[^\s]+/);
-  if (urlMatch && parseVideoId(urlMatch[0])) return urlMatch[0];
-  return parseVideoId(text) ? text.trim() : null;
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  const urlInput = document.getElementById('video-url-input') as HTMLInputElement;
-  const evalBtn = document.getElementById('btn-evaluate') as HTMLButtonElement;
-  const resultsView = document.getElementById('results-view') as HTMLElement;
-  const playerContainer = document.getElementById('player-container') as HTMLElement;
-  const playerIframe = document.getElementById('yt-player') as HTMLIFrameElement;
-  const settingsBtn = document.getElementById('btn-settings') as HTMLButtonElement;
-  const settingsDialog = document.getElementById('settings-dialog') as HTMLDialogElement;
-  const mobProvider = document.getElementById('mob-provider') as HTMLSelectElement;
-  const mobKey = document.getElementById('mob-key') as HTMLInputElement;
-  const mobFactcheckKey = document.getElementById('mob-factcheck-key') as HTMLInputElement;
-  const mobSaveSettings = document.getElementById('mob-save-settings') as HTMLButtonElement;
-  const mobCloseSettings = document.getElementById('mob-close-settings') as HTMLButtonElement;
-
-  // Init settings
-  mobProvider.value = getStored(STORAGE_KEYS.provider, 'gemini');
-  mobKey.value = getStored(STORAGE_KEYS.apiKey, '');
-  mobFactcheckKey.value = getStored(STORAGE_KEYS.factcheckKey, '');
-
-  settingsBtn.addEventListener('click', () => {
-    settingsDialog.showModal();
-  });
-
-  mobCloseSettings.addEventListener('click', () => {
-    settingsDialog.close();
-  });
-
-  mobSaveSettings.addEventListener('click', (e) => {
-    e.preventDefault();
-    setStored(STORAGE_KEYS.provider, mobProvider.value);
-    setStored(STORAGE_KEYS.apiKey, mobKey.value.trim());
-    setStored(STORAGE_KEYS.factcheckKey, mobFactcheckKey.value.trim());
-    settingsDialog.close();
-    alert('Instellingen opgeslagen!');
-  });
-
-  async function runEvaluation() {
-    const rawUrl = urlInput.value.trim();
-    const videoId = parseVideoId(rawUrl);
-    if (!videoId) {
-      alert('Voer een geldige YouTube video-link of video ID in.');
-      return;
+/** Migrate legacy localStorage keys from v0.1.0 if present. */
+async function migrateLegacyStorage() {
+  try {
+    const legacyProvider = localStorage.getItem('wwjd_mob_provider');
+    const legacyKey = localStorage.getItem('wwjd_mob_api_key');
+    const legacyFcKey = localStorage.getItem('wwjd_mob_factcheck_key');
+    if (legacyProvider === 'claude' || legacyProvider === 'gemini') {
+      await app.settings.save({ provider: legacyProvider });
+      localStorage.removeItem('wwjd_mob_provider');
     }
-
-    const provider = getStored(STORAGE_KEYS.provider, 'gemini') as ProviderId;
-    const apiKey = getStored(STORAGE_KEYS.apiKey, '');
-    const factCheckApiKey = getStored(STORAGE_KEYS.factcheckKey, '') || undefined;
-
-    if (!apiKey) {
-      alert('Geen API-sleutel ingesteld. Klik op het tandwiel-icoon ⚙️ om je sleutel op te slaan.');
-      settingsDialog.showModal();
-      return;
+    if (legacyKey) {
+      const p = legacyProvider === 'claude' ? 'claude' : 'gemini';
+      await app.keys.set(p, legacyKey);
+      localStorage.removeItem('wwjd_mob_api_key');
     }
-
-    evalBtn.disabled = true;
-    evalBtn.textContent = 'Bezig...';
-    resultsView.innerHTML = `
-      <div class="card" style="text-align: center; padding: 24px;">
-        <div style="font-size: 24px; margin-bottom: 8px;">⏳</div>
-        <strong>Video analyseren en factchecken...</strong>
-        <p style="color: var(--text-muted); font-size: 13px;">Ondertitels ophalen, feiten verifiëren via Google Fact Check en toetsen aan Jezus' richtlijnen.</p>
-      </div>
-    `;
-
-    try {
-      const transcriptRes = await getTranscriptById(videoId, { fetch: nativeFetch });
-      if (!transcriptRes.transcript) {
-        throw new Error(
-          `Geen transcript beschikbaar voor deze video (${transcriptRes.reden ?? 'geen ondertitels'}).`,
-        );
-      }
-
-      const model = DEFAULT_MODELS[provider];
-      const evaluation = await evaluateVideo(
-        {
-          videoId,
-          transcript: transcriptRes.transcript,
-          meta: transcriptRes.info.meta,
-        },
-        provider,
-        { apiKey, model, factCheckApiKey, fetch: nativeFetch },
-      );
-
-      // Render evaluation view
-      renderWwjdView(resultsView, evaluation, {
-        onSeek(seconds) {
-          playerContainer.style.display = 'block';
-          playerIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&start=${Math.floor(seconds)}`;
-          playerContainer.scrollIntoView({ behavior: 'smooth' });
-        },
-      });
-    } catch (err) {
-      resultsView.innerHTML = `
-        <div class="card" style="border-color: #c5221f; color: #c5221f;">
-          <strong>Fout bij analyseren:</strong><br>
-          ${(err as Error).message}
-        </div>
-      `;
-    } finally {
-      evalBtn.disabled = false;
-      evalBtn.textContent = 'Analyseer';
+    if (legacyFcKey) {
+      await app.keys.set('factcheck', legacyFcKey);
+      localStorage.removeItem('wwjd_mob_factcheck_key');
     }
+  } catch {
+    // ignore
   }
+}
 
-  // Check URL params for shared links: e.g. ?url=...
+/** Show the screen on top of the stack; the hash only mirrors it (no browser history). */
+function show() {
+  history.replaceState(null, '', nav.current);
+  current?.dispose?.();
+  const r = parseRoute(nav.current);
+  current =
+    r.name === 'summary'
+      ? summaryScreen(app, r.videoId, r.start)
+      : r.name === 'settings'
+        ? settingsScreen(app)
+        : homeScreen(app);
+  titleEl.textContent = current.title;
+  backBtn.hidden = r.name === 'home';
+  settingsBtn.hidden = r.name === 'settings';
+  playerBtn.hidden = !current.setPlayer;
+  updatePlayerButton();
+  screenEl.replaceChildren(current.el);
+  window.scrollTo(0, 0);
+}
+
+backBtn.innerHTML =
+  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11H7.8l5.6-5.6L12 4l-8 8 8 8 1.4-1.4L7.8 13H20z"/></svg>';
+settingsBtn.innerHTML = ICONS.settings;
+
+function updatePlayerButton() {
+  const label = app.playerOn ? 'YouTube-player verbergen' : 'YouTube-player tonen';
+  playerBtn.setAttribute('aria-pressed', String(app.playerOn));
+  playerBtn.setAttribute('aria-label', label);
+  playerBtn.title = label;
+}
+
+// "Smart display": a play triangle in a screen.
+playerBtn.innerHTML =
+  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zM9.5 16.5v-9l7 4.5-7 4.5z"/></svg>';
+playerBtn.onclick = () => app.setPlayerOn(!app.playerOn);
+backBtn.onclick = () => app.back();
+settingsBtn.onclick = () => app.go('#/instellingen');
+
+void CapApp.addListener('backButton', () => app.back()).catch(() => undefined);
+onShare((e) => {
+  const v = videoFromShare(e.text) ?? videoFromShare(e.subject);
+  if (v) {
+    nav.reset(summaryHash(v.videoId, v.start));
+    show();
+  } else app.toast('Geen YouTube-video gevonden in wat je deelde.');
+});
+
+void migrateLegacyStorage().finally(() => {
   const params = new URLSearchParams(window.location.search);
   const sharedUrl = params.get('url') || params.get('text');
-  if (sharedUrl) {
-    const extracted = extractYouTubeFromSharedText(sharedUrl);
-    if (extracted) {
-      urlInput.value = extracted;
-      void runEvaluation();
-    }
+  const sharedVideo = sharedUrl ? videoFromShare(sharedUrl) : null;
+  if (sharedVideo) {
+    nav.reset(summaryHash(sharedVideo.videoId, sharedVideo.start));
+  } else {
+    nav.reset(location.hash || '#/');
   }
-
-  // Android native share intent listener ("Delen -> What Would Jezus Do")
-  onShare((e) => {
-    const extracted = extractYouTubeFromSharedText(e.text);
-    if (extracted) {
-      urlInput.value = extracted;
-      void runEvaluation();
-    }
-  });
-
-  evalBtn.addEventListener('click', () => {
-    void runEvaluation();
-  });
+  show();
 });

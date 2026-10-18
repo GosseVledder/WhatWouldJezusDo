@@ -1,9 +1,55 @@
 import type { ScoredGuideline, WwjdEvaluation } from '../engine/types';
-import { WWJD_BASE_CSS } from './styles';
+import { ICONS, WWJD_BASE_CSS } from './styles';
+
+type Child = Node | string | null | undefined | false;
+
+/** Minimal element builder. Text is always set as text, never parsed as HTML. */
+export function h<K extends keyof HTMLElementTagNameMap>(
+  tag: K,
+  props: Record<string, unknown> = {},
+  ...children: Child[]
+): HTMLElementTagNameMap[K] {
+  const el = document.createElement(tag);
+  for (const [key, value] of Object.entries(props)) {
+    if (value === undefined || value === null || value === false) continue;
+    if (key === 'class') el.className = String(value);
+    else if (key.startsWith('on') && typeof value === 'function') {
+      el.addEventListener(key.slice(2).toLowerCase(), value as EventListener);
+    } else if (key === 'html') {
+      el.innerHTML = String(value);
+    } else el.setAttribute(key, value === true ? '' : String(value));
+  }
+  for (const child of children) {
+    if (child === null || child === undefined || child === false) continue;
+    el.append(child);
+  }
+  return el;
+}
 
 export interface RenderOptions {
   onSeek?: (seconds: number) => void;
   initiallyCollapsed?: boolean;
+  onRefresh?: () => void;
+  onOpenOptions?: () => void;
+  onToggleCollapse?: (collapsed: boolean) => void;
+  onToggleEnabled?: (enabled: boolean) => void;
+  enabled?: boolean;
+  fromCache?: boolean;
+}
+
+export type WwjdViewState =
+  | { kind: 'idle' }
+  | { kind: 'loading'; step?: string }
+  | { kind: 'error'; message: string; details?: string; showSettings?: boolean }
+  | { kind: 'done'; evaluation: WwjdEvaluation; fromCache?: boolean };
+
+export interface WwjdStateHandlers {
+  onStart?: () => void;
+  onRefresh?: () => void;
+  onOpenOptions?: () => void;
+  onSeek?: (seconds: number) => void;
+  onToggleCollapse?: (collapsed: boolean) => void;
+  onToggleEnabled?: (enabled: boolean) => void;
 }
 
 function escapeHtml(text: string): string {
@@ -37,15 +83,71 @@ export function renderWwjdView(
   // Format header
   const header = document.createElement('div');
   header.className = 'wwjd-header';
-  header.innerHTML = `
-    <div class="wwjd-brand">
-      <span class="logo-badge">WWJD</span>
-      <span class="title">What Would Jezus Do</span>
-    </div>
-    <button type="button" class="toggle-details-btn" id="wwjd-toggle-btn">
-      ${options.initiallyCollapsed ? 'Toon onderbouwing ▼' : 'Onderbouwing inklappen ▲'}
-    </button>
-  `;
+  const brand = h(
+    'div',
+    { class: 'wwjd-brand' },
+    h('span', { class: 'logo-badge' }, 'WWJD'),
+    h('span', { class: 'title' }, 'What Would Jezus Do'),
+  );
+  const actions = h('div', { class: 'wwjd-header-actions' });
+
+  if (options.onToggleEnabled) {
+    const enabled = options.enabled !== false;
+    actions.append(
+      h(
+        'button',
+        {
+          type: 'button',
+          class: 'switch',
+          role: 'switch',
+          'aria-checked': String(enabled),
+          'aria-label': 'What Would Jezus Do aan of uit',
+          title: enabled ? 'WWJD uitzetten' : 'WWJD aanzetten',
+          onClick: () => options.onToggleEnabled?.(!enabled),
+        },
+        h('span', { class: 'knob' }),
+      ),
+    );
+  }
+
+  if (options.onRefresh) {
+    actions.append(
+      h('button', {
+        type: 'button',
+        class: 'icon-btn',
+        title: 'Opnieuw analyseren',
+        'aria-label': 'Opnieuw analyseren',
+        html: ICONS.refresh,
+        onClick: options.onRefresh,
+      }),
+    );
+  }
+
+  if (options.onOpenOptions) {
+    actions.append(
+      h('button', {
+        type: 'button',
+        class: 'icon-btn',
+        title: 'Instellingen',
+        'aria-label': 'Instellingen',
+        html: ICONS.settings,
+        onClick: options.onOpenOptions,
+      }),
+    );
+  }
+
+  const toggleBtnEl = h(
+    'button',
+    {
+      type: 'button',
+      class: 'toggle-details-btn',
+      id: 'wwjd-toggle-btn',
+    },
+    options.initiallyCollapsed ? 'Toon onderbouwing ▼' : 'Onderbouwing inklappen ▲',
+  );
+  actions.append(toggleBtnEl);
+
+  header.append(brand, actions);
   card.appendChild(header);
 
   // Score banner
@@ -165,6 +267,22 @@ export function renderWwjdView(
   });
   detailsContainer.appendChild(jesusSection);
 
+  const providerLabel = evaluation.provider === 'claude' ? 'Claude' : 'Gemini';
+  const datum = new Date(evaluation.createdAt);
+  const dateLabel = Number.isNaN(datum.getTime())
+    ? ''
+    : options.fromCache
+      ? `Uit cache · ${datum.toLocaleDateString('nl-NL')}`
+      : 'Zojuist geanalyseerd';
+  detailsContainer.appendChild(
+    h(
+      'div',
+      { class: 'meta' },
+      h('span', {}, `${providerLabel} · ${evaluation.model}`),
+      dateLabel ? h('span', {}, dateLabel) : null,
+    ),
+  );
+
   card.appendChild(detailsContainer);
   container.appendChild(card);
 
@@ -175,6 +293,7 @@ export function renderWwjdView(
     isCollapsed = !isCollapsed;
     detailsContainer.style.display = isCollapsed ? 'none' : 'block';
     toggleBtn.textContent = isCollapsed ? 'Toon onderbouwing ▼' : 'Onderbouwing inklappen ▲';
+    options.onToggleCollapse?.(isCollapsed);
   });
 
   // Wire up timestamp clicks
@@ -186,4 +305,137 @@ export function renderWwjdView(
       }
     });
   });
+}
+
+export function renderWwjdStateView(
+  container: HTMLElement,
+  state: WwjdViewState,
+  handlers: WwjdStateHandlers = {},
+  opts: { collapsed?: boolean; enabled?: boolean } = {},
+): void {
+  const enabled = opts.enabled !== false;
+  if (enabled && state.kind === 'done') {
+    renderWwjdView(container, state.evaluation, {
+      onSeek: handlers.onSeek,
+      initiallyCollapsed: opts.collapsed,
+      onRefresh: handlers.onRefresh,
+      onOpenOptions: handlers.onOpenOptions,
+      onToggleCollapse: handlers.onToggleCollapse,
+      onToggleEnabled: handlers.onToggleEnabled,
+      enabled,
+      fromCache: state.fromCache,
+    });
+    return;
+  }
+
+  container.innerHTML = '';
+  const styleEl = document.createElement('style');
+  styleEl.textContent = WWJD_BASE_CSS;
+  container.appendChild(styleEl);
+
+  const actions = h('div', { class: 'wwjd-header-actions' });
+  if (handlers.onToggleEnabled) {
+    actions.append(
+      h(
+        'button',
+        {
+          type: 'button',
+          class: 'switch',
+          role: 'switch',
+          'aria-checked': String(enabled),
+          'aria-label': 'What Would Jezus Do aan of uit',
+          title: enabled ? 'WWJD uitzetten' : 'WWJD aanzetten',
+          onClick: () => handlers.onToggleEnabled?.(!enabled),
+        },
+        h('span', { class: 'knob' }),
+      ),
+    );
+  }
+  if (handlers.onOpenOptions) {
+    actions.append(
+      h('button', {
+        type: 'button',
+        class: 'icon-btn',
+        title: 'Instellingen',
+        'aria-label': 'Instellingen',
+        html: ICONS.settings,
+        onClick: handlers.onOpenOptions,
+      }),
+    );
+  }
+
+  const header = h(
+    'div',
+    { class: 'wwjd-header' },
+    h(
+      'div',
+      { class: 'wwjd-brand' },
+      h('span', { class: 'logo-badge' }, 'WWJD'),
+      h('span', { class: 'title' }, 'What Would Jezus Do'),
+    ),
+    actions,
+  );
+
+  const card = h('div', { class: 'wwjd-card', 'aria-live': 'polite' }, header);
+
+  if (!enabled) {
+    card.append(
+      h('p', { class: 'off' }, 'What Would Jezus Do staat uit: er worden geen analyses gemaakt.'),
+    );
+    container.appendChild(card);
+    return;
+  }
+
+  if (state.kind === 'idle') {
+    card.append(
+      h(
+        'div',
+        { class: 'actions' },
+        h(
+          'button',
+          { type: 'button', class: 'btn primary', onClick: handlers.onStart },
+          'Analyseer video',
+        ),
+      ),
+    );
+  } else if (state.kind === 'loading') {
+    card.append(
+      h(
+        'div',
+        { class: 'loading', role: 'status' },
+        h(
+          'div',
+          { class: 'step' },
+          h('span', { class: 'spinner' }),
+          state.step ?? "Video factchecken en toetsen aan Jezus' richtlijnen en De Tien Geboden…",
+        ),
+        h('div', { class: 'bar w90' }),
+        h('div', { class: 'bar w80' }),
+        h('div', { class: 'bar w60' }),
+      ),
+    );
+  } else if (state.kind === 'error') {
+    const errActions = h('div', { class: 'actions' });
+    if (state.showSettings && handlers.onOpenOptions) {
+      errActions.append(
+        h(
+          'button',
+          { type: 'button', class: 'btn primary', onClick: handlers.onOpenOptions },
+          'Instellingen openen',
+        ),
+      );
+    }
+    if (handlers.onRefresh) {
+      errActions.append(
+        h(
+          'button',
+          { type: 'button', class: 'btn', onClick: handlers.onRefresh },
+          'Opnieuw proberen',
+        ),
+      );
+    }
+    card.append(h('div', { class: 'error-msg', role: 'alert' }, state.message), errActions);
+  }
+
+  container.appendChild(card);
 }

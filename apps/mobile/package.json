@@ -2,7 +2,7 @@
   "name": "@wwjd/mobile",
   "description": "Android and web app: Share a YouTube video to factcheck and evaluate against Jesus' guidelines",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "MIT",
   "type": "module",
   "scripts": {
@@ -13,8 +13,11 @@
     "android": "vite build && cap sync android"
   },
   "dependencies": {
+    "@aparajita/capacitor-secure-storage": "^8.0.1",
     "@capacitor/android": "^8.5.2",
+    "@capacitor/app": "^8.1.2",
     "@capacitor/core": "^8.5.2",
+    "@capacitor/preferences": "^8.0.1",
     "@wwjd/core": "0.1.0"
   },
   "devDependencies": {

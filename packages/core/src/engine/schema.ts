@@ -66,3 +66,108 @@ export const WwjdModelOutputSchema = z.object({
 });
 
 export type WwjdModelOutput = z.infer<typeof WwjdModelOutputSchema>;
+
+type JsonObject = Record<string, unknown>;
+
+export function wwjdModelOutputJsonSchema(): JsonObject {
+  return {
+    type: 'object',
+    additionalProperties: false,
+    required: ['verdictSummary', 'factcheckDossier', 'relevantGuidelines'],
+    properties: {
+      verdictSummary: {
+        type: 'string',
+        description: 'Samenvattende eindconclusie: wat zou Jezus van deze video vinden?',
+      },
+      factcheckDossier: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['coreActivity', 'sentimentAndAttitude', 'contradictionsDetected', 'statements'],
+        properties: {
+          coreActivity: { type: 'string' },
+          sentimentAndAttitude: { type: 'string' },
+          contradictionsDetected: {
+            type: 'array',
+            items: { type: 'string' },
+          },
+          statements: {
+            type: 'array',
+            items: {
+              type: 'object',
+              additionalProperties: false,
+              required: [
+                'quote',
+                'startSeconds',
+                'timestampLabel',
+                'claim',
+                'verdict',
+                'historicalAnalysis',
+              ],
+              properties: {
+                quote: { type: 'string' },
+                startSeconds: { type: 'number' },
+                timestampLabel: { type: 'string' },
+                claim: { type: 'string' },
+                verdict: {
+                  type: 'string',
+                  enum: ['bevestigd', 'ontkracht', 'tegenspraak', 'gemengd_of_context', 'opinie'],
+                },
+                historicalAnalysis: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
+      relevantGuidelines: {
+        type: 'array',
+        items: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['guidelineId', 'score', 'reasoning', 'relatedQuotes'],
+          properties: {
+            guidelineId: { type: 'string' },
+            score: { type: 'number' },
+            reasoning: { type: 'string' },
+            relatedQuotes: {
+              type: 'array',
+              items: {
+                type: 'object',
+                additionalProperties: false,
+                required: ['quote', 'startSeconds', 'timestampLabel'],
+                properties: {
+                  quote: { type: 'string' },
+                  startSeconds: { type: 'number' },
+                  timestampLabel: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  };
+}
+
+/** Extract and parse JSON from a model answer, tolerating code fences and stray text. */
+export function extractJson(text: string): unknown {
+  const trimmed = text.trim();
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    // fall through
+  }
+  const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fenced?.[1]) {
+    try {
+      return JSON.parse(fenced[1]);
+    } catch {
+      // fall through
+    }
+  }
+  const first = trimmed.indexOf('{');
+  const last = trimmed.lastIndexOf('}');
+  if (first >= 0 && last > first) {
+    return JSON.parse(trimmed.slice(first, last + 1));
+  }
+  throw new SyntaxError('Geen JSON-object gevonden in het antwoord.');
+}

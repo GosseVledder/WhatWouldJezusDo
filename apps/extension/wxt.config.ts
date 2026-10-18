@@ -9,12 +9,13 @@ export default defineConfig({
     description:
       "Factcheckt YouTube-video's en toetst uitspraken en gedrag aan de Tien Geboden en de leer van Jezus.",
     permissions: ['storage', 'unlimitedStorage', 'declarativeNetRequestWithHostAccess'],
-    action: { default_title: 'WWJD – Instellingen & API-sleutels' },
+    action: { default_title: 'What Would Jezus Do – instellingen' },
     host_permissions: [
       'https://www.youtube.com/*',
       'https://api.anthropic.com/*',
       'https://generativelanguage.googleapis.com/*',
       'https://factchecktools.googleapis.com/*',
+      'https://api.github.com/*',
     ],
   },
   webExt: {

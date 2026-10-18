@@ -81,6 +81,19 @@ export interface Transcript {
 
 export type ProviderId = 'gemini' | 'claude';
 
+export interface CallLog {
+  stap: string;
+  provider: ProviderId;
+  model: string;
+  invoerTekens: number;
+  duurMs: number;
+  usage?: {
+    inputTokens?: number;
+    outputTokens?: number;
+  };
+  fout?: string;
+}
+
 export interface ProviderOptions {
   apiKey: string;
   model: string;
@@ -89,6 +102,7 @@ export interface ProviderOptions {
   timeoutMs?: number;
   fetch?: typeof fetch;
   sleep?: (ms: number) => Promise<void>;
+  onCall?: (entry: CallLog) => void;
 }
 
 export interface ChatRequest {

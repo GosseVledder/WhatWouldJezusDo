@@ -48,6 +48,45 @@ DATABASE MET DE 25 RICHTLIJNEN VAN JEZUS
 =======================================================
 ${guidelinesSummary}
 
+=======================================================
+VEREIST JSON-UITVOERFORMAAT
+=======================================================
+Geef UITSLUITEND een geldig JSON-object terug dat exact voldoet aan deze structuur (zonder markdown codeblokken):
+{
+  "verdictSummary": "Korte samenvattende eindconclusie in het Nederlands: wat zou Jezus van deze video vinden?",
+  "factcheckDossier": {
+    "coreActivity": "De kern van de activiteit en daadwerkelijke handeling in of rondom de video",
+    "sentimentAndAttitude": "Boodschap, toon en de houding ten opzichte van de naaste of tegenstander",
+    "contradictionsDetected": [
+      "Expliciete beschrijving van gedetecteerde zelf-tegenspraak tussen woorden en daden (of lege array [] indien geen)"
+    ],
+    "statements": [
+      {
+        "quote": "Letterlijk citaat of kernuitspraak uit de video",
+        "startSeconds": 65,
+        "timestampLabel": "01:05",
+        "claim": "Korte feitelijke zoekclaim of stelling voor factchecking",
+        "verdict": "bevestigd | ontkracht | tegenspraak | gemengd_of_context | opinie",
+        "historicalAnalysis": "Korte historische en feitelijke analyse die de claim bevestigt of ontkracht"
+      }
+    ]
+  },
+  "relevantGuidelines": [
+    {
+      "guidelineId": "Exact ID uit de lijst hierboven, bijv. cmd-09-truthfulness",
+      "score": 2.0,
+      "reasoning": "Grondige onderbouwing die de video-uitspraak, de factcheck en Jezus' onderwijs verbindt",
+      "relatedQuotes": [
+        {
+          "quote": "Relevant citaat uit de video",
+          "startSeconds": 65,
+          "timestampLabel": "01:05"
+        }
+      ]
+    }
+  ]
+}
+
 Antwoord strikt in het gevraagde JSON-formaat. Wees objectief, rechtvaardig en feitelijk.`;
 }
 
