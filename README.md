@@ -4,7 +4,7 @@
 
 **Fact-check any YouTube video and evaluate how its statements, actions, and attitude align with the teachings of Jesus Christ and the Ten Commandments.**
 
-What Would Jezus Do (WWJD) analyzes YouTube videos in two fundamental steps: first, it extracts key claims and actions and verifies them through a fast fact-check (using the **Google Fact Check Tools API** with an AI historical/online verification fallback, while explicitly detecting self-contradiction as lying); second, it evaluates the fact-checked findings against a curated database of **25 Biblical guidelines** (the Ten Commandments in their broader context and 15 core New Testament teachings of Jesus), producing a clear **0.0–10.0 score** with direct, clickable links to the relevant Bible passages.
+What Would Jezus Do (WWJD) analyzes YouTube videos in two fundamental steps: first, it extracts key claims and actions and verifies them through a fast fact-check (using the **Google Fact Check Tools API** with an AI historical/online verification fallback, while explicitly detecting self-contradiction as lying); second, it evaluates the fact-checked findings against a curated database of **25 Biblical guidelines** (the Ten Commandments in their broader context and 15 core New Testament teachings of Jesus), producing a clear **0.0–10.0 score** with direct, clickable links to the relevant Bible passages. **Using What Would Jezus Do is completely free:** it only requires your own API keys, which are free to obtain (see [Configuring API Keys](#configuring-api-keys)).
 
 ## Download
 
