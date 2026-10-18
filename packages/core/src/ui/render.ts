@@ -135,6 +135,7 @@ export function renderWwjdView(
   scoreBanner.setAttribute('data-scale-step', String(scaleIllustration.step));
   scoreBanner.innerHTML = `
     <div class="wwjd-score-visuals" data-scale-step="${scaleIllustration.step}">
+      <div class="wwjd-score-number">${evaluation.finalScore.toFixed(1)}</div>
       <img
         class="wwjd-scale-face"
         src="${scaleIllustration.faceUrl}"
@@ -142,7 +143,6 @@ export function renderWwjdView(
         aria-hidden="true"
         data-scale-step="${scaleIllustration.step}"
       />
-      <div class="wwjd-score-number">${evaluation.finalScore.toFixed(1)}</div>
       <img
         class="wwjd-scale-scene"
         src="${scaleIllustration.sceneUrl}"
