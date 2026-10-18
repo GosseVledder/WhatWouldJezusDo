@@ -12,10 +12,10 @@ Ready to use: download, install, and enter your API keys. No build tools require
 
 | Platform | Download | Installation Guide |
 |---|---|---|
-| 📱 **Android App**<br>Phone and tablet, Android 7.0 or newer | [**WhatWouldJezusDo-0.2.2.apk**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/apk/WhatWouldJezusDo-0.2.2.apk)<br>3.2 MB | [Install on Android](#installing-the-android-app) |
-| 🧩 **Chrome & Edge Extension**<br>Windows, macOS, Linux | [**WhatWouldJezusDo-extension-0.2.2.zip**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.2.2.zip)<br>320 kB | [Install in Chrome or Edge](#installing-the-extension-in-chrome-or-edge) |
+| 📱 **Android App**<br>Phone and tablet, Android 7.0 or newer | [**WhatWouldJezusDo-0.2.3.apk**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/apk/WhatWouldJezusDo-0.2.3.apk)<br>3.1 MB | [Install on Android](#installing-the-android-app) |
+| 🧩 **Chrome & Edge Extension**<br>Windows, macOS, Linux | [**WhatWouldJezusDo-extension-0.2.3.zip**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.2.3.zip)<br>320 kB | [Install in Chrome or Edge](#installing-the-extension-in-chrome-or-edge) |
 
-You will need your own LLM API key from **Google (Gemini, free)** or **Anthropic (Claude, paid)**, and optionally a free **Google Fact Check Tools API key**; see [Configuring API Keys](#configuring-api-keys). All releases and their SHA-256 checksums are available under [Releases](https://github.com/GosseVledder/WhatWouldJezusDo/releases); both the app and the extension can check for updates directly via *Instellingen › Updates*.
+**What Would Jezus Do is completely free to use:** you need an LLM API key (**either** a **free Gemini key**, **or** a **paid Gemini key**, **or** a **paid Claude key**) **and** a **free Google Fact Check Tools API key**; see [Configuring API Keys](#configuring-api-keys). All releases and their SHA-256 checksums are available under [Releases](https://github.com/GosseVledder/WhatWouldJezusDo/releases); both the app and the extension can check for updates directly via *Instellingen › Updates*.
 
 ---
 
@@ -83,11 +83,11 @@ Once the statements and actions have been fact-checked, the verified dossier is 
 
 | Property | Details |
 |---|---|
-| **File** | [`WhatWouldJezusDo-0.2.2.apk`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/apk/WhatWouldJezusDo-0.2.2.apk) (also in [`apk/`](apk/)) |
-| **Version** | 0.2.2 (versionCode 4) |
+| **File** | [`WhatWouldJezusDo-0.2.3.apk`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/apk/WhatWouldJezusDo-0.2.3.apk) (also in [`apk/`](apk/)) |
+| **Version** | 0.2.3 (versionCode 5) |
 | **Requires** | Android 7.0 or newer |
-| **Size** | 3.2 MB |
-| **SHA-256** | `7e667865c4d0c35514435be28a608dd5d609318c27ddc686eb3af6900c17949a` |
+| **Size** | 3.1 MB |
+| **SHA-256** | `4e04878fa2dea3fef4e56cc4deaaa0305e104a4933b4824403b050260b4b8388` |
 
 The APK is a signed release build distributed directly via GitHub.
 
@@ -111,13 +111,13 @@ The APK is a signed release build distributed directly via GitHub.
 
 | Property | Details |
 |---|---|
-| **File** | [`WhatWouldJezusDo-extension-0.2.2.zip`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.2.2.zip) (also unpacked in [`extension/WhatWouldJezusDo/`](extension/WhatWouldJezusDo/)) |
-| **Version** | 0.2.2 |
+| **File** | [`WhatWouldJezusDo-extension-0.2.3.zip`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.2.3.zip) (also unpacked in [`extension/WhatWouldJezusDo/`](extension/WhatWouldJezusDo/)) |
+| **Version** | 0.2.3 |
 | **Browsers** | Google Chrome and Microsoft Edge (Manifest V3) |
 | **Size** | 320 kB |
-| **SHA-256** | `5a077c33ef21a99d2ad158c993a9d3982edf26ad13dd13198e9f26351d9ed879` |
+| **SHA-256** | `6b60228b828afba78f2d3c50ebb0acda8f0e6c7d28ee18601a8b1ca4faee0d4a` |
 
-1. **Download** [`WhatWouldJezusDo-extension-0.2.2.zip`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.2.2.zip).
+1. **Download** [`WhatWouldJezusDo-extension-0.2.3.zip`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.2.3.zip).
 2. **Extract** the zip file to a permanent folder on your computer (for example, `Documents\WhatWouldJezusDo`). Keep this folder in place—the browser loads the extension from it.
 3. Open `chrome://extensions` (Chrome) or `edge://extensions` (Edge).
 4. Enable **Developer mode** (top-right in Chrome; left sidebar in Edge).
@@ -138,22 +138,33 @@ The APK is a signed release build distributed directly via GitHub.
 
 ## Configuring API Keys
 
-What Would Jezus Do runs directly on your device without a middleman server. Every setting is saved automatically as soon as you type or toggle it:
+**Using What Would Jezus Do is completely free.** The app and extension run directly on your device without a middleman server, using your own API keys:
 
-| Service | Purpose | Cost | Where to Create | Default Model |
+- **For the LLM (choose one):**
+  - **EITHER** a **free Google Gemini API key** (100% free tier, no credit card or billing required),
+  - **OR** a **paid Google Gemini API key** (pay-as-you-go with Google Cloud billing enabled for higher rate limits),
+  - **OR** a **paid Anthropic Claude API key** (prepaid credit).
+- **AND for the Fact-Check:**
+  - A **free Google Fact Check Tools API key** (100% free, up to 10,000 queries/day, no credit card required).
+
+Every setting is saved automatically as soon as you type or toggle it:
+
+| Component | Key Option | Cost | Where to Create | Default Model |
 |---|---|---|---|---|
-| **Google Gemini** | AI Evaluation & Fact-Check Fallback | Free tier available (± 10/min, ± 200/day) | <https://aistudio.google.com/apikey> | `gemini-flash-latest` |
-| **Anthropic Claude** | AI Evaluation (Alternative) | Paid (prepaid credit) | <https://console.anthropic.com/settings/keys> | `claude-haiku-5-5` |
-| **Google Fact Check Tools API** | Fast primary lookup of existing fact-checks | 100% Free (up to 10,000/day) | <https://console.cloud.google.com/apis/credentials> | N/A |
+| **LLM** *(choose one)* | **Google Gemini (Free key)** | **100% Free** (no billing linked; ± 10/min, ± 200/day) | <https://aistudio.google.com/apikey> | `gemini-flash-latest` |
+| **LLM** *(choose one)* | **Google Gemini (Paid key)** | **Paid** (pay-as-you-go via Google Cloud billing) | <https://aistudio.google.com/apikey> | `gemini-flash-latest` |
+| **LLM** *(choose one)* | **Anthropic Claude (Paid key)** | **Paid** (prepaid credit) | <https://console.anthropic.com/settings/keys> | `claude-haiku-5-5` |
+| **Fact-Check** | **Google Fact Check Tools API (Free key)** | **100% Free** (up to 10,000/day, no credit card) | <https://console.cloud.google.com/apis/credentials> | N/A |
 
-### 1. Google Gemini API Key (Free)
+### 1. Google Gemini API Key (Free or Paid)
 
 1. Open **<https://aistudio.google.com/apikey>** and sign in with your Google account.
 2. Accept the terms of service (first time only).
 3. Click **Create API key** (choose an existing project or let one be created).
 4. Copy the generated key (starts with `AIza...`).
 5. In the WWJD settings, select **Gemini**, paste the key under *API-sleutel* (it saves automatically), and click **Test verbinding**.
-   - As long as you do not link billing to the Google project, the Flash and Flash-Lite models (`gemini-flash-latest`, `gemini-3.8-flash`, `gemini-flash-lite-latest`) are free to use.
+   - **Free Gemini key:** As long as you do not link a billing account to the Google project, the Flash and Flash-Lite models (`gemini-flash-latest`, `gemini-3.8-flash`, `gemini-flash-lite-latest`) are **100% free** to use.
+   - **Paid Gemini key:** If you want higher rate limits or paid models, you can optionally link Google Cloud billing to your project in Google AI Studio (**Set up Billing**).
 
 ### 2. Google Fact Check Tools API Key (Free)
 

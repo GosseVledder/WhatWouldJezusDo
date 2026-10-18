@@ -136,20 +136,20 @@ export function renderWwjdView(
   scoreBanner.innerHTML = `
     <div class="wwjd-score-visuals" data-scale-step="${scaleIllustration.step}">
       <img
-        class="wwjd-scale-scene"
-        src="${scaleIllustration.sceneUrl}"
-        alt="${escapeHtml(v.jesusAlignment)} (${scaleIllustration.step}/9)"
-        data-scale-step="${scaleIllustration.step}"
-      />
-      <img
         class="wwjd-scale-face"
         src="${scaleIllustration.faceUrl}"
         alt=""
         aria-hidden="true"
         data-scale-step="${scaleIllustration.step}"
       />
+      <div class="wwjd-score-number">${evaluation.finalScore.toFixed(1)}</div>
+      <img
+        class="wwjd-scale-scene"
+        src="${scaleIllustration.sceneUrl}"
+        alt="${escapeHtml(v.jesusAlignment)} (${scaleIllustration.step}/9)"
+        data-scale-step="${scaleIllustration.step}"
+      />
     </div>
-    <div class="wwjd-score-number">${evaluation.finalScore.toFixed(1)}</div>
     <div class="wwjd-score-details">
       <strong>${escapeHtml(v.jesusAlignment)}: ${evaluation.finalScore.toFixed(1)} / 10</strong>
       ${escapeHtml(evaluation.verdictSummary)}

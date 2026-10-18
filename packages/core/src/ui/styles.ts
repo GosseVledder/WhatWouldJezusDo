@@ -246,7 +246,7 @@ a:hover { text-decoration: underline; }
 
 .wwjd-score-banner {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
   padding: 12px;
   border-radius: 8px;
@@ -255,14 +255,15 @@ a:hover { text-decoration: underline; }
 
 .wwjd-score-visuals {
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 6px;
   flex: none;
 }
 
-.wwjd-scale-scene {
-  width: 46px;
-  height: 100px;
+.wwjd-scale-face {
+  width: 56px;
+  height: 77px;
   object-fit: cover;
   border-radius: 6px;
   border: 1px solid currentColor;
@@ -270,9 +271,9 @@ a:hover { text-decoration: underline; }
   display: block;
 }
 
-.wwjd-scale-face {
-  width: 52px;
-  height: 72px;
+.wwjd-scale-scene {
+  width: 56px;
+  height: 122px;
   object-fit: cover;
   border-radius: 6px;
   border: 1px solid currentColor;
