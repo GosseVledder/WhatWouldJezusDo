@@ -59,7 +59,7 @@ export const de: Messages = {
       'Bestimmt die Sprache der Oberfläche, der KI-Analyse und der verlinkten Bibelstellen.',
     aiService: 'KI-Dienst',
     providerHint:
-      'Der gewählte Dienst extrahiert Aussagen aus dem Transkript, überprüft die Fakten und bewertet das Video anhand der 25 Richtlinien und Gebote Jesu.',
+      'Die Nutzung von What Would Jezus Do ist völlig kostenlos: Wähle für das LLM entweder einen kostenlosen Gemini-Schlüssel, einen kostenpflichtigen Gemini-Schlüssel oder einen kostenpflichtigen Claude-Schlüssel, und für den Faktencheck einen kostenlosen Google-Fact-Check-Schlüssel.',
     apiKey: 'API-Schlüssel',
     apiKeyOf: (p) => `API-Schlüssel ${p}`,
     modelOf: (p) => `Modell ${p}`,

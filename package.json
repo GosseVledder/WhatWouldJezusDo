@@ -2,7 +2,7 @@
   "name": "wwjd",
   "description": "What Would Jezus Do — YouTube video fact-checking and evaluation against the Ten Commandments and Jesus' teachings",
   "private": true,
-  "version": "0.2.4",
+  "version": "0.2.5",
   "license": "MIT",
   "type": "module",
   "workspaces": [

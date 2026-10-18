@@ -59,7 +59,7 @@ export const nl: Messages = {
       'Bepaalt de taal van de interface, de AI-analyse én de Bijbelbronnen waarnaar wordt verwezen.',
     aiService: 'AI-dienst',
     providerHint:
-      'De gekozen dienst extraheert uitspraken uit het transcript, controleert de feiten en toetst de video aan de 25 richtlijnen en geboden van Jezus.',
+      'Het gebruik van What Would Jezus Do is volledig gratis: kies voor de LLM óf een gratis Gemini-sleutel, óf een betaalde Gemini-sleutel, óf een betaalde Claude-sleutel, én voor de feitencontrole een gratis Google Fact Check-sleutel.',
     apiKey: 'API-sleutel',
     apiKeyOf: (p) => `API-sleutel ${p}`,
     modelOf: (p) => `Model ${p}`,

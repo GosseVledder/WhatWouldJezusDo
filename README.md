@@ -4,7 +4,9 @@
 
 **Fact-check any YouTube video and evaluate how its statements, actions, and attitude align with the teachings of Jesus Christ and the Ten Commandments.**
 
-What Would Jezus Do (WWJD) analyzes YouTube videos in two fundamental steps: first, it extracts key claims and actions and verifies them through a fast fact-check (using the **Google Fact Check Tools API** with an AI historical/online verification fallback, while explicitly detecting self-contradiction as lying); second, it evaluates the fact-checked findings against a curated database of **25 Biblical guidelines** (the Ten Commandments in their broader context and 15 core New Testament teachings of Jesus), producing a clear **0.0–10.0 score** with direct, clickable links to the relevant Bible passages. **Using What Would Jezus Do is completely free:** it only requires your own API keys, which are free to obtain (see [Configuring API Keys](#configuring-api-keys)).
+What Would Jezus Do (WWJD) analyzes YouTube videos in two fundamental steps: first, it extracts key claims and actions and verifies them through a fast fact-check (using the **Google Fact Check Tools API** with an AI historical/online verification fallback, while explicitly detecting self-contradiction as lying); second, it evaluates the fact-checked findings against a curated database of **25 Biblical guidelines** (the Ten Commandments in their broader context and 15 core New Testament teachings of Jesus), producing a clear **0.0–10.0 score** with direct, clickable links to the relevant Bible passages.
+
+**Using What Would Jezus Do is completely <ins>free</ins>:** it only requires your own API keys, which are <ins>free</ins> to obtain (see [Configuring API Keys](#configuring-api-keys)).
 
 ## Download
 
@@ -12,10 +14,10 @@ Ready to use: download, install, and enter your API keys. No build tools require
 
 | Platform | Download | Installation Guide |
 |---|---|---|
-| 📱 **Android App**<br>Phone and tablet, Android 7.0 or newer | [**WhatWouldJezusDo-0.2.4.apk**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/apk/WhatWouldJezusDo-0.2.4.apk)<br>3.1 MB | [Install on Android](#installing-the-android-app) |
-| 🧩 **Chrome & Edge Extension**<br>Windows, macOS, Linux | [**WhatWouldJezusDo-extension-0.2.4.zip**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.2.4.zip)<br>320 kB | [Install in Chrome or Edge](#installing-the-extension-in-chrome-or-edge) |
+| 📱 **Android App**<br>Phone and tablet, Android 7.0 or newer | [**WhatWouldJezusDo-0.2.5.apk**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/apk/WhatWouldJezusDo-0.2.5.apk)<br>3.1 MB | [Install on Android](#installing-the-android-app) |
+| 🧩 **Chrome & Edge Extension**<br>Windows, macOS, Linux | [**WhatWouldJezusDo-extension-0.2.5.zip**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.2.5.zip)<br>320 kB | [Install in Chrome or Edge](#installing-the-extension-in-chrome-or-edge) |
 
-**What Would Jezus Do is completely free to use:** you need an LLM API key (**either** a **free Gemini key**, **or** a **paid Gemini key**, **or** a **paid Claude key**) **and** a **free Google Fact Check Tools API key**; see [Configuring API Keys](#configuring-api-keys). All releases and their SHA-256 checksums are available under [Releases](https://github.com/GosseVledder/WhatWouldJezusDo/releases); both the app and the extension can check for updates directly via *Instellingen › Updates*.
+**What Would Jezus Do is completely <ins>free</ins> to use:** you need an LLM API key (**either** a **free Gemini key**, **or** a **paid Gemini key**, **or** a **paid Claude key**) **and** a **free Google Fact Check Tools API key**; see [Configuring API Keys](#configuring-api-keys). All releases and their SHA-256 checksums are available under [Releases](https://github.com/GosseVledder/WhatWouldJezusDo/releases); both the app and the extension can check for updates directly via *Instellingen › Updates*.
 
 ---
 
@@ -83,11 +85,11 @@ Once the statements and actions have been fact-checked, the verified dossier is 
 
 | Property | Details |
 |---|---|
-| **File** | [`WhatWouldJezusDo-0.2.4.apk`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/apk/WhatWouldJezusDo-0.2.4.apk) (also in [`apk/`](apk/)) |
-| **Version** | 0.2.4 (versionCode 6) |
+| **File** | [`WhatWouldJezusDo-0.2.5.apk`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/apk/WhatWouldJezusDo-0.2.5.apk) (also in [`apk/`](apk/)) |
+| **Version** | 0.2.5 (versionCode 7) |
 | **Requires** | Android 7.0 or newer |
 | **Size** | 3.1 MB |
-| **SHA-256** | `46764cfac373dd041d400bf803e6a3a77a1791049a8b9913f2453d5e8593aa1c` |
+| **SHA-256** | `bbe76c7fd59fad14cfec3ed3a080697625b99f046e8cfc2b22cc8ded92fddb02` |
 
 The APK is a signed release build distributed directly via GitHub.
 
@@ -111,13 +113,13 @@ The APK is a signed release build distributed directly via GitHub.
 
 | Property | Details |
 |---|---|
-| **File** | [`WhatWouldJezusDo-extension-0.2.4.zip`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.2.4.zip) (also unpacked in [`extension/WhatWouldJezusDo/`](extension/WhatWouldJezusDo/)) |
-| **Version** | 0.2.4 |
+| **File** | [`WhatWouldJezusDo-extension-0.2.5.zip`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.2.5.zip) (also unpacked in [`extension/WhatWouldJezusDo/`](extension/WhatWouldJezusDo/)) |
+| **Version** | 0.2.5 |
 | **Browsers** | Google Chrome and Microsoft Edge (Manifest V3) |
 | **Size** | 320 kB |
-| **SHA-256** | `096d2224ad5f22bab62af1d4f175f7d3280ff03bf635f441183183e44b639c09` |
+| **SHA-256** | `0bf650c22acc6aa5950d59d8fac2c1b0db0ddd0f8c4c1df9aff43fd4801b68ee` |
 
-1. **Download** [`WhatWouldJezusDo-extension-0.2.4.zip`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.2.4.zip).
+1. **Download** [`WhatWouldJezusDo-extension-0.2.5.zip`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.2.5.zip).
 2. **Extract** the zip file to a permanent folder on your computer (for example, `Documents\WhatWouldJezusDo`). Keep this folder in place—the browser loads the extension from it.
 3. Open `chrome://extensions` (Chrome) or `edge://extensions` (Edge).
 4. Enable **Developer mode** (top-right in Chrome; left sidebar in Edge).
@@ -138,7 +140,7 @@ The APK is a signed release build distributed directly via GitHub.
 
 ## Configuring API Keys
 
-**Using What Would Jezus Do is completely free.** The app and extension run directly on your device without a middleman server, using your own API keys:
+**Using What Would Jezus Do is completely <ins>free</ins>.** The app and extension run directly on your device without a middleman server, using your own API keys:
 
 - **For the LLM (choose one):**
   - **EITHER** a **free Google Gemini API key** (100% free tier, no credit card or billing required),

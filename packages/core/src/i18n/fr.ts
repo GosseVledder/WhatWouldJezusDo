@@ -59,7 +59,7 @@ export const fr: Messages = {
       "Définit la langue de l'interface, de l'analyse IA et des textes bibliques liés.",
     aiService: 'Service d’IA',
     providerHint:
-      'Le service choisi extrait les déclarations de la transcription, vérifie les faits et évalue la vidéo selon les 25 préceptes et commandements de Jésus.',
+      'L’utilisation de What Would Jezus Do est entièrement gratuite : choisissez pour le LLM soit une clé Gemini gratuite, soit une clé Gemini payante, soit une clé Claude payante, et pour la vérification des faits une clé Google Fact Check gratuite.',
     apiKey: 'Clé API',
     apiKeyOf: (p) => `Clé API ${p}`,
     modelOf: (p) => `Modèle ${p}`,

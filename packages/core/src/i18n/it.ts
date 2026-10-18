@@ -59,7 +59,7 @@ export const it: Messages = {
       "Imposta la lingua dell'interfaccia, dell'analisi IA e dei testi biblici collegati.",
     aiService: 'Servizio di IA',
     providerHint:
-      'Il servizio scelto estrae le affermazioni dalla trascrizione, verifica i fatti e valuta il video rispetto ai 25 insegnamenti e comandamenti di Gesù.',
+      "L'uso di What Would Jezus Do è completamente gratuito: scegli per l'LLM o una chiave Gemini gratuita, o una chiave Gemini a pagamento, o una chiave Claude a pagamento, e per il fact-check una chiave Google Fact Check gratuita.",
     apiKey: 'Chiave API',
     apiKeyOf: (p) => `Chiave API ${p}`,
     modelOf: (p) => `Modello ${p}`,
