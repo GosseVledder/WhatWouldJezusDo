@@ -2,7 +2,7 @@ import type { ScoredGuideline, WwjdEvaluation } from '../engine/types';
 import { getGuidelineById, localizeBibleSource, normalizeLang } from '../guidelines/jesus';
 import { messages, type Messages } from '../i18n/messages';
 import { getScaleIllustration } from './scaleImages';
-import { ICONS, WWJD_BASE_CSS } from './styles';
+import { WWJD_BASE_CSS } from './styles';
 
 type Child = Node | string | null | undefined | false;
 
@@ -36,7 +36,6 @@ export interface RenderOptions {
   onRefresh?: () => void;
   onOpenOptions?: () => void;
   onToggleCollapse?: (collapsed: boolean) => void;
-  onTogglePanelCollapse?: (panelCollapsed: boolean) => void;
   onToggleEnabled?: (enabled: boolean) => void;
   enabled?: boolean;
   fromCache?: boolean;
@@ -56,7 +55,6 @@ export interface WwjdStateHandlers {
   onOpenOptions?: () => void;
   onSeek?: (seconds: number) => void;
   onToggleCollapse?: (collapsed: boolean) => void;
-  onTogglePanelCollapse?: (panelCollapsed: boolean) => void;
   onToggleEnabled?: (enabled: boolean) => void;
 }
 
@@ -84,7 +82,7 @@ export function renderWwjdView(
   styleEl.textContent = WWJD_BASE_CSS;
   container.appendChild(styleEl);
 
-  let isPanelCollapsed = !!options.panelCollapsed;
+  const isPanelCollapsed = !!options.panelCollapsed;
   let isCollapsed = isPanelCollapsed ? true : !!options.initiallyCollapsed;
 
   const card = document.createElement('div');
@@ -117,33 +115,6 @@ export function renderWwjdView(
   detailsContainer.id = 'wwjd-details-body';
   if (isCollapsed) {
     detailsContainer.style.display = 'none';
-  }
-
-  if (options.onTogglePanelCollapse || options.onToggleEnabled) {
-    const collapseLabel = isPanelCollapsed ? v.expand : v.collapse;
-    const collapseIconBtn = h('button', {
-      type: 'button',
-      class: 'icon-btn',
-      title: collapseLabel,
-      'aria-label': collapseLabel,
-      html: isPanelCollapsed ? ICONS.chevronDown : ICONS.chevronUp,
-      onClick: () => {
-        isPanelCollapsed = !isPanelCollapsed;
-        card.classList.toggle('collapsed', isPanelCollapsed);
-        const nextLabel = isPanelCollapsed ? v.expand : v.collapse;
-        collapseIconBtn.title = nextLabel;
-        collapseIconBtn.setAttribute('aria-label', nextLabel);
-        collapseIconBtn.innerHTML = isPanelCollapsed ? ICONS.chevronDown : ICONS.chevronUp;
-        if (isPanelCollapsed) {
-          isCollapsed = true;
-          detailsContainer.style.display = 'none';
-          toggleBtnEl.textContent = v.showDetails;
-          options.onToggleCollapse?.(true);
-        }
-        options.onTogglePanelCollapse?.(isPanelCollapsed);
-      },
-    });
-    actions.append(collapseIconBtn);
   }
 
   if (options.onToggleEnabled) {
@@ -376,7 +347,6 @@ export function renderWwjdStateView(
       onRefresh: handlers.onRefresh,
       onOpenOptions: handlers.onOpenOptions,
       onToggleCollapse: handlers.onToggleCollapse,
-      onTogglePanelCollapse: handlers.onTogglePanelCollapse,
       onToggleEnabled: handlers.onToggleEnabled,
       enabled,
       fromCache: state.fromCache,
@@ -391,7 +361,7 @@ export function renderWwjdStateView(
   styleEl.textContent = WWJD_BASE_CSS;
   container.appendChild(styleEl);
 
-  let isPanelCollapsed = !!opts.panelCollapsed;
+  const isPanelCollapsed = !!opts.panelCollapsed;
   const actions = h('div', { class: 'wwjd-header-actions' });
   const header = h(
     'div',
@@ -404,30 +374,6 @@ export function renderWwjdStateView(
     { class: isPanelCollapsed ? 'wwjd-card collapsed' : 'wwjd-card', 'aria-live': 'polite' },
     header,
   );
-
-  if (handlers.onTogglePanelCollapse || handlers.onToggleEnabled) {
-    const collapseLabel = isPanelCollapsed ? v.expand : v.collapse;
-    const collapseIconBtn = h('button', {
-      type: 'button',
-      class: 'icon-btn',
-      title: collapseLabel,
-      'aria-label': collapseLabel,
-      html: isPanelCollapsed ? ICONS.chevronDown : ICONS.chevronUp,
-      onClick: () => {
-        isPanelCollapsed = !isPanelCollapsed;
-        card.classList.toggle('collapsed', isPanelCollapsed);
-        const nextLabel = isPanelCollapsed ? v.expand : v.collapse;
-        collapseIconBtn.title = nextLabel;
-        collapseIconBtn.setAttribute('aria-label', nextLabel);
-        collapseIconBtn.innerHTML = isPanelCollapsed ? ICONS.chevronDown : ICONS.chevronUp;
-        if (isPanelCollapsed) {
-          handlers.onToggleCollapse?.(true);
-        }
-        handlers.onTogglePanelCollapse?.(isPanelCollapsed);
-      },
-    });
-    actions.append(collapseIconBtn);
-  }
 
   if (handlers.onToggleEnabled) {
     actions.append(

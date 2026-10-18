@@ -16,8 +16,6 @@ export const fr: Messages = {
     switchAria: 'Activer ou désactiver WWJD',
     turnOff: 'Désactiver WWJD',
     turnOn: 'Activer WWJD',
-    expand: 'Déplier',
-    collapse: 'Replier',
     showDetails: 'Afficher la justification ▼',
     hideDetails: 'Masquer la justification ▲',
     jesusAlignment: 'Accord avec Jésus',

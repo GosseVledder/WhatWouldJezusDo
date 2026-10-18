@@ -35,8 +35,6 @@ export interface Messages {
     switchAria: string;
     turnOff: string;
     turnOn: string;
-    expand: string;
-    collapse: string;
     showDetails: string;
     hideDetails: string;
     jesusAlignment: string;

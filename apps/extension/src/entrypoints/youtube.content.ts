@@ -78,12 +78,6 @@ export default defineContentScript({
             collapsed = nextCollapsed;
             void saveSettings({ paneelIngeklapt: nextCollapsed });
           },
-          onTogglePanelCollapse: (nextPanelCollapsed) => {
-            panelCollapsed = nextPanelCollapsed;
-            if (nextPanelCollapsed) {
-              collapsed = true;
-            }
-          },
           onToggleEnabled: (enabled) => {
             settings = { ...settings, actief: enabled };
             if (enabled) {

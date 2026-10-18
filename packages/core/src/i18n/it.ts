@@ -16,8 +16,6 @@ export const it: Messages = {
     switchAria: 'Attiva o disattiva WWJD',
     turnOff: 'Disattiva WWJD',
     turnOn: 'Attiva WWJD',
-    expand: 'Espandi',
-    collapse: 'Comprimi',
     showDetails: 'Mostra motivazione ▼',
     hideDetails: 'Nascondi motivazione ▲',
     jesusAlignment: 'Sintonia con Gesù',
