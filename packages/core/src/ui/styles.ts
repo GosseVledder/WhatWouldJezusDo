@@ -58,6 +58,19 @@ a:hover { text-decoration: underline; }
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  min-height: 24px;
+}
+
+.wwjd-header .title {
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 500;
+  color: var(--yt-text);
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
 .wwjd-header-actions {
@@ -229,28 +242,6 @@ a:hover { text-decoration: underline; }
   display: flex;
   flex-wrap: wrap;
   gap: 4px 10px;
-}
-
-.wwjd-brand {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.wwjd-brand .logo-badge {
-  background: var(--yt-accent);
-  color: #fff;
-  font-weight: 700;
-  font-size: 12px;
-  padding: 2px 8px;
-  border-radius: 4px;
-  letter-spacing: 0.5px;
-}
-
-.wwjd-brand .title {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--yt-text);
 }
 
 .wwjd-score-banner {

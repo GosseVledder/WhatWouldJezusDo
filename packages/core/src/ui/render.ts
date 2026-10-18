@@ -91,7 +91,7 @@ export function renderWwjdView(
   // Format header (short name WWJD, without refresh or settings icons)
   const header = document.createElement('div');
   header.className = 'wwjd-header';
-  const brand = h('div', { class: 'wwjd-brand' }, h('span', { class: 'logo-badge' }, 'WWJD'));
+  const title = h('div', { class: 'title', role: 'heading', 'aria-level': '2' }, 'WWJD');
   const actions = h('div', { class: 'wwjd-header-actions' });
 
   const toggleBtnEl = h(
@@ -124,7 +124,7 @@ export function renderWwjdView(
     );
   }
 
-  header.append(brand, actions);
+  header.append(title, actions);
   card.appendChild(header);
 
   // Score banner
@@ -348,7 +348,7 @@ export function renderWwjdStateView(
   const header = h(
     'div',
     { class: 'wwjd-header' },
-    h('div', { class: 'wwjd-brand' }, h('span', { class: 'logo-badge' }, 'WWJD')),
+    h('div', { class: 'title', role: 'heading', 'aria-level': '2' }, 'WWJD'),
     actions,
   );
 
