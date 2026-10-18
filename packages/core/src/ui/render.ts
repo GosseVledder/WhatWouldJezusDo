@@ -1,6 +1,7 @@
 import type { ScoredGuideline, WwjdEvaluation } from '../engine/types';
 import { getGuidelineById, localizeBibleSource, normalizeLang } from '../guidelines/jesus';
 import { messages, type Messages } from '../i18n/messages';
+import { getScaleIllustration } from './scaleImages';
 import { WWJD_BASE_CSS } from './styles';
 
 type Child = Node | string | null | undefined | false;
@@ -128,9 +129,26 @@ export function renderWwjdView(
   card.appendChild(header);
 
   // Score banner
+  const scaleIllustration = getScaleIllustration(evaluation.finalScore);
   const scoreBanner = document.createElement('div');
   scoreBanner.className = `wwjd-score-banner ${scoreClass}`;
+  scoreBanner.setAttribute('data-scale-step', String(scaleIllustration.step));
   scoreBanner.innerHTML = `
+    <div class="wwjd-score-visuals" data-scale-step="${scaleIllustration.step}">
+      <img
+        class="wwjd-scale-scene"
+        src="${scaleIllustration.sceneUrl}"
+        alt="${escapeHtml(v.jesusAlignment)} (${scaleIllustration.step}/9)"
+        data-scale-step="${scaleIllustration.step}"
+      />
+      <img
+        class="wwjd-scale-face"
+        src="${scaleIllustration.faceUrl}"
+        alt=""
+        aria-hidden="true"
+        data-scale-step="${scaleIllustration.step}"
+      />
+    </div>
     <div class="wwjd-score-number">${evaluation.finalScore.toFixed(1)}</div>
     <div class="wwjd-score-details">
       <strong>${escapeHtml(v.jesusAlignment)}: ${evaluation.finalScore.toFixed(1)} / 10</strong>

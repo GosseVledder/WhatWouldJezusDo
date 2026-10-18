@@ -247,10 +247,37 @@ a:hover { text-decoration: underline; }
 .wwjd-score-banner {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   padding: 12px;
   border-radius: 8px;
   border: 1px solid transparent;
+}
+
+.wwjd-score-visuals {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+}
+
+.wwjd-scale-scene {
+  width: 46px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid currentColor;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  display: block;
+}
+
+.wwjd-scale-face {
+  width: 52px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid currentColor;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  display: block;
 }
 
 .wwjd-score-banner.score-high {

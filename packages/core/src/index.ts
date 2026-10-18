@@ -14,6 +14,7 @@ export * from './i18n/messages';
 export * from './settings';
 export * from './update';
 export * from './ui/styles';
+export * from './ui/scaleImages';
 export * from './ui/render';
 export * from './ui/tooltip';
 export * from './ui/keySteps';
