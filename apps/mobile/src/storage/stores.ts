@@ -68,6 +68,7 @@ export interface RecentEntry {
 export interface EvaluationCache {
   get(videoId: string, taal?: string): Promise<WwjdEvaluation | null>;
   set(evaluation: WwjdEvaluation): Promise<void>;
+  remove(videoId: string, taal?: string): Promise<void>;
   /** Newest first. */
   recent(): Promise<RecentEntry[]>;
   clear(): Promise<number>;
@@ -113,6 +114,21 @@ export function createEvaluationCache(kv: KeyValue, limit = 100): EvaluationCach
       await kv.set(INDEX_KEY, JSON.stringify(index));
     },
     recent: readIndex,
+    async remove(videoId, taal) {
+      const index = await readIndex();
+      const removed = taal
+        ? index.filter((e) => same(e, videoId, taal))
+        : index.filter((e) => e.videoId === videoId);
+      const next = taal
+        ? index.filter((e) => !same(e, videoId, taal))
+        : index.filter((e) => e.videoId !== videoId);
+      await Promise.all([
+        kv.remove(cacheKey(videoId, taal ?? 'nl')),
+        ...removed.map((e) => kv.remove(cacheKey(e.videoId, e.taal ?? 'nl'))),
+      ]);
+      if (next.length > 0) await kv.set(INDEX_KEY, JSON.stringify(next));
+      else await kv.remove(INDEX_KEY);
+    },
     async clear() {
       const index = await readIndex();
       await Promise.all(index.map((e) => kv.remove(cacheKey(e.videoId, e.taal ?? 'nl'))));

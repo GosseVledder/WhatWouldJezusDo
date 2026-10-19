@@ -1,5 +1,5 @@
 // Start screen: paste a link, or open one of the recent evaluations.
-import { h } from '@wwjd/core';
+import { h, ICONS } from '@wwjd/core';
 import { summaryHash, type App, type Screen } from '../app';
 import { videoFromShare } from '../share';
 import type { RecentEntry } from '../storage/stores';
@@ -72,7 +72,7 @@ export function homeScreen(app: App): Screen {
     }
     list.replaceChildren(
       ...(recent.length
-        ? recent.map((e) => recentItem(app, e))
+        ? recent.map((e) => recentItem(app, e, list))
         : [h('li', { class: 'empty' }, t.app.noAnalyses)]),
     );
   })();
@@ -80,10 +80,10 @@ export function homeScreen(app: App): Screen {
   return { title: 'WWJD', el };
 }
 
-function recentItem(app: App, e: RecentEntry): HTMLLIElement {
+function recentItem(app: App, e: RecentEntry, list: HTMLUListElement): HTMLLIElement {
   const when = Number.isNaN(Date.parse(e.op)) ? '' : dateFmt(app.t.locale).format(new Date(e.op));
   const subtitle = Number.isFinite(e.score) ? `Score: ${e.score.toFixed(1)}/10 · ${when}` : when;
-  return h(
+  const li = h(
     'li',
     {},
     h(
@@ -96,5 +96,27 @@ function recentItem(app: App, e: RecentEntry): HTMLLIElement {
       }),
       h('span', { class: 'text' }, h('b', {}, e.titel || e.videoId), h('small', {}, subtitle)),
     ),
+    h('button', {
+      class: 'icon refresh',
+      title: app.t.view.refresh,
+      'aria-label': app.t.view.refresh,
+      html: ICONS.refresh,
+      onClick: () => app.go(summaryHash(e.videoId, null, true)),
+    }),
+    h('button', {
+      class: 'icon delete',
+      title: app.t.app.deleteAnalysis,
+      'aria-label': app.t.app.deleteAnalysis,
+      html: ICONS.trash,
+      onClick: () => {
+        void app.cache.remove(e.videoId, e.taal).then(() => {
+          li.remove();
+          if (list.children.length === 0) {
+            list.replaceChildren(h('li', { class: 'empty' }, app.t.app.noAnalyses));
+          }
+        });
+      },
+    }),
   );
+  return li;
 }

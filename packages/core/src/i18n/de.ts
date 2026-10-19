@@ -45,6 +45,7 @@ export const de: Messages = {
     evaluatingWith: (p) => `Fakten prüfen und nach Jesu Richtlinien bewerten mit ${p}…`,
     openSettings: 'Einstellungen öffnen',
     retry: 'Erneut versuchen',
+    refresh: 'Erneut analysieren',
     verifiedVia: (pub, rating) => `[Verifiziert über ${pub} (Urteil: „${rating}“)]`,
   },
 
@@ -246,6 +247,7 @@ export const de: Messages = {
     analyzeButton: 'Analysieren',
     recent: 'Zuletzt',
     noAnalyses: 'Noch keine Analysen.',
+    deleteAnalysis: 'Analyse löschen',
     shareNoVideo: 'Im Geteilten wurde kein YouTube-Video gefunden.',
     cannotPlay: (c) => `Das Video kann hier nicht abgespielt werden (Fehler ${c}).`,
     openInYouTube: 'In YouTube öffnen',

@@ -45,6 +45,7 @@ export const nl: Messages = {
     evaluatingWith: (p) => `Feiten verifiëren en toetsen aan Jezus' richtlijnen met ${p}…`,
     openSettings: 'Instellingen openen',
     retry: 'Opnieuw proberen',
+    refresh: 'Opnieuw analyseren',
     verifiedVia: (pub, rating) => `[Geverifieerd via ${pub} (oordeel: "${rating}")]`,
   },
 
@@ -237,6 +238,7 @@ export const nl: Messages = {
     analyzeButton: 'Analyseer',
     recent: 'Recent',
     noAnalyses: 'Nog geen analyses.',
+    deleteAnalysis: 'Analyse verwijderen',
     shareNoVideo: 'Geen YouTube-video gevonden in wat je deelde.',
     cannotPlay: (c) => `De video kan hier niet worden afgespeeld (fout ${c}).`,
     openInYouTube: 'Open in YouTube',

@@ -270,7 +270,21 @@ a:hover { text-decoration: underline; }
   color: var(--yt-text-2);
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 4px 10px;
+}
+
+.meta-refresh-btn {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--yt-accent);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.meta-refresh-btn:hover {
+  text-decoration: underline;
 }
 
 .wwjd-score-banner {
@@ -526,6 +540,8 @@ export const ICONS = {
   logo: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 2h2v7h7v2h-7v11h-2V11H4V9h7V2z"/></svg>',
   refresh:
     '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.65 6.35A7.96 7.96 0 0 0 12 4a8 8 0 1 0 7.73 10h-2.08A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>',
+  trash:
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>',
   close:
     '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>',
   warn: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>',

@@ -287,6 +287,17 @@ export function renderWwjdView(
       { class: 'meta' },
       h('span', {}, `${providerLabel} · ${evaluation.model}`),
       dateLabel ? h('span', {}, dateLabel) : null,
+      options.onRefresh
+        ? h(
+            'button',
+            {
+              type: 'button',
+              class: 'meta-refresh-btn',
+              onClick: options.onRefresh,
+            },
+            `↻ ${v.refresh}`,
+          )
+        : null,
     ),
   );
 

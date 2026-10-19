@@ -57,6 +57,7 @@ export interface Messages {
     evaluatingWith: (provider: string) => string;
     openSettings: string;
     retry: string;
+    refresh: string;
     verifiedVia: (publisher: string, rating: string) => string;
   };
 
@@ -179,6 +180,7 @@ export interface Messages {
     analyzeButton: string;
     recent: string;
     noAnalyses: string;
+    deleteAnalysis: string;
     shareNoVideo: string;
     cannotPlay: (code: number | string) => string;
     openInYouTube: string;

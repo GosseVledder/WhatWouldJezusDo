@@ -17,7 +17,12 @@ const VIEW_CSS = `
 .root { padding: 12px 16px 32px; }
 `;
 
-export function summaryScreen(app: App, videoId: string, start: number | null): Screen {
+export function summaryScreen(
+  app: App,
+  videoId: string,
+  start: number | null,
+  forceRefresh = false,
+): Screen {
   const t = app.t;
   const playerBox = h('div', { class: 'player', hidden: true });
   const host = h('div', { class: 'summary-host' });
@@ -256,7 +261,7 @@ export function summaryScreen(app: App, videoId: string, start: number | null): 
   }
 
   render();
-  void evaluate(false);
+  void evaluate(forceRefresh);
 
   return {
     title: t.app.analysisTitle,

@@ -45,6 +45,7 @@ export const es: Messages = {
     evaluatingWith: (p) => `Verificando hechos y evaluando según las enseñanzas de Jesús con ${p}…`,
     openSettings: 'Abrir ajustes',
     retry: 'Reintentar',
+    refresh: 'Volver a analizar',
     verifiedVia: (pub, rating) => `[Verificado vía ${pub} (calificación: «${rating}»)]`,
   },
 
@@ -238,6 +239,7 @@ export const es: Messages = {
     analyzeButton: 'Analizar',
     recent: 'Recientes',
     noAnalyses: 'Todavía no hay análisis.',
+    deleteAnalysis: 'Eliminar análisis',
     shareNoVideo: 'No se encontró ningún vídeo de YouTube en lo que compartiste.',
     cannotPlay: (c) => `El vídeo no se puede reproducir aquí (error ${c}).`,
     openInYouTube: 'Abrir en YouTube',
