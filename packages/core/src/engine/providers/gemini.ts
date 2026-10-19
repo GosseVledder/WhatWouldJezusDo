@@ -1,5 +1,11 @@
 import { ENGINE_DEFAULTS } from '../config';
-import { EngineError, type ChatRequest, type ProviderOptions, type RawModelOutput } from '../types';
+import {
+  EngineError,
+  type ChatRequest,
+  type ProviderOptions,
+  type RawModelOutput,
+  type WebSource,
+} from '../types';
 import { errorMessageFrom, requestJson } from './http';
 
 const API = 'https://generativelanguage.googleapis.com/v1beta';
@@ -87,13 +93,19 @@ export async function generateGemini(
   extraConfig: Record<string, unknown> = {},
 ): Promise<RawModelOutput> {
   const generationConfig: Record<string, unknown> = {
-    responseMimeType: 'application/json',
     temperature: ENGINE_DEFAULTS.geminiTemperature,
     maxOutputTokens: ENGINE_DEFAULTS.maxOutputTokens,
     ...extraConfig,
   };
-  if (req.schema) {
-    generationConfig.responseJsonSchema = req.schema;
+
+  // Gemini API rejects simultaneous google_search grounding + controlled JSON mimeType/schema.
+  // When enableWebSearch is active, we enable google_search grounding and rely on the system
+  // prompt + extractJson() for JSON extraction. Otherwise we enforce responseMimeType/schema.
+  if (!req.enableWebSearch) {
+    generationConfig.responseMimeType = 'application/json';
+    if (req.schema) {
+      generationConfig.responseJsonSchema = req.schema;
+    }
   }
 
   const body: Record<string, unknown> = {
@@ -102,9 +114,7 @@ export async function generateGemini(
     generationConfig,
   };
 
-  // Only enable google_search tool when responseJsonSchema is not set, as Gemini API
-  // rejects simultaneous google_search grounding + controlled JSON generation.
-  if (req.enableWebSearch && !req.schema) {
+  if (req.enableWebSearch) {
     body.tools = [{ google_search: {} }];
   }
 
@@ -124,6 +134,7 @@ export async function generateGemini(
     ) {
       delete body.tools;
       delete generationConfig.responseJsonSchema;
+      generationConfig.responseMimeType = 'application/json';
       res = await requestJson(
         `${API}/${modelPath(opts.model)}:generateContent`,
         { headers: headers(opts.apiKey), body },
@@ -164,6 +175,23 @@ export async function generateGemini(
       },
     );
   }
+
+  const groundingSources: WebSource[] = [];
+  const seenUris = new Set<string>();
+  for (const chunk of cand?.groundingMetadata?.groundingChunks ?? []) {
+    const uri = chunk.web?.uri?.trim();
+    if (!uri || seenUris.has(uri)) continue;
+    seenUris.add(uri);
+    groundingSources.push({
+      title: chunk.web?.title?.trim() || uri,
+      url: uri,
+    });
+  }
+
+  const webSearchQueries = (cand?.groundingMetadata?.webSearchQueries ?? [])
+    .map((q) => q.trim())
+    .filter(Boolean);
+
   const u = data.usageMetadata;
   return {
     text,
@@ -172,6 +200,8 @@ export async function generateGemini(
       inputTokens: u?.promptTokenCount,
       outputTokens: (u?.candidatesTokenCount ?? 0) + (u?.thoughtsTokenCount ?? 0) || undefined,
     },
+    groundingSources: groundingSources.length > 0 ? groundingSources : undefined,
+    webSearchQueries: webSearchQueries.length > 0 ? webSearchQueries : undefined,
   };
 }
 

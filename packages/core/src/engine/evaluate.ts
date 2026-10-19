@@ -1,7 +1,11 @@
-import { searchGoogleFactCheck } from '../factcheck/googleFactCheck';
+import { searchGoogleFactCheck, type FactCheckMatch } from '../factcheck/googleFactCheck';
 import { getGuidelineById, normalizeLang } from '../guidelines/jesus';
 import { messages } from '../i18n/messages';
-import { buildSystemPrompt, buildUserPrompt } from './prompt';
+import {
+  buildFactcheckReconciliationPrompt,
+  buildSystemPrompt,
+  buildUserPrompt,
+} from './prompt';
 import { generateClaude } from './providers/claude';
 import { generateGemini } from './providers/gemini';
 import {
@@ -12,11 +16,13 @@ import {
 } from './schema';
 import {
   EngineError,
+  type FactcheckVerdict,
   type ProviderId,
   type ProviderOptions,
   type ScoredGuideline,
   type Transcript,
   type VideoMeta,
+  type WebSource,
   type WwjdEvaluation,
 } from './types';
 
@@ -38,6 +44,39 @@ export function formatTranscriptForPrompt(transcript: Transcript): string {
     .join('\n');
 }
 
+export function isVerdictReversal(
+  oldVerdict: FactcheckVerdict,
+  newVerdict: FactcheckVerdict,
+): boolean {
+  if (oldVerdict === newVerdict) return false;
+  if (
+    (oldVerdict === 'ontkracht' || oldVerdict === 'tegenspraak') &&
+    newVerdict === 'bevestigd'
+  ) {
+    return true;
+  }
+  if (
+    oldVerdict === 'bevestigd' &&
+    (newVerdict === 'ontkracht' || newVerdict === 'tegenspraak')
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function mergeUniqueSources(existing: WebSource[] | undefined, incoming: WebSource[]): WebSource[] {
+  const base = existing ?? [];
+  const seenUrls = new Set(base.map((s) => s.url));
+  const merged = [...base];
+  for (const src of incoming) {
+    if (src.url && !seenUrls.has(src.url)) {
+      seenUrls.add(src.url);
+      merged.push(src);
+    }
+  }
+  return merged;
+}
+
 export async function evaluateVideo(
   input: EvaluationInput,
   providerId: ProviderId,
@@ -45,22 +84,25 @@ export async function evaluateVideo(
 ): Promise<WwjdEvaluation> {
   const taal = normalizeLang(opts.taal);
   const t = messages(taal);
+  const currentDate = opts.currentDate?.trim() || new Date().toISOString().slice(0, 10);
   const transcriptText = formatTranscriptForPrompt(input.transcript);
-  const systemPrompt = buildSystemPrompt(taal);
+  const systemPrompt = buildSystemPrompt(taal, { currentDate });
   const userPrompt = buildUserPrompt(
     transcriptText,
     {
       titel: input.meta?.titel,
       kanaal: input.meta?.kanaal,
+      publicatieDatum: input.meta?.publicatieDatum,
     },
     taal,
+    { currentDate },
   );
 
   const chatRequest = {
     system: systemPrompt,
     user: userPrompt,
     schema: wwjdModelOutputJsonSchema(),
-    enableWebSearch: false,
+    enableWebSearch: opts.enableWebSearch ?? true,
   };
 
   let rawOutput;
@@ -107,39 +149,117 @@ export async function evaluateVideo(
     });
   }
 
-  const modelOutput = parseResult.data;
+  let modelOutput = parseResult.data;
 
-  // Primaire factcheck-laag: Google Fact Check Tools API (snel & gratis)
-  // LLM-fallback blijft behouden voor claims zonder bestaande geregistreerde factcheck
+  // Koppel eventuele live websearch grounding-bronnen van het AI-model aan de uitspraken
+  if (rawOutput.groundingSources && rawOutput.groundingSources.length > 0) {
+    for (const stmt of modelOutput.factcheckDossier.statements) {
+      stmt.sources = mergeUniqueSources(stmt.sources, rawOutput.groundingSources);
+    }
+  }
+
+  // Externe factcheck-laag: Google Fact Check Tools API (met gerichte searchQuery + datum/relevantiefilter)
   const factCheckKey = opts.factCheckApiKey?.trim();
+  const statementMatches = new Map<number, { match: FactCheckMatch; oldVerdict: FactcheckVerdict }>();
+  const verifiedReversals: {
+    index: number;
+    quote: string;
+    claim: string;
+    oldVerdict: FactcheckVerdict;
+    newVerdict: FactcheckVerdict;
+    publisherName: string;
+    textualRating: string;
+  }[] = [];
+
   if (factCheckKey) {
     await Promise.all(
-      modelOutput.factcheckDossier.statements.map(async (stmt) => {
-        const query = stmt.claim?.trim() || stmt.quote?.trim();
-        if (!query) return;
+      modelOutput.factcheckDossier.statements.map(async (stmt, index) => {
+        const candidateQueries = Array.from(
+          new Set(
+            [stmt.searchQuery?.trim(), stmt.claim?.trim(), stmt.quote?.trim()].filter(
+              (q): q is string => Boolean(q),
+            ),
+          ),
+        );
+        if (candidateQueries.length === 0) return;
 
-        const match = await searchGoogleFactCheck(query, factCheckKey, {
-          fetch: opts.fetch,
-        });
+        let match: FactCheckMatch | null = null;
+        for (const q of candidateQueries) {
+          match = await searchGoogleFactCheck(q, factCheckKey, {
+            fetch: opts.fetch,
+            referenceDate: currentDate,
+          });
+          if (match) break;
+        }
 
         if (match) {
-          // Officiële factcheck match gevonden: neem oordeel en bron direct over
-          stmt.verdict = match.verdict;
-          stmt.historicalAnalysis = `${t.view.verifiedVia(match.publisherName, match.textualRating)}: ${stmt.historicalAnalysis}`;
-
-          const existingSources = stmt.sources ?? [];
-          const seenUrls = new Set(existingSources.map((s) => s.url));
-          const mergedSources = [...existingSources];
-          for (const src of match.sources) {
-            if (!seenUrls.has(src.url)) {
-              seenUrls.add(src.url);
-              mergedSources.push(src);
-            }
+          const oldVerdict = stmt.verdict;
+          statementMatches.set(index, { match, oldVerdict });
+          if (isVerdictReversal(oldVerdict, match.verdict)) {
+            verifiedReversals.push({
+              index,
+              quote: stmt.quote,
+              claim: stmt.claim,
+              oldVerdict,
+              newVerdict: match.verdict,
+              publisherName: match.publisherName,
+              textualRating: match.textualRating,
+            });
           }
-          stmt.sources = mergedSources;
         }
       }),
     );
+  }
+
+  // Als een officiële factcheck een eerder waarheids-/onwaarheidsoordeel van de AI omkeert,
+  // herberekenen we de ethische WWJD-evaluatie vóórdat de definitieve richtlijnscores worden bepaald.
+  if (verifiedReversals.length > 0) {
+    const reconcileUserPrompt = buildFactcheckReconciliationPrompt(
+      transcriptText,
+      modelOutput,
+      verifiedReversals,
+      taal,
+      { currentDate },
+    );
+    const reconcileReq = {
+      system: systemPrompt,
+      user: reconcileUserPrompt,
+      schema: wwjdModelOutputJsonSchema(),
+      enableWebSearch: false,
+    };
+    const tReconcile = Date.now();
+    try {
+      const reconcileRaw =
+        providerId === 'gemini'
+          ? await generateGemini([{ text: reconcileUserPrompt }], reconcileReq, opts)
+          : await generateClaude(reconcileReq, opts);
+      opts.onCall?.({
+        stap: 'herzien-na-factcheck',
+        provider: providerId,
+        model: reconcileRaw.model,
+        invoerTekens: reconcileUserPrompt.length,
+        duurMs: Date.now() - tReconcile,
+        usage: reconcileRaw.usage,
+      });
+      const reconcileParsed = WwjdModelOutputSchema.safeParse(extractJson(reconcileRaw.text));
+      if (reconcileParsed.success) {
+        modelOutput = reconcileParsed.data;
+      }
+    } catch {
+      // Behoud eerste modelOutput met gecorrigeerde statement-verdicts als fallback
+    }
+  }
+
+  // Pas de gevonden officiële factcheck-matches en bronnen definitief toe op de statements
+  for (const [index, { match }] of statementMatches.entries()) {
+    const stmt = modelOutput.factcheckDossier.statements[index];
+    if (!stmt) continue;
+    stmt.verdict = match.verdict;
+    const prefix = `${t.view.verifiedVia(match.publisherName, match.textualRating)}: `;
+    if (!stmt.historicalAnalysis.startsWith(prefix)) {
+      stmt.historicalAnalysis = `${prefix}${stmt.historicalAnalysis}`;
+    }
+    stmt.sources = mergeUniqueSources(stmt.sources, match.sources);
   }
 
   return assembleEvaluation(

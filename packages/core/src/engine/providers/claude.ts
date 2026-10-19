@@ -1,5 +1,11 @@
 import { ENGINE_DEFAULTS } from '../config';
-import { EngineError, type ChatRequest, type ProviderOptions, type RawModelOutput } from '../types';
+import {
+  EngineError,
+  type ChatRequest,
+  type ProviderOptions,
+  type RawModelOutput,
+  type WebSource,
+} from '../types';
 import { errorMessageFrom, requestJson } from './http';
 
 const API = 'https://api.anthropic.com/v1';
@@ -62,10 +68,28 @@ function describeError(status: number, body: unknown, text: string): EngineError
   });
 }
 
+interface ClaudeCitation {
+  url?: string;
+  title?: string;
+}
+
+interface ClaudeWebSearchResultItem {
+  type?: string;
+  url?: string;
+  title?: string;
+}
+
+interface ClaudeContentBlock {
+  type: string;
+  text?: string;
+  citations?: ClaudeCitation[];
+  content?: ClaudeWebSearchResultItem[];
+}
+
 interface ClaudeResponse {
   model?: string;
   stop_reason?: string;
-  content?: { type: string; text?: string }[];
+  content?: ClaudeContentBlock[];
   usage?: { input_tokens?: number; output_tokens?: number };
 }
 
@@ -80,16 +104,39 @@ export async function generateClaude(
     messages: [{ role: 'user', content: req.user }],
   };
 
-  if (req.schema) {
+  if (req.enableWebSearch) {
+    body.tools = [{ type: 'web_search_20250305', name: 'web_search', max_uses: 5 }];
+  } else if (req.schema) {
     body.output_config = { format: { type: 'json_schema', schema: req.schema } };
   }
 
-  const res = await requestJson(
-    `${API}/messages`,
-    { headers: headers(opts.apiKey), body },
-    opts,
-    describeError,
-  );
+  let res;
+  try {
+    res = await requestJson(
+      `${API}/messages`,
+      { headers: headers(opts.apiKey), body },
+      opts,
+      describeError,
+    );
+  } catch (err) {
+    if (
+      err instanceof EngineError &&
+      err.code === 'bad_request' &&
+      (body.tools || body.output_config)
+    ) {
+      delete body.tools;
+      delete body.output_config;
+      res = await requestJson(
+        `${API}/messages`,
+        { headers: headers(opts.apiKey), body },
+        opts,
+        describeError,
+      );
+    } else {
+      throw err;
+    }
+  }
+
   const data = res.body as ClaudeResponse;
   if (data.stop_reason === 'refusal') {
     throw new EngineError('refusal', 'Claude weigerde deze video te analyseren.');
@@ -104,10 +151,34 @@ export async function generateClaude(
       details: text.slice(-300),
     });
   }
+
+  const groundingSources: WebSource[] = [];
+  const seenUrls = new Set<string>();
+  const addSource = (url?: string, title?: string) => {
+    const u = url?.trim();
+    if (!u || seenUrls.has(u)) return;
+    seenUrls.add(u);
+    groundingSources.push({ title: title?.trim() || u, url: u });
+  };
+
+  for (const block of data.content ?? []) {
+    for (const cit of block.citations ?? []) {
+      addSource(cit.url, cit.title);
+    }
+    if (Array.isArray(block.content)) {
+      for (const item of block.content) {
+        if (item.type === 'web_search_result') {
+          addSource(item.url, item.title);
+        }
+      }
+    }
+  }
+
   return {
     text,
     model: data.model ?? opts.model,
     usage: { inputTokens: data.usage?.input_tokens, outputTokens: data.usage?.output_tokens },
+    groundingSources: groundingSources.length > 0 ? groundingSources : undefined,
   };
 }
 

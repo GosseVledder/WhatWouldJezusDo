@@ -13,6 +13,12 @@ export const FactcheckedStatementSchema = z.object({
   startSeconds: z.number().describe('Tijdstip in seconden in de video'),
   timestampLabel: z.string().describe('Geformatteerde tijdcode [mm:ss]'),
   claim: z.string().describe('De feitelijke claim of stelling die gedaan wordt'),
+  searchQuery: z
+    .string()
+    .optional()
+    .describe(
+      'Korte, trefwoordgerichte zoekopdracht (2-6 woorden, bij voorkeur Engels of brontaal) voor de Fact Check API',
+    ),
   verdict: FactcheckVerdictSchema,
   historicalAnalysis: z
     .string()
@@ -108,6 +114,7 @@ export function wwjdModelOutputJsonSchema(): JsonObject {
                 startSeconds: { type: 'number' },
                 timestampLabel: { type: 'string' },
                 claim: { type: 'string' },
+                searchQuery: { type: 'string' },
                 verdict: {
                   type: 'string',
                   enum: ['bevestigd', 'ontkracht', 'tegenspraak', 'gemengd_of_context', 'opinie'],

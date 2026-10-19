@@ -25,6 +25,12 @@ interface PlayerResponse {
     isLiveContent?: boolean;
     isLive?: boolean;
   };
+  microformat?: {
+    playerMicroformatRenderer?: {
+      publishDate?: string;
+      uploadDate?: string;
+    };
+  };
   captions?: {
     playerCaptionsTracklistRenderer?: {
       captionTracks?: CaptionTrack[];
@@ -92,12 +98,15 @@ export function toVideoInfo(videoId: string, pr: PlayerResponse): VideoInfo {
   else if (s === 'ERROR' || s === 'UNPLAYABLE') status = 'unavailable';
   const audio = list?.audioTracks ?? [];
   const original = audio.length > 1 ? audio[list?.defaultAudioTrackIndex ?? 0] : undefined;
+  const micro = pr.microformat?.playerMicroformatRenderer;
+  const publicatieDatum = micro?.publishDate ?? micro?.uploadDate;
   return {
     meta: {
       videoId,
       titel: d.title ?? '',
       kanaal: d.author ?? '',
       duurSeconden: Number(d.lengthSeconds ?? 0) || 0,
+      ...(publicatieDatum ? { publicatieDatum } : {}),
     },
     tracks: list?.captionTracks ?? [],
     hints: {

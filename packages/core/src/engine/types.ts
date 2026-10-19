@@ -17,6 +17,7 @@ export interface FactcheckedStatement {
   startSeconds: number;
   timestampLabel: string;
   claim: string;
+  searchQuery?: string; // Korte, gerichte zoekopdracht (bij voorkeur Engels/brontaal) voor Fact Check API
   verdict: FactcheckVerdict;
   historicalAnalysis: string; // Korte historische analyse / feitenverificatie
   sources?: WebSource[];
@@ -65,6 +66,7 @@ export interface VideoMeta {
   titel: string;
   kanaal: string;
   duurSeconden: number;
+  publicatieDatum?: string;
 }
 
 export interface TranscriptSegment {
@@ -100,6 +102,8 @@ export interface ProviderOptions {
   model: string;
   taal?: string;
   factCheckApiKey?: string;
+  enableWebSearch?: boolean;
+  currentDate?: string;
   signal?: AbortSignal;
   timeoutMs?: number;
   fetch?: typeof fetch;
@@ -121,6 +125,8 @@ export interface RawModelOutput {
     inputTokens?: number;
     outputTokens?: number;
   };
+  groundingSources?: WebSource[];
+  webSearchQueries?: string[];
 }
 
 export type EngineErrorCode =

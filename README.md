@@ -24,12 +24,18 @@ Ready to use: download, install, and enter your API keys. No build tools require
 ## How It Works: Two Fundamental Activities
 
 ### 1. Extraction & Historical / Online Fact-Check
-Statements made in a video are **never blindly accepted as truth**:
-- **Key Statements & Claims**: Extracts the most important statements and claims from the video transcript, each with a clickable timestamp (`[mm:ss]`) that jumps directly to that moment in the video.
-- **Primary Layer — Google Fact Check Tools API**: Queries `factchecktools.googleapis.com` in a fraction of a second to check whether independent fact-checking organizations (Reuters, AFP, Full Fact, PolitiFact, etc.) have already rated the claim (`True`, `False`, `Misleading`, etc.).
-- **Fallback Layer — AI Historical & Online Verification**: For claims without a pre-existing fact-check record, the AI engine performs a historical and online verification to determine whether the claim is supported or refuted by established consensus.
-- **Contradiction & Integrity Detection**: Explicitly checks whether the speaker contradicts themselves in word or deed (for example, promising *"I will not start a war"* and subsequently starting a war). **Self-contradiction is by definition classified as lying.**
-- **Core Activity & Attitude**: Identifies the core activity being performed or promoted and evaluates the speaker's sentiment and attitude toward others.
+Statements made in a video are **never blindly accepted as truth**, nor are recent events falsely dismissed due to outdated AI training data. Fact-checking runs through a multi-step verification pipeline:
+
+1. **Transcript & Temporal Context**: The video transcript is formatted with exact `[mm:ss]` timestamps alongside the video's publication date and the current evaluation date, instructing the model to account for its training knowledge cutoff.
+2. **Claim Extraction & Live Web-Search Grounding (Layer 1)**:
+   - The AI engine (**Gemini** with `google_search` grounding or **Claude** with `web_search`) extracts the key factual statements, each with a clickable timestamp (`[mm:ss]`), a display `claim` in the user's chosen UI language, and a concise 2–5 keyword `searchQuery` (in English or the topic's source language) for international fact-check databases.
+   - Live web search verifies recent events (such as whether a public figure has passed away, current officeholders, elections, or ongoing conflicts) and attaches verified web source URLs directly to each statement. Claims about recent events are never marked as refuted (`ontkracht`) solely on the basis of static training memory.
+3. **Google Fact Check Tools API Verification (Layer 2)**:
+   - For every extracted statement, WWJD queries `factchecktools.googleapis.com` using the targeted `searchQuery` (with automatic fallback to `claim` and `quote`) to check whether independent fact-checking organizations (Reuters, AP, AFP, PolitiFact, Full Fact, etc.) have published a `ClaimReview`.
+   - **Relevance & Freshness Filtering**: Candidate matches are filtered for keyword overlap with the query, and outdated "death-hoax" debunks (> 180 days old) are ignored so stale reviews cannot override later real-world events.
+   - **Verdict Mapping**: Textual ratings (`True`, `Mostly True`, `False`, `Pants on Fire`, `Misleading`, `Half True`, `Full Flop`, `Opinion`, etc.) are mapped to five standardized verdicts: `bevestigd` (confirmed), `ontkracht` (refuted), `tegenspraak` (self-contradiction), `gemengd_of_context` (mixed / needs context), or `opinie` (opinion).
+4. **Contradiction & Integrity Detection**: Explicitly checks whether the speaker contradicts themselves in word or deed (for example, promising *"I will not start a war"* and subsequently starting a war). **Self-contradiction is by definition classified as lying.**
+5. **Pre-Scoring Reconciliation**: If an official Google Fact Check API match reverses the AI's initial truth verdict (e.g., from `ontkracht` to `bevestigd` or vice versa), WWJD runs a reconciliation pass **before** computing the final Biblical guideline scores, ensuring the speaker's truthfulness score and summary always reflect the verified facts.
 
 ### 2. Evaluation Against the Teachings of Jesus & The Ten Commandments
 Once the statements and actions have been fact-checked, the verified dossier is evaluated against a database of **25 Biblical guidelines**:
