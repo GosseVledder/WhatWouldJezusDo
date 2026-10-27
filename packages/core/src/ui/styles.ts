@@ -472,6 +472,54 @@ a:hover { text-decoration: underline; }
   color: var(--yt-text-2);
 }
 
+.statement-tags {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.speaker-tag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--yt-border);
+  color: var(--yt-text-2);
+}
+
+.speaker-tag.presenter {
+  border-color: var(--yt-accent);
+  color: var(--yt-accent);
+}
+
+.activity-summary + .activity-summary {
+  margin-top: 6px;
+}
+
+/* Presentator-beoordeling (sectie 3) */
+.presenter-score {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+.presenter-score .guideline-score.score-high {
+  background: var(--yt-green-bg);
+  color: var(--yt-green);
+}
+
+.presenter-score .guideline-score.score-mid {
+  background: var(--yt-amber-bg);
+  color: var(--yt-amber);
+}
+
+.presenter-score .guideline-score.score-low {
+  background: var(--yt-red-bg);
+  color: var(--yt-red);
+}
+
 /* Guideline Items (Activiteit 2) */
 .guideline-card {
   background: var(--yt-card);

@@ -22,6 +22,16 @@ export const nl: Messages = {
     section1Title: '1. Factcheck & Integriteit (Activiteit 1)',
     coreActivity: 'Kern van activiteit:',
     sentimentAndAttitude: 'Sentiment & houding:',
+    subjectLabel: 'Onderwerp',
+    presenterLabel: 'Presentator',
+    presenterRole: 'Rol:',
+    presenterConduct: 'Handelen:',
+    presenterIsSubject: 'De presentator is zelf het onderwerp van de video.',
+    speakers: {
+      presenter: 'presentator',
+      subject: 'onderwerp',
+      other: 'overig',
+    },
     contradictionAlert: 'Zelf-tegenspraak geconstateerd (= per definitie liegen):',
     statementLabel: 'Uitspraak:',
     factcheckLabel: 'Factcheck:',
@@ -34,7 +44,10 @@ export const nl: Messages = {
       opinie: 'opinie',
     },
     section2Title: (n) =>
-      `2. Toetsing aan Jezus' Richtlijnen (${n} relevante punten meegewogen)`,
+      `2. Onderwerp: toetsing aan Jezus' Richtlijnen (${n} relevante punten meegewogen)`,
+    section3Title: (n) =>
+      `3. Presentator: toetsing aan Jezus' Richtlijnen (${n} relevante punten meegewogen)`,
+    presenterScore: 'Presentator',
     linkedToMoment: 'Gekoppeld aan moment:',
     fromCache: (d) => `Uit cache · ${d}`,
     justAnalyzed: 'Zojuist geanalyseerd',

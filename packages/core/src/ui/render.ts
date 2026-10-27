@@ -67,6 +67,60 @@ function escapeHtml(text: string): string {
     .replace(/'/g, '&#39;');
 }
 
+function scoreClassFor(score: number): string {
+  if (score >= 7.0) return 'score-high';
+  if (score < 4.0) return 'score-low';
+  return 'score-mid';
+}
+
+function renderGuidelineCard(
+  g: ScoredGuideline,
+  lang: ReturnType<typeof normalizeLang>,
+  v: Messages['view'],
+): HTMLElement {
+  const gEl = document.createElement('div');
+  gEl.className = 'guideline-card';
+  const gScoreClass = scoreClassFor(g.score);
+  const dbGuideline = lang !== 'nl' ? getGuidelineById(g.guidelineId, lang) : undefined;
+  const guidelineTitle = dbGuideline ? dbGuideline.title : g.title;
+  const bibleSources =
+    lang !== 'nl'
+      ? (dbGuideline?.sources ?? g.bibleSources.map((b) => localizeBibleSource(b, lang)))
+      : g.bibleSources;
+
+  gEl.innerHTML = `
+    <div class="guideline-head">
+      <div class="guideline-title">#${g.number} ${escapeHtml(guidelineTitle)}</div>
+      <div class="guideline-score ${gScoreClass}">${g.score.toFixed(1)} / 10</div>
+    </div>
+    <div class="guideline-reasoning">${escapeHtml(g.reasoning)}</div>
+    ${
+      g.relatedQuotes.length > 0
+        ? `<div style="font-size: 12px; color: var(--yt-text-2);">
+            ${escapeHtml(v.linkedToMoment)} ${g.relatedQuotes
+              .map(
+                (q) =>
+                  `<button type="button" class="time-btn" data-start="${q.startSeconds}">${escapeHtml(q.timestampLabel)}</button> "${escapeHtml(q.quote)}"`,
+              )
+              .join('; ')}
+          </div>`
+        : ''
+    }
+    <div class="bible-sources-list">
+      ${bibleSources
+        .map(
+          (b) => `
+        <a class="bible-badge" href="${escapeHtml(b.url)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(b.quote)}">
+          📖 ${escapeHtml(b.reference)} ↗
+        </a>
+      `,
+        )
+        .join('')}
+    </div>
+  `;
+  return gEl;
+}
+
 export function renderWwjdView(
   container: HTMLElement,
   evaluation: WwjdEvaluation,
@@ -89,9 +143,7 @@ export function renderWwjdView(
   card.className = isPanelCollapsed ? 'wwjd-card collapsed' : 'wwjd-card';
 
   // Determine score color class
-  let scoreClass = 'score-mid';
-  if (evaluation.finalScore >= 7.0) scoreClass = 'score-high';
-  else if (evaluation.finalScore < 4.0) scoreClass = 'score-low';
+  const scoreClass = scoreClassFor(evaluation.finalScore);
 
   // Format header (short name WWJD, without refresh or settings icons)
   const header = document.createElement('div');
@@ -169,37 +221,64 @@ export function renderWwjdView(
   card.appendChild(scoreBanner);
 
   // --- SECTIE 1: FEITENCHECK & INTEGRITEIT (ACTIVITEIT 1) ---
+  // Oudere evaluaties kennen geen rolverdeling; die tonen we ongewijzigd
+  const dossier = evaluation.factcheckDossier;
+  const hasRoles = dossier.presenterIsSubject !== undefined || dossier.presenter !== undefined;
+  const presenter = dossier.presenterIsSubject ? undefined : dossier.presenter;
+
   const factcheckSection = document.createElement('div');
   factcheckSection.innerHTML = `
     <div class="section-title">${escapeHtml(v.section1Title)}</div>
     <div class="activity-summary">
-      <strong>${escapeHtml(v.coreActivity)}</strong> ${escapeHtml(evaluation.factcheckDossier.coreActivity)}<br>
-      <strong>${escapeHtml(v.sentimentAndAttitude)}</strong> ${escapeHtml(evaluation.factcheckDossier.sentimentAndAttitude)}
+      ${hasRoles ? `<strong>${escapeHtml(v.subjectLabel)}</strong><br>` : ''}
+      <strong>${escapeHtml(v.coreActivity)}</strong> ${escapeHtml(dossier.coreActivity)}<br>
+      <strong>${escapeHtml(v.sentimentAndAttitude)}</strong> ${escapeHtml(dossier.sentimentAndAttitude)}
     </div>
+    ${
+      dossier.presenterIsSubject
+        ? `<div class="activity-summary">${escapeHtml(v.presenterIsSubject)}</div>`
+        : presenter
+          ? `<div class="activity-summary">
+      <strong>${escapeHtml(v.presenterLabel)}</strong><br>
+      <strong>${escapeHtml(v.presenterRole)}</strong> ${escapeHtml(presenter.role)}<br>
+      <strong>${escapeHtml(v.presenterConduct)}</strong> ${escapeHtml(presenter.conduct)}<br>
+      <strong>${escapeHtml(v.sentimentAndAttitude)}</strong> ${escapeHtml(presenter.sentimentAndAttitude)}
+    </div>`
+          : ''
+    }
   `;
 
-  if (evaluation.factcheckDossier.contradictionsDetected.length > 0) {
+  const contradictionGroups: { label?: string; items: string[] }[] = [
+    { label: hasRoles ? v.subjectLabel : undefined, items: dossier.contradictionsDetected },
+    { label: v.presenterLabel, items: presenter?.contradictionsDetected ?? [] },
+  ];
+  contradictionGroups.forEach(({ label, items }) => {
+    if (items.length === 0) return;
     const alertDiv = document.createElement('div');
     alertDiv.className = 'contradiction-alert';
     alertDiv.style.marginTop = '6px';
     alertDiv.innerHTML = `
-      ⚠️ <strong>${escapeHtml(v.contradictionAlert)}</strong><br>
-      ${evaluation.factcheckDossier.contradictionsDetected.map((c) => `• ${escapeHtml(c)}`).join('<br>')}
+      ⚠️ <strong>${label ? `${escapeHtml(label)} · ` : ''}${escapeHtml(v.contradictionAlert)}</strong><br>
+      ${items.map((c) => `• ${escapeHtml(c)}`).join('<br>')}
     `;
     factcheckSection.appendChild(alertDiv);
-  }
+  });
 
   // Statement list
-  evaluation.factcheckDossier.statements.forEach((stmt) => {
+  dossier.statements.forEach((stmt) => {
     const stmtEl = document.createElement('div');
     stmtEl.className = 'statement-item';
     const verdictLabel = v.verdicts[stmt.verdict] ?? stmt.verdict.replace(/_/g, ' ');
+    const speakerLabel = stmt.speaker ? v.speakers[stmt.speaker] : undefined;
     stmtEl.innerHTML = `
       <div class="statement-header">
         <button type="button" class="time-btn" data-start="${stmt.startSeconds}">
           ⏱️ ${escapeHtml(stmt.timestampLabel)}
         </button>
-        <span class="verdict-tag ${stmt.verdict}">${escapeHtml(verdictLabel)}</span>
+        <span class="statement-tags">
+          ${speakerLabel ? `<span class="speaker-tag ${stmt.speaker}">${escapeHtml(speakerLabel)}</span>` : ''}
+          <span class="verdict-tag ${stmt.verdict}">${escapeHtml(verdictLabel)}</span>
+        </span>
       </div>
       <div><strong>${escapeHtml(v.statementLabel)}</strong> "${escapeHtml(stmt.quote)}"</div>
       <div><strong>${escapeHtml(v.factcheckLabel)}</strong> ${escapeHtml(stmt.historicalAnalysis)}</div>
@@ -225,54 +304,28 @@ export function renderWwjdView(
     <div class="section-title">${escapeHtml(v.section2Title(evaluation.relevantGuidelines.length))}</div>
   `;
 
-  evaluation.relevantGuidelines.forEach((g: ScoredGuideline) => {
-    const gEl = document.createElement('div');
-    gEl.className = 'guideline-card';
-
-    let gScoreClass = 'score-mid';
-    if (g.score >= 7.0) gScoreClass = 'score-high';
-    else if (g.score < 4.0) gScoreClass = 'score-low';
-
-    const dbGuideline = lang !== 'nl' ? getGuidelineById(g.guidelineId, lang) : undefined;
-    const guidelineTitle = dbGuideline ? dbGuideline.title : g.title;
-    const bibleSources =
-      lang !== 'nl'
-        ? (dbGuideline?.sources ?? g.bibleSources.map((b) => localizeBibleSource(b, lang)))
-        : g.bibleSources;
-
-    gEl.innerHTML = `
-      <div class="guideline-head">
-        <div class="guideline-title">#${g.number} ${escapeHtml(guidelineTitle)}</div>
-        <div class="guideline-score ${gScoreClass}">${g.score.toFixed(1)} / 10</div>
-      </div>
-      <div class="guideline-reasoning">${escapeHtml(g.reasoning)}</div>
-      ${
-        g.relatedQuotes.length > 0
-          ? `<div style="font-size: 12px; color: var(--yt-text-2);">
-              ${escapeHtml(v.linkedToMoment)} ${g.relatedQuotes
-                .map(
-                  (q) =>
-                    `<button type="button" class="time-btn" data-start="${q.startSeconds}">${escapeHtml(q.timestampLabel)}</button> "${escapeHtml(q.quote)}"`,
-                )
-                .join('; ')}
-            </div>`
-          : ''
-      }
-      <div class="bible-sources-list">
-        ${bibleSources
-          .map(
-            (b) => `
-          <a class="bible-badge" href="${escapeHtml(b.url)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(b.quote)}">
-            📖 ${escapeHtml(b.reference)} ↗
-          </a>
-        `,
-          )
-          .join('')}
-      </div>
-    `;
-    jesusSection.appendChild(gEl);
+  evaluation.relevantGuidelines.forEach((g) => {
+    jesusSection.appendChild(renderGuidelineCard(g, lang, v));
   });
   detailsContainer.appendChild(jesusSection);
+
+  // --- SECTIE 3: BEOORDELING VAN DE PRESENTATOR (alleen als die niet zelf het onderwerp is) ---
+  const presenterEval = evaluation.presenterEvaluation;
+  if (presenterEval && presenterEval.relevantGuidelines.length > 0) {
+    const presenterSection = document.createElement('div');
+    presenterSection.style.marginTop = '14px';
+    presenterSection.innerHTML = `
+      <div class="section-title">${escapeHtml(v.section3Title(presenterEval.relevantGuidelines.length))}</div>
+      <div class="presenter-score">
+        <span class="guideline-score ${scoreClassFor(presenterEval.finalScore)}">${escapeHtml(v.presenterScore)}: ${presenterEval.finalScore.toFixed(1)} / 10</span>
+        <span>${escapeHtml(presenterEval.verdictSummary)}</span>
+      </div>
+    `;
+    presenterEval.relevantGuidelines.forEach((g) => {
+      presenterSection.appendChild(renderGuidelineCard(g, lang, v));
+    });
+    detailsContainer.appendChild(presenterSection);
+  }
 
   const providerLabel = evaluation.provider === 'claude' ? 'Claude' : 'Gemini';
   const datum = new Date(evaluation.createdAt);

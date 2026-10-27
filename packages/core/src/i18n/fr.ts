@@ -22,6 +22,16 @@ export const fr: Messages = {
     section1Title: '1. Vérification des faits & Intégrité (Activité 1)',
     coreActivity: "Cœur de l'activité :",
     sentimentAndAttitude: 'Sentiment & attitude :',
+    subjectLabel: 'Sujet',
+    presenterLabel: 'Présentateur',
+    presenterRole: 'Rôle :',
+    presenterConduct: 'Conduite :',
+    presenterIsSubject: 'Le présentateur est lui-même le sujet de la vidéo.',
+    speakers: {
+      presenter: 'présentateur',
+      subject: 'sujet',
+      other: 'autre',
+    },
     contradictionAlert: 'Auto-contradiction détectée (= mensonge par définition) :',
     statementLabel: 'Déclaration :',
     factcheckLabel: 'Vérification :',
@@ -34,7 +44,10 @@ export const fr: Messages = {
       opinie: 'opinion',
     },
     section2Title: (n) =>
-      `2. Évaluation selon les préceptes de Jésus (${n} points pertinents retenus)`,
+      `2. Sujet : évaluation selon les préceptes de Jésus (${n} points pertinents retenus)`,
+    section3Title: (n) =>
+      `3. Présentateur : évaluation selon les préceptes de Jésus (${n} points pertinents retenus)`,
+    presenterScore: 'Présentateur',
     linkedToMoment: 'Lié au moment :',
     fromCache: (d) => `Depuis le cache · ${d}`,
     justAnalyzed: "Analysé à l'instant",

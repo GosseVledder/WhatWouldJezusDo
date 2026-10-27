@@ -22,6 +22,16 @@ export const es: Messages = {
     section1Title: '1. Verificación de hechos e Integridad (Actividad 1)',
     coreActivity: 'Núcleo de la actividad:',
     sentimentAndAttitude: 'Sentimiento y actitud:',
+    subjectLabel: 'Tema',
+    presenterLabel: 'Presentador',
+    presenterRole: 'Rol:',
+    presenterConduct: 'Conducta:',
+    presenterIsSubject: 'El presentador es el propio tema del vídeo.',
+    speakers: {
+      presenter: 'presentador',
+      subject: 'tema',
+      other: 'otro',
+    },
     contradictionAlert: 'Autocontradicción detectada (= mentir por definición):',
     statementLabel: 'Declaración:',
     factcheckLabel: 'Verificación:',
@@ -34,7 +44,10 @@ export const es: Messages = {
       opinie: 'opinión',
     },
     section2Title: (n) =>
-      `2. Evaluación según las enseñanzas de Jesús (${n} puntos relevantes ponderados)`,
+      `2. Tema: evaluación según las enseñanzas de Jesús (${n} puntos relevantes ponderados)`,
+    section3Title: (n) =>
+      `3. Presentador: evaluación según las enseñanzas de Jesús (${n} puntos relevantes ponderados)`,
+    presenterScore: 'Presentador',
     linkedToMoment: 'Vinculado al momento:',
     fromCache: (d) => `De la caché · ${d}`,
     justAnalyzed: 'Recién analizado',

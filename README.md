@@ -14,8 +14,8 @@ Ready to use: download, install, and enter your API keys. No build tools require
 
 | Platform | Download | Installation Guide |
 |---|---|---|
-| 📱 **Android App**<br>Phone and tablet, Android 7.0 or newer | [**WhatWouldJezusDo-0.2.9.apk**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/apk/WhatWouldJezusDo-0.2.9.apk)<br>3.1 MB | [Install on Android](#installing-the-android-app) |
-| 🧩 **Chrome & Edge Extension**<br>Windows, macOS, Linux | [**WhatWouldJezusDo-extension-0.2.9.zip**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.2.9.zip)<br>324 kB | [Install in Chrome or Edge](#installing-the-extension-in-chrome-or-edge) |
+| 📱 **Android App**<br>Phone and tablet, Android 7.0 or newer | [**WhatWouldJezusDo-0.3.0.apk**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/apk/WhatWouldJezusDo-0.3.0.apk)<br>3.1 MB | [Install on Android](#installing-the-android-app) |
+| 🧩 **Chrome & Edge Extension**<br>Windows, macOS, Linux | [**WhatWouldJezusDo-extension-0.3.0.zip**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.3.0.zip)<br>328 kB | [Install in Chrome or Edge](#installing-the-extension-in-chrome-or-edge) |
 
 **What Would Jezus Do is completely <ins>free</ins> to use:** you need an LLM API key (**either** a **free Gemini key**, **or** a **paid Gemini key**, **or** a **paid Claude key**) **and** a **free Google Fact Check Tools API key**; see [Configuring API Keys](#configuring-api-keys). All releases and their SHA-256 checksums are available under [Releases](https://github.com/GosseVledder/WhatWouldJezusDo/releases); both the app and the extension can check for updates directly via *Instellingen › Updates*.
 
@@ -42,7 +42,8 @@ Once the statements and actions have been fact-checked, the verified dossier is 
 - **The Ten Commandments (1–10)** in their broader ethical context and as deepened by Jesus in the New Testament (e.g., *You shall not murder* extended in the Sermon on the Mount to anger, dehumanizing insults, and warmongering; *You shall not bear false witness* applied to lying, slander, and self-contradiction).
 - **15 Core Teachings of Jesus (11–25)** from the Gospels (including *Love your neighbor as yourself*, *The Golden Rule*, *Love your enemies*, *Turn the other cheek*, *Blessed are the peacemakers*, *Forgiveness*, *Do not judge*, *Care for the poor and marginalized*, *Rejection of hypocrisy*, *Servant leadership and humility*, *Meekness and mercy*, and *Accountability for every spoken word*).
 - **Relevance Filtering**: Only guidelines that are **relevant** to the specific video are included in the score. Irrelevant guidelines are excluded so they do not skew the average.
-- **0.0–10.0 Final Score**: Each relevant guideline is scored from `0` to `10`. The final WWJD score is the arithmetic mean of all relevant guideline scores, rounded to **one decimal place** (e.g., `4.3` or `7.6`).
+- **Presenter vs. Subject**: WWJD separates **what the narrator / voice-over / presenter says and does** from **the subject, activity, or event being discussed**. Every statement is tagged with its speaker, and both roles are scored independently: a factual news report about a war does not make the reporter a warmonger, and a friendly presenter who distorts the facts about someone else is called out for it. When the presenter *is* the subject (an own speech, vlog, or sermon), a single evaluation is made.
+- **0.0–10.0 Final Score**: Each relevant guideline is scored from `0` to `10`. The headline WWJD score is the arithmetic mean of all relevant guideline scores **for the subject**, rounded to **one decimal place** (e.g., `4.3` or `7.6`). The presenter receives a separate score, computed the same way, in its own section.
 - **Expandable Substantiation & Hard Bible Links**: Clicking to expand the score reveals every weighed guideline, its individual score, reasoning tied to the video's quotes and fact-check results, and **clickable Bible reference badges** linking directly to the scripture text on [`debijbel.nl`](https://www.debijbel.nl/).
 
 <details>
@@ -91,11 +92,11 @@ Once the statements and actions have been fact-checked, the verified dossier is 
 
 | Property | Details |
 |---|---|
-| **File** | [`WhatWouldJezusDo-0.2.9.apk`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/apk/WhatWouldJezusDo-0.2.9.apk) (also in [`apk/`](apk/)) |
-| **Version** | 0.2.9 (versionCode 11) |
+| **File** | [`WhatWouldJezusDo-0.3.0.apk`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/apk/WhatWouldJezusDo-0.3.0.apk) (also in [`apk/`](apk/)) |
+| **Version** | 0.3.0 (versionCode 12) |
 | **Requires** | Android 7.0 or newer |
 | **Size** | 3.1 MB |
-| **SHA-256** | `66d6c4cccbd056ab638e8abb9370b3e4f0415f2df0865e9cfef7430597302b25` |
+| **SHA-256** | `801d2040e1cc99b9f822ddca31113ce11e4c14dec5901bd971c60274ec7b49de` |
 
 The APK is a signed release build distributed directly via GitHub.
 
@@ -119,13 +120,13 @@ The APK is a signed release build distributed directly via GitHub.
 
 | Property | Details |
 |---|---|
-| **File** | [`WhatWouldJezusDo-extension-0.2.9.zip`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.2.9.zip) (also unpacked in [`extension/WhatWouldJezusDo/`](extension/WhatWouldJezusDo/)) |
-| **Version** | 0.2.9 |
+| **File** | [`WhatWouldJezusDo-extension-0.3.0.zip`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.3.0.zip) (also unpacked in [`extension/WhatWouldJezusDo/`](extension/WhatWouldJezusDo/)) |
+| **Version** | 0.3.0 |
 | **Browsers** | Google Chrome and Microsoft Edge (Manifest V3) |
-| **Size** | 324 kB |
-| **SHA-256** | `2976e487d808a026803a90d063cbc166fc5a7138e02aeb8405023083f393cb9b` |
+| **Size** | 328 kB |
+| **SHA-256** | `299798db32475d51a27ad47258e2245a390b43217930955f4fc0cc804d2cb564` |
 
-1. **Download** [`WhatWouldJezusDo-extension-0.2.9.zip`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.2.9.zip).
+1. **Download** [`WhatWouldJezusDo-extension-0.3.0.zip`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.3.0.zip).
 2. **Extract** the zip file to a permanent folder on your computer (for example, `Documents\WhatWouldJezusDo`). Keep this folder in place—the browser loads the extension from it.
 3. Open `chrome://extensions` (Chrome) or `edge://extensions` (Edge).
 4. Enable **Developer mode** (top-right in Chrome; left sidebar in Edge).

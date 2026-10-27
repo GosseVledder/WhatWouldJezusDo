@@ -12,8 +12,14 @@ export interface WebSource {
   url: string;
 }
 
+export type StatementSpeaker =
+  | 'presenter' // Verteller / voice-over / presentator van de video
+  | 'subject' // Het besproken onderwerp: persoon, partij of gebeurtenis
+  | 'other'; // Overige sprekers (bijv. geïnterviewde deskundige)
+
 export interface FactcheckedStatement {
   quote: string;
+  speaker?: StatementSpeaker; // Wie doet de uitspraak (ontbreekt in oudere evaluaties)
   startSeconds: number;
   timestampLabel: string;
   claim: string;
@@ -23,10 +29,19 @@ export interface FactcheckedStatement {
   sources?: WebSource[];
 }
 
+export interface PresenterProfile {
+  role: string; // Wie presenteert (bijv. nieuwslezer van kanaal X, voice-over)
+  conduct: string; // Wat de presentator doet: verslaan, framen, bespotten, oproepen
+  sentimentAndAttitude: string; // Toon en houding van de presentator t.o.v. het onderwerp
+  contradictionsDetected: string[]; // Zelf-tegenspraak van de presentator
+}
+
 export interface VideoExtractionAndFactcheck {
-  coreActivity: string; // Wat gebeurt er daadwerkelijk (bijv. oorlog voeren, liegen, helpen)
-  sentimentAndAttitude: string; // Houding t.o.v. de medemens/tegenstander
-  contradictionsDetected: string[]; // Gedetecteerde zelf-tegenspraak (belofte vs. daad)
+  coreActivity: string; // Onderwerp: wat gebeurt er daadwerkelijk (bijv. oorlog voeren, liegen, helpen)
+  sentimentAndAttitude: string; // Onderwerp: houding t.o.v. de medemens/tegenstander
+  contradictionsDetected: string[]; // Onderwerp: gedetecteerde zelf-tegenspraak (belofte vs. daad)
+  presenterIsSubject?: boolean; // Presentator spreekt over zichzelf (toespraak, vlog, preek)
+  presenter?: PresenterProfile; // Ontbreekt in oudere evaluaties
   statements: FactcheckedStatement[];
 }
 
@@ -47,15 +62,22 @@ export interface ScoredGuideline {
   bibleSources: BibleSource[]; // Harde bronnen uit de database met links naar debijbel.nl
 }
 
+export interface PresenterEvaluation {
+  finalScore: number; // Gemiddelde van de relevante presentator-scores (1 decimaal)
+  verdictSummary: string;
+  relevantGuidelines: ScoredGuideline[];
+}
+
 export interface WwjdEvaluation {
   videoId: string;
   videoTitle?: string;
   channelName?: string;
   taal?: string;
-  finalScore: number; // Gemiddelde van relevante scores: 0.0 tot 10.0 (1 decimaal)
-  verdictSummary: string; // Korte samenvattende conclusie
+  finalScore: number; // Onderwerp: gemiddelde van relevante scores, 0.0 tot 10.0 (1 decimaal)
+  verdictSummary: string; // Onderwerp: korte samenvattende conclusie
   factcheckDossier: VideoExtractionAndFactcheck;
-  relevantGuidelines: ScoredGuideline[]; // Uitsluitend de relevante richtlijnen
+  relevantGuidelines: ScoredGuideline[]; // Onderwerp: uitsluitend de relevante richtlijnen
+  presenterEvaluation?: PresenterEvaluation; // Alleen als presentator ≠ onderwerp
   createdAt: string;
   provider: 'gemini' | 'claude';
   model: string;

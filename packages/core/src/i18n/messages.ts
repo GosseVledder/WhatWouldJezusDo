@@ -1,4 +1,4 @@
-import type { FactcheckVerdict } from '../engine/types';
+import type { FactcheckVerdict, StatementSpeaker } from '../engine/types';
 import type { KeyKind } from '../ui/keySteps';
 import { de } from './de';
 import { en } from './en';
@@ -41,12 +41,20 @@ export interface Messages {
     section1Title: string;
     coreActivity: string;
     sentimentAndAttitude: string;
+    subjectLabel: string;
+    presenterLabel: string;
+    presenterRole: string;
+    presenterConduct: string;
+    presenterIsSubject: string;
+    speakers: Record<StatementSpeaker, string>;
     contradictionAlert: string;
     statementLabel: string;
     factcheckLabel: string;
     sourcesLabel: string;
     verdicts: Record<FactcheckVerdict, string>;
     section2Title: (count: number) => string;
+    section3Title: (count: number) => string;
+    presenterScore: string;
     linkedToMoment: string;
     fromCache: (date: string) => string;
     justAnalyzed: string;

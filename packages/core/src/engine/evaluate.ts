@@ -17,6 +17,7 @@ import {
 import {
   EngineError,
   type FactcheckVerdict,
+  type PresenterEvaluation,
   type ProviderId,
   type ProviderOptions,
   type ScoredGuideline,
@@ -281,8 +282,53 @@ export function assembleEvaluation(
   taal = 'nl',
 ): WwjdEvaluation {
   const normLang = normalizeLang(taal);
-  // Enrich each relevant guideline with real scripture links from our local database in the chosen language
-  const enrichedGuidelines: ScoredGuideline[] = modelOutput.relevantGuidelines
+  const enrichedGuidelines = enrichGuidelines(modelOutput.relevantGuidelines, normLang);
+
+  if (enrichedGuidelines.length === 0) {
+    throw new EngineError(
+      'parse',
+      'Geen geldige relevante richtlijnen gevonden in de model-uitvoer.',
+    );
+  }
+
+  // De presentator krijgt alleen een eigen beoordeling als die niet zelf het onderwerp is
+  let presenterEvaluation: PresenterEvaluation | undefined;
+  if (!modelOutput.factcheckDossier.presenterIsSubject && modelOutput.presenterEvaluation) {
+    const presenterGuidelines = enrichGuidelines(
+      modelOutput.presenterEvaluation.relevantGuidelines,
+      normLang,
+    );
+    if (presenterGuidelines.length > 0) {
+      presenterEvaluation = {
+        finalScore: averageScore(presenterGuidelines),
+        verdictSummary: modelOutput.presenterEvaluation.verdictSummary,
+        relevantGuidelines: presenterGuidelines,
+      };
+    }
+  }
+
+  return {
+    videoId,
+    videoTitle: meta?.titel,
+    channelName: meta?.kanaal,
+    taal: normLang,
+    finalScore: averageScore(enrichedGuidelines),
+    verdictSummary: modelOutput.verdictSummary,
+    factcheckDossier: modelOutput.factcheckDossier,
+    relevantGuidelines: enrichedGuidelines,
+    ...(presenterEvaluation ? { presenterEvaluation } : {}),
+    createdAt: new Date().toISOString(),
+    provider,
+    model,
+  };
+}
+
+// Enrich each relevant guideline with real scripture links from our local database in the chosen language
+function enrichGuidelines(
+  guidelines: WwjdModelOutput['relevantGuidelines'],
+  normLang: string,
+): ScoredGuideline[] {
+  return guidelines
     .map((g) => {
       const dbEntry = getGuidelineById(g.guidelineId, normLang);
       if (!dbEntry) return null;
@@ -302,29 +348,10 @@ export function assembleEvaluation(
       };
     })
     .filter((g): g is ScoredGuideline => g !== null);
+}
 
-  if (enrichedGuidelines.length === 0) {
-    throw new EngineError(
-      'parse',
-      'Geen geldige relevante richtlijnen gevonden in de model-uitvoer.',
-    );
-  }
-
-  // Exact average rounded to 1 decimal place (e.g. 4.3 or 7.6)
-  const totalScore = enrichedGuidelines.reduce((acc, curr) => acc + curr.score, 0);
-  const finalScore = Math.round((totalScore / enrichedGuidelines.length) * 10) / 10;
-
-  return {
-    videoId,
-    videoTitle: meta?.titel,
-    channelName: meta?.kanaal,
-    taal: normLang,
-    finalScore,
-    verdictSummary: modelOutput.verdictSummary,
-    factcheckDossier: modelOutput.factcheckDossier,
-    relevantGuidelines: enrichedGuidelines,
-    createdAt: new Date().toISOString(),
-    provider,
-    model,
-  };
+// Exact average rounded to 1 decimal place (e.g. 4.3 or 7.6)
+function averageScore(guidelines: ScoredGuideline[]): number {
+  const totalScore = guidelines.reduce((acc, curr) => acc + curr.score, 0);
+  return Math.round((totalScore / guidelines.length) * 10) / 10;
 }

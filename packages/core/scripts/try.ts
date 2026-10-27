@@ -91,37 +91,60 @@ async function main() {
   });
 
   console.log('\n======================================================');
-  console.log(`WWJD EINDSCORE: ${evaluation.finalScore.toFixed(1)} / 10`);
+  console.log(`WWJD EINDSCORE (ONDERWERP): ${evaluation.finalScore.toFixed(1)} / 10`);
+  if (evaluation.presenterEvaluation) {
+    console.log(`PRESENTATOR: ${evaluation.presenterEvaluation.finalScore.toFixed(1)} / 10`);
+  }
   console.log('======================================================');
   console.log(`Conclusie: ${evaluation.verdictSummary}\n`);
 
   console.log('--- 1. FACTCHECK & INTEGRITEIT (ACTIVITEIT 1) ---');
-  console.log(`Kern van de activiteit: ${evaluation.factcheckDossier.coreActivity}`);
-  console.log(`Sentiment & houding: ${evaluation.factcheckDossier.sentimentAndAttitude}`);
-  if (evaluation.factcheckDossier.contradictionsDetected.length > 0) {
-    console.log('\n⚠️ ZELF-TEGENSPRAAK GECONSTATEERD (= PER DEFINITIE LIEGEN):');
-    evaluation.factcheckDossier.contradictionsDetected.forEach((c) => console.log(`  • ${c}`));
+  const dossier = evaluation.factcheckDossier;
+  console.log(`Onderwerp - kern van de activiteit: ${dossier.coreActivity}`);
+  console.log(`Onderwerp - sentiment & houding: ${dossier.sentimentAndAttitude}`);
+  if (dossier.contradictionsDetected.length > 0) {
+    console.log('\n⚠️ ZELF-TEGENSPRAAK ONDERWERP (= PER DEFINITIE LIEGEN):');
+    dossier.contradictionsDetected.forEach((c) => console.log(`  • ${c}`));
+  }
+  if (dossier.presenterIsSubject) {
+    console.log('\nDe presentator is zelf het onderwerp van de video.');
+  } else if (dossier.presenter) {
+    console.log(`\nPresentator - rol: ${dossier.presenter.role}`);
+    console.log(`Presentator - handelen: ${dossier.presenter.conduct}`);
+    console.log(`Presentator - sentiment & houding: ${dossier.presenter.sentimentAndAttitude}`);
+    if (dossier.presenter.contradictionsDetected.length > 0) {
+      console.log('\n⚠️ ZELF-TEGENSPRAAK PRESENTATOR:');
+      dossier.presenter.contradictionsDetected.forEach((c) => console.log(`  • ${c}`));
+    }
   }
   console.log('\nUitspraken & Factcheck:');
-  evaluation.factcheckDossier.statements.forEach((s) => {
-    console.log(`  [${s.timestampLabel}] "${s.quote}"`);
+  dossier.statements.forEach((s) => {
+    console.log(`  [${s.timestampLabel}] (${s.speaker ?? '?'}) "${s.quote}"`);
     console.log(`    Oordeel: [${s.verdict.toUpperCase()}]`);
     console.log(`    Factcheck: ${s.historicalAnalysis}`);
   });
 
-  console.log("\n--- 2. TOETSING AAN JEZUS' RICHTLIJNEN (ACTIVITEIT 2) ---");
-  console.log(
-    `${evaluation.relevantGuidelines.length} relevante richtlijnen meegewogen in het gemiddelde:`,
-  );
-  evaluation.relevantGuidelines.forEach((g) => {
-    console.log(`\n• #${g.number} ${g.title}: ${g.score.toFixed(1)} / 10`);
-    console.log(`  Onderbouwing: ${g.reasoning}`);
-    console.log('  Harde Bijbelverwijzingen:');
-    g.bibleSources.forEach((b) => {
-      console.log(`    📖 ${b.reference}: "${b.quote}"`);
-      console.log(`       Link: ${b.url}`);
+  const printGuidelines = (guidelines: typeof evaluation.relevantGuidelines) => {
+    console.log(`${guidelines.length} relevante richtlijnen meegewogen in het gemiddelde:`);
+    guidelines.forEach((g) => {
+      console.log(`\n• #${g.number} ${g.title}: ${g.score.toFixed(1)} / 10`);
+      console.log(`  Onderbouwing: ${g.reasoning}`);
+      console.log('  Harde Bijbelverwijzingen:');
+      g.bibleSources.forEach((b) => {
+        console.log(`    📖 ${b.reference}: "${b.quote}"`);
+        console.log(`       Link: ${b.url}`);
+      });
     });
-  });
+  };
+
+  console.log("\n--- 2. ONDERWERP: TOETSING AAN JEZUS' RICHTLIJNEN (ACTIVITEIT 2) ---");
+  printGuidelines(evaluation.relevantGuidelines);
+
+  if (evaluation.presenterEvaluation) {
+    console.log("\n--- 3. PRESENTATOR: TOETSING AAN JEZUS' RICHTLIJNEN ---");
+    console.log(`Conclusie: ${evaluation.presenterEvaluation.verdictSummary}`);
+    printGuidelines(evaluation.presenterEvaluation.relevantGuidelines);
+  }
 
   if (args.includes('--save')) {
     const outFile = join(root, `wwjd-evaluation-${videoId}.json`);

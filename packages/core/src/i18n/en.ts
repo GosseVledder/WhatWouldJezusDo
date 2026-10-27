@@ -22,6 +22,16 @@ export const en: Messages = {
     section1Title: '1. Fact-Check & Integrity (Activity 1)',
     coreActivity: 'Core activity:',
     sentimentAndAttitude: 'Sentiment & attitude:',
+    subjectLabel: 'Subject',
+    presenterLabel: 'Presenter',
+    presenterRole: 'Role:',
+    presenterConduct: 'Conduct:',
+    presenterIsSubject: 'The presenter is the subject of the video.',
+    speakers: {
+      presenter: 'presenter',
+      subject: 'subject',
+      other: 'other',
+    },
     contradictionAlert: 'Self-contradiction detected (= lying by definition):',
     statementLabel: 'Statement:',
     factcheckLabel: 'Fact-check:',
@@ -34,7 +44,10 @@ export const en: Messages = {
       opinie: 'opinion',
     },
     section2Title: (n) =>
-      `2. Evaluation Against Jesus' Guidelines (${n} relevant points weighed)`,
+      `2. Subject: Evaluation Against Jesus' Guidelines (${n} relevant points weighed)`,
+    section3Title: (n) =>
+      `3. Presenter: Evaluation Against Jesus' Guidelines (${n} relevant points weighed)`,
+    presenterScore: 'Presenter',
     linkedToMoment: 'Linked to moment:',
     fromCache: (d) => `From cache · ${d}`,
     justAnalyzed: 'Just analyzed',
