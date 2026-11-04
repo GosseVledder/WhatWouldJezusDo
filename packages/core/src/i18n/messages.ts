@@ -1,4 +1,10 @@
-import type { FactcheckVerdict, StatementSpeaker } from '../engine/types';
+import type {
+  AnalysisStep,
+  EngineErrorCode,
+  FactcheckVerdict,
+  StatementSpeaker,
+} from '../engine/types';
+import type { KeyProblem } from '../onboarding/keyCheck';
 import type { KeyKind } from '../ui/keySteps';
 import { de } from './de';
 import { en } from './en';
@@ -39,6 +45,8 @@ export interface Messages {
     hideDetails: string;
     jesusAlignment: string;
     section1Title: string;
+    summaryTitle: string;
+    checkedFacts: string;
     coreActivity: string;
     sentimentAndAttitude: string;
     subjectLabel: string;
@@ -51,18 +59,22 @@ export interface Messages {
     statementLabel: string;
     factcheckLabel: string;
     sourcesLabel: string;
+    /** Shown under a checked statement without any source. */
+    noSource: string;
+    otherSources: string;
     verdicts: Record<FactcheckVerdict, string>;
     section2Title: (count: number) => string;
     section3Title: (count: number) => string;
     presenterScore: string;
+    /** Label of the subject score next to the presenter score. */
+    subjectScore: string;
     linkedToMoment: string;
     fromCache: (date: string) => string;
     justAnalyzed: string;
     off: string;
     analyzeVideo: string;
     loadingStep: string;
-    fetchingTranscript: string;
-    evaluatingWith: (provider: string) => string;
+    progressSteps: Record<AnalysisStep, string>;
     openSettings: string;
     retry: string;
     refresh: string;
@@ -93,11 +105,6 @@ export interface Messages {
     model: string;
     testConnection: string;
     busy: string;
-    testOk: string;
-    testOkFactcheck: string;
-    testOkShort: string;
-    testFailed: string;
-    fillKeyFirst: string;
     factcheckHeading: string;
     factcheckToggle: string;
     factcheckHint: string;
@@ -112,6 +119,10 @@ export interface Messages {
     autoHint: string;
     collapsedLabel: string;
     collapsedHint: string;
+    liveLabel: string;
+    liveHint: string;
+    overlayLabel: string;
+    overlayHint: string;
     tipLabel: string;
     cacheHeading: string;
     savedAnalyses: string;
@@ -140,6 +151,8 @@ export interface Messages {
     actief: string;
     auto: string;
     collapsed: string;
+    live: string;
+    overlay: string;
     updates: string;
     cache: string;
     debug: string;
@@ -198,9 +211,46 @@ export interface Messages {
     openInYouTubeAt: (time: string) => string;
     openedInYouTube: (time: string) => string;
     cancel: string;
-    noKeyError: string;
   };
+
+  /** Welcome page (first start) and the "setup not finished" reminders. */
+  onboarding: {
+    title: string;
+    intro: string;
+    geminiTitle: string;
+    geminiText: string;
+    geminiButton: string;
+    factcheckTitle: string;
+    factcheckText: string;
+    factcheckButton: string;
+    steps: Record<OnboardingKind, string[]>;
+    showMe: string;
+    pasteLabel: string;
+    checking: string;
+    works: string;
+    retry: string;
+    problems: Record<KeyProblem, string>;
+    enableButton: string;
+    doneButton: string;
+    doneButtonApp: string;
+    doneWaiting: string;
+    privacy: string;
+    setupNotFinished: string;
+    /** Both keys missing; the argument is the AI service (Gemini, Claude). */
+    setupMissing: (provider: string) => string;
+    setupMissingAi: (provider: string) => string;
+    setupMissingFactcheck: string;
+    finishSetup: string;
+    setupGuide: string;
+    otherAi: string;
+  };
+
+  /** Analysis errors per engine error code; `provider` is the display name (Gemini, Claude). */
+  errors: Record<EngineErrorCode, (provider: string) => string>;
 }
+
+/** The two keys the welcome page asks for. */
+export type OnboardingKind = 'gemini' | 'factcheck';
 
 const DICTS: Record<UiLang, Messages> = { nl, en, de, fr, es, it, pt };
 

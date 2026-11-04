@@ -1,8 +1,9 @@
 // Settings, API keys and the evaluation cache on top of a KeyValue store.
 import {
+  createKeyStore,
   normalizeLang,
   parseWwjdSettings,
-  type KeyKind,
+  type KeyStore,
   type WwjdEvaluation,
   type WwjdSettings,
 } from '@wwjd/core';
@@ -27,34 +28,8 @@ export function createSettingsStore(kv: KeyValue): SettingsStore {
   };
 }
 
-export interface KeyStore {
-  get(): Promise<Record<KeyKind, string>>;
-  set(kind: KeyKind, value: string): Promise<void>;
-}
-
-const keyName = (k: KeyKind) => `apiKey.${k}`;
-
-export function createKeyStore(kv: KeyValue): KeyStore {
-  return {
-    async get() {
-      const [claude, gemini, factcheck] = await Promise.all([
-        kv.get(keyName('claude')),
-        kv.get(keyName('gemini')),
-        kv.get(keyName('factcheck')),
-      ]);
-      return {
-        claude: claude ?? '',
-        gemini: gemini ?? '',
-        factcheck: factcheck ?? '',
-      };
-    },
-    async set(kind, value) {
-      const v = value.trim();
-      if (v) await kv.set(keyName(kind), v);
-      else await kv.remove(keyName(kind));
-    },
-  };
-}
+/** Key storage is shared with the extension: see @wwjd/core onboarding/keyStore. */
+export { createKeyStore, type KeyStore };
 
 export interface RecentEntry {
   videoId: string;

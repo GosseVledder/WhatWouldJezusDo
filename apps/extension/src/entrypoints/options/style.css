@@ -783,3 +783,8 @@ input.switch:checked::before {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   }
 }
+
+/* "Setup not finished" card on top of the settings */
+.card.setup {
+  border-left: 3px solid #f2a900;
+}

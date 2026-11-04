@@ -1,11 +1,7 @@
 import { searchGoogleFactCheck, type FactCheckMatch } from '../factcheck/googleFactCheck';
 import { getGuidelineById, normalizeLang } from '../guidelines/jesus';
 import { messages } from '../i18n/messages';
-import {
-  buildFactcheckReconciliationPrompt,
-  buildSystemPrompt,
-  buildUserPrompt,
-} from './prompt';
+import { buildFactcheckReconciliationPrompt, buildSystemPrompt, buildUserPrompt } from './prompt';
 import { generateClaude } from './providers/claude';
 import { generateGemini } from './providers/gemini';
 import {
@@ -20,6 +16,7 @@ import {
   type PresenterEvaluation,
   type ProviderId,
   type ProviderOptions,
+  type RawModelOutput,
   type ScoredGuideline,
   type Transcript,
   type VideoMeta,
@@ -50,16 +47,10 @@ export function isVerdictReversal(
   newVerdict: FactcheckVerdict,
 ): boolean {
   if (oldVerdict === newVerdict) return false;
-  if (
-    (oldVerdict === 'ontkracht' || oldVerdict === 'tegenspraak') &&
-    newVerdict === 'bevestigd'
-  ) {
+  if ((oldVerdict === 'ontkracht' || oldVerdict === 'tegenspraak') && newVerdict === 'bevestigd') {
     return true;
   }
-  if (
-    oldVerdict === 'bevestigd' &&
-    (newVerdict === 'ontkracht' || newVerdict === 'tegenspraak')
-  ) {
+  if (oldVerdict === 'bevestigd' && (newVerdict === 'ontkracht' || newVerdict === 'tegenspraak')) {
     return true;
   }
   return false;
@@ -107,6 +98,7 @@ export async function evaluateVideo(
   };
 
   let rawOutput;
+  opts.onProgress?.('analyse');
   const t0 = Date.now();
   try {
     if (providerId === 'gemini') {
@@ -152,16 +144,12 @@ export async function evaluateVideo(
 
   let modelOutput = parseResult.data;
 
-  // Koppel eventuele live websearch grounding-bronnen van het AI-model aan de uitspraken
-  if (rawOutput.groundingSources && rawOutput.groundingSources.length > 0) {
-    for (const stmt of modelOutput.factcheckDossier.statements) {
-      stmt.sources = mergeUniqueSources(stmt.sources, rawOutput.groundingSources);
-    }
-  }
-
   // Externe factcheck-laag: Google Fact Check Tools API (met gerichte searchQuery + datum/relevantiefilter)
   const factCheckKey = opts.factCheckApiKey?.trim();
-  const statementMatches = new Map<number, { match: FactCheckMatch; oldVerdict: FactcheckVerdict }>();
+  const statementMatches = new Map<
+    number,
+    { match: FactCheckMatch; oldVerdict: FactcheckVerdict }
+  >();
   const verifiedReversals: {
     index: number;
     quote: string;
@@ -173,6 +161,7 @@ export async function evaluateVideo(
   }[] = [];
 
   if (factCheckKey) {
+    opts.onProgress?.('factcheck');
     await Promise.all(
       modelOutput.factcheckDossier.statements.map(async (stmt, index) => {
         const candidateQueries = Array.from(
@@ -215,6 +204,7 @@ export async function evaluateVideo(
   // Als een officiële factcheck een eerder waarheids-/onwaarheidsoordeel van de AI omkeert,
   // herberekenen we de ethische WWJD-evaluatie vóórdat de definitieve richtlijnscores worden bepaald.
   if (verifiedReversals.length > 0) {
+    opts.onProgress?.('reconcile');
     const reconcileUserPrompt = buildFactcheckReconciliationPrompt(
       transcriptText,
       modelOutput,
@@ -251,6 +241,10 @@ export async function evaluateVideo(
     }
   }
 
+  // Live-zoekbronnen van het model: alleen aan de uitspraak die ze onderbouwen (na een eventuele
+  // herziening, zodat ze niet verloren gaan); de rest blijft als algemene bronnen bewaard.
+  const webSources = attachGroundingSources(modelOutput.factcheckDossier.statements, rawOutput);
+
   // Pas de gevonden officiële factcheck-matches en bronnen definitief toe op de statements
   for (const [index, { match }] of statementMatches.entries()) {
     const stmt = modelOutput.factcheckDossier.statements[index];
@@ -263,13 +257,55 @@ export async function evaluateVideo(
     stmt.sources = mergeUniqueSources(stmt.sources, match.sources);
   }
 
-  return assembleEvaluation(
+  const evaluation = assembleEvaluation(
     input.videoId,
     modelOutput,
     providerId,
     rawOutput.model,
     input.meta,
     taal,
+  );
+  return webSources.length > 0 ? { ...evaluation, webSources } : evaluation;
+}
+
+const normalizeForMatch = (text: string) =>
+  text
+    .toLowerCase()
+    .replace(/\\[nrt"]/g, ' ') // escapes in raw JSON answer text
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .trim();
+
+/**
+ * Gives each statement the live search sources of the answer parts that mention it (Gemini
+ * groundingSupports, Claude citations). Returns the sources that belong to no single statement.
+ */
+export function attachGroundingSources(
+  statements: { quote: string; claim: string; historicalAnalysis: string; sources?: WebSource[] }[],
+  raw: Pick<RawModelOutput, 'groundingSources' | 'groundedSegments'>,
+): WebSource[] {
+  const used = new Set<string>();
+  const segments = (raw.groundedSegments ?? []).map((s) => ({
+    text: normalizeForMatch(s.text),
+    sources: s.sources,
+  }));
+  for (const stmt of statements) {
+    const fields = [stmt.historicalAnalysis, stmt.claim, stmt.quote]
+      .map((f) => normalizeForMatch(f ?? ''))
+      .filter((f) => f.length >= 8);
+    const matched = segments.filter(
+      (seg) =>
+        seg.text.length >= 8 &&
+        fields.some((f) => seg.text.includes(f) || (seg.text.length >= 20 && f.includes(seg.text))),
+    );
+    const sources = matched.flatMap((m) => m.sources);
+    if (sources.length) {
+      stmt.sources = mergeUniqueSources(stmt.sources, sources);
+      sources.forEach((s) => used.add(s.url));
+    }
+  }
+  return mergeUniqueSources(
+    [],
+    (raw.groundingSources ?? []).filter((s) => !used.has(s.url)),
   );
 }
 
@@ -312,6 +348,7 @@ export function assembleEvaluation(
     videoTitle: meta?.titel,
     channelName: meta?.kanaal,
     taal: normLang,
+    ...(modelOutput.videoSummary?.trim() ? { videoSummary: modelOutput.videoSummary.trim() } : {}),
     finalScore: averageScore(enrichedGuidelines),
     verdictSummary: modelOutput.verdictSummary,
     factcheckDossier: modelOutput.factcheckDossier,

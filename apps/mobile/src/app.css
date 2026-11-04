@@ -759,3 +759,23 @@ select {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   }
 }
+
+/* "Setup not finished" card on the start screen (shared setupNotice) */
+.notice .setup-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  padding-left: 10px;
+  border-left: 3px solid #f2a900;
+}
+.notice .setup-card .btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.settings .setup-guide {
+  justify-content: flex-end;
+  margin: 0 0 8px;
+}

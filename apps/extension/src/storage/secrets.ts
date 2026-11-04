@@ -1,4 +1,4 @@
-import type { KeyKind, ProviderId } from '@wwjd/core';
+import type { KeyKind, KeyStore, ProviderId } from '@wwjd/core';
 
 export interface ApiKeys {
   claude: string;
@@ -74,8 +74,24 @@ export async function getApiKeys(): Promise<ApiKeys> {
   return { ...EMPTY, ...(await readKeys()) };
 }
 
+/** Set in storage.local after every key change, so open YouTube tabs can react. */
+export const KEYS_UPDATED = 'keysUpdatedAt';
+
 export async function setApiKey(kind: KeyKind, key: string): Promise<ApiKeys> {
   const next = { ...(await getApiKeys()), [kind]: key.trim() };
   await writeKeys(next);
+  try {
+    await browser.storage.local.set({ [KEYS_UPDATED]: Date.now() });
+  } catch {
+    // No extension context (tests)
+  }
   return next;
 }
+
+/** The extension's key store, same contract as the app's (`KeyStore` in @wwjd/core). */
+export const keyStore: KeyStore = {
+  get: getApiKeys,
+  set: async (kind, value) => {
+    await setApiKey(kind, value);
+  },
+};

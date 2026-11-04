@@ -1,9 +1,7 @@
-/** Minimal string store; the native adapters and the tests implement it. */
-export interface KeyValue {
-  get(key: string): Promise<string | null>;
-  set(key: string, value: string): Promise<void>;
-  remove(key: string): Promise<void>;
-}
+import type { KeyValue } from '@wwjd/core';
+
+/** Minimal string store (shared contract from @wwjd/core). */
+export type { KeyValue };
 
 /** In-memory store for tests and the browser dev server. */
 export function memoryKV(initial: Record<string, string> = {}): KeyValue & {

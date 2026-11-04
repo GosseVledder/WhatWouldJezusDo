@@ -2,6 +2,7 @@ import { ENGINE_DEFAULTS } from '../config';
 import {
   EngineError,
   type ChatRequest,
+  type GroundedSegment,
   type ProviderOptions,
   type RawModelOutput,
   type WebSource,
@@ -77,6 +78,7 @@ interface GeminiResponse {
     groundingMetadata?: {
       webSearchQueries?: string[];
       groundingChunks?: { web?: { uri?: string; title?: string } }[];
+      groundingSupports?: { segment?: { text?: string }; groundingChunkIndices?: number[] }[];
     };
   }[];
   usageMetadata?: {
@@ -188,6 +190,18 @@ export async function generateGemini(
     });
   }
 
+  const chunks = cand?.groundingMetadata?.groundingChunks ?? [];
+  const groundedSegments: GroundedSegment[] = [];
+  for (const support of cand?.groundingMetadata?.groundingSupports ?? []) {
+    const segText = support.segment?.text?.trim();
+    if (!segText) continue;
+    const sources = (support.groundingChunkIndices ?? [])
+      .map((i) => chunks[i]?.web)
+      .filter((w): w is { uri: string; title?: string } => Boolean(w?.uri?.trim()))
+      .map((w) => ({ title: w.title?.trim() || w.uri.trim(), url: w.uri.trim() }));
+    if (sources.length) groundedSegments.push({ text: segText, sources });
+  }
+
   const webSearchQueries = (cand?.groundingMetadata?.webSearchQueries ?? [])
     .map((q) => q.trim())
     .filter(Boolean);
@@ -201,15 +215,7 @@ export async function generateGemini(
       outputTokens: (u?.candidatesTokenCount ?? 0) + (u?.thoughtsTokenCount ?? 0) || undefined,
     },
     groundingSources: groundingSources.length > 0 ? groundingSources : undefined,
+    groundedSegments: groundedSegments.length > 0 ? groundedSegments : undefined,
     webSearchQueries: webSearchQueries.length > 0 ? webSearchQueries : undefined,
   };
-}
-
-export async function testGeminiConnection(opts: ProviderOptions): Promise<void> {
-  await requestJson(
-    `${API}/${modelPath(opts.model)}`,
-    { method: 'GET', headers: headers(opts.apiKey) },
-    opts,
-    describeError,
-  );
 }

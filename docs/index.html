@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>What Would Jezus Do – fact-check YouTube videos</title>
+    <meta
+      name="description"
+      content="Free Chrome/Edge extension and Android app that fact-checks YouTube videos and weighs them against the Ten Commandments and the teachings of Jesus, with links to the Bible verses."
+    />
+    <link rel="icon" href="assets/icon-128.png" />
+    <link rel="stylesheet" href="site.css" />
+  </head>
+  <body>
+    <header class="top">
+      <a class="brand" href="#top"
+        ><img src="assets/icon-128.png" alt="" width="32" height="32" /> What Would Jezus Do</a
+      >
+      <nav aria-label="Sections">
+        <a href="#how">How it works</a>
+        <a href="#install">Install</a>
+        <a href="#keys">Keys</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-text">
+          <h1>Fact-check a YouTube video, then ask: what would Jesus do?</h1>
+          <p class="lead">
+            What Would Jezus Do checks the claims in a video, sums up its message, and weighs what
+            is said and done against the Ten Commandments and the teachings of Jesus, with a link to
+            every Bible verse it refers to.
+          </p>
+          <div class="cta">
+            <a
+              class="btn primary"
+              href="https://github.com/GosseVledder/WhatWouldJezusDo/releases/latest"
+              >Download for Chrome &amp; Edge</a
+            >
+            <a class="btn" href="https://github.com/GosseVledder/WhatWouldJezusDo/releases/latest"
+              >Download for Android</a
+            >
+          </div>
+          <p class="small">
+            Free and open source (MIT). You use two free keys from Google; setup takes about three
+            minutes.
+          </p>
+        </div>
+        <figure class="hero-shot">
+          <img
+            src="assets/example-analysis.png"
+            width="426"
+            height="760"
+            alt="The WWJD panel next to a YouTube video: a score of 2.0, separate scores for the story and the presenter, a summary and the list of checked facts with timestamps."
+          />
+          <figcaption>Example analysis (sample data)</figcaption>
+        </figure>
+      </section>
+
+      <section id="how">
+        <h2>What it does</h2>
+        <div class="grid three">
+          <article class="card">
+            <span class="num">1</span>
+            <h3>Fact check</h3>
+            <p>
+              The key claims in the video are checked with live web search and against official
+              fact-checks (Reuters, AP, AFP and others, through the Google Fact Check Tools API).
+              Every verdict shows its sources; self-contradiction is flagged.
+            </p>
+          </article>
+          <article class="card">
+            <span class="num">2</span>
+            <h3>Summary</h3>
+            <p>
+              A short summary of what the video says, with the list of checked facts. Click a
+              timestamp to jump to that moment. In live mode the panel follows the video as it
+              plays.
+            </p>
+          </article>
+          <article class="card">
+            <span class="num">3</span>
+            <h3>Two scores</h3>
+            <p>
+              The story and its facts, and the presenter, each get their own score from 0 to 10
+              against 25 guidelines from the Ten Commandments and the Gospels, each with clickable
+              Bible references.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section id="install">
+        <h2>Install</h2>
+        <div class="grid two">
+          <article class="card">
+            <h3>Chrome or Edge</h3>
+            <ol>
+              <li>
+                Download the extension zip from the
+                <a href="https://github.com/GosseVledder/WhatWouldJezusDo/releases/latest"
+                  >latest release</a
+                >
+                and extract it to a folder you keep.
+              </li>
+              <li>
+                Open <code>chrome://extensions</code> or <code>edge://extensions</code> and turn on
+                <em>Developer mode</em>.
+              </li>
+              <li>Click <em>Load unpacked</em> and choose the extracted folder.</li>
+              <li>The welcome page opens by itself: add your two keys and open a YouTube video.</li>
+            </ol>
+          </article>
+          <article class="card">
+            <h3>Android</h3>
+            <ol>
+              <li>
+                Download the APK from the
+                <a href="https://github.com/GosseVledder/WhatWouldJezusDo/releases/latest"
+                  >latest release</a
+                >
+                on your phone (Android 7.0 or newer).
+              </li>
+              <li>Open the file and allow installing from this source when Android asks.</li>
+              <li>Open the app: the welcome screen walks you through the two keys.</li>
+              <li>
+                In the YouTube app, tap <em>Share → What Would Jezus Do</em> to analyse a video.
+              </li>
+            </ol>
+          </article>
+        </div>
+        <p class="note">
+          Listings in the Chrome Web Store and Edge Add-ons are being prepared. Until then, install
+          from GitHub as above. The Android app is available as an APK from GitHub. An installation
+          video will be added here.
+        </p>
+      </section>
+
+      <section id="keys" class="split">
+        <div>
+          <h2>Two free keys, about three minutes</h2>
+          <p>
+            The app runs on your own device and talks directly to Google with your own keys. The
+            welcome page has a big button to the exact page where each key is made, checks every key
+            as soon as you paste it, and explains in plain words what to do if something is wrong.
+          </p>
+          <ol class="steps">
+            <li>
+              <strong>Gemini key</strong> – made in
+              <a href="https://aistudio.google.com/apikey">Google AI Studio</a>. Free as long as you
+              do not add billing; Google sets a daily limit.
+            </li>
+            <li>
+              <strong>Fact Check key</strong> – made in
+              <a href="https://console.cloud.google.com/apis/library/factchecktools.googleapis.com"
+                >Google Cloud</a
+              >
+              after switching on the Fact Check Tools API. Free, no credit card.
+            </li>
+          </ol>
+          <p class="small">
+            Use two separate keys: keys made in AI Studio only work for Gemini. Prefer Claude? You
+            can switch to a (paid) Anthropic key later in Settings.
+          </p>
+        </div>
+        <figure>
+          <img
+            src="assets/welcome.png"
+            width="448"
+            height="1000"
+            alt="The welcome page with two numbered cards, Gemini key and Fact Check key, each with a big button, steps and a paste field marked with a green tick."
+            loading="lazy"
+          />
+        </figure>
+      </section>
+
+      <section id="faq">
+        <h2>Questions</h2>
+        <details>
+          <summary>Is it really free?</summary>
+          <p>
+            Yes. The extension and the app are free and open source. Both keys are free from Google;
+            Gemini's free tier has a daily limit that Google sets and can change. A video you
+            analysed before is shown from the cache and costs nothing.
+          </p>
+        </details>
+        <details>
+          <summary>What is sent where?</summary>
+          <p>
+            The video's transcript, title and channel go to the AI service you chose (Google Gemini
+            by default, or Anthropic Claude). Short search terms for each claim go to the Google
+            Fact Check Tools API. Your keys are stored on your device and are only sent to those
+            services. There is no server of ours in between and no tracking. See the
+            <a href="privacy.html">privacy policy</a>.
+          </p>
+        </details>
+        <details>
+          <summary>Which videos work?</summary>
+          <p>
+            Videos with captions, either added by the maker or generated automatically by YouTube.
+            The analysis reads the transcript, so a video without captions cannot be analysed.
+          </p>
+        </details>
+        <details>
+          <summary>What do the two scores mean?</summary>
+          <p>
+            <em>Story &amp; facts</em> scores the people and events the video is about, based on the
+            checked facts. <em>Presenter</em> scores how the narrator or host tells it: honest
+            reporting of something bad does not lower the presenter's score. When the presenter is
+            the subject (a speech, vlog or sermon), there is one score.
+          </p>
+        </details>
+        <details>
+          <summary>Can I trust the verdict?</summary>
+          <p>
+            Treat it as a careful second opinion, not as a final judgement. An AI can be wrong, and
+            not every claim has an official fact-check. That is why each verdict shows its sources
+            and each evaluation links to the Bible passages it relies on: check them yourself.
+          </p>
+        </details>
+        <details>
+          <summary>Which languages and Bible translations?</summary>
+          <p>
+            Dutch, English, German, French, Spanish, Italian and Portuguese. The language you pick
+            sets the interface, the analysis and the Bible links: Dutch links to the NBV21 on
+            debijbel.nl, the other languages to BibleGateway (NIV, HOF, BDS, NVI, NR2006 and
+            NVI-PT).
+          </p>
+        </details>
+        <details>
+          <summary>Why "Jezus"?</summary>
+          <p>Jezus is the Dutch spelling of Jesus.</p>
+        </details>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <a href="privacy.html">Privacy policy</a>
+      <a href="https://github.com/GosseVledder/WhatWouldJezusDo">Source on GitHub</a>
+      <a href="https://github.com/GosseVledder/WhatWouldJezusDo/issues">Report a problem</a>
+      <span>MIT licence</span>
+    </footer>
+  </body>
+</html>

@@ -35,6 +35,8 @@ function loadApi(): Promise<YTNamespace> {
 export interface EmbeddedPlayer {
   seekTo(seconds: number): void;
   pause(): void;
+  /** Playback position in seconds (synced live mode). */
+  currentTime(): number;
 }
 
 export async function createPlayer(
@@ -67,6 +69,7 @@ export async function createPlayer(
               player.playVideo();
             },
             pause: () => player.pauseVideo(),
+            currentTime: () => player.getCurrentTime() || 0,
           }),
         onError: (e) => opts.onError(e.data),
       },

@@ -7,8 +7,9 @@
     <title>WWJD – instellingen</title>
     <meta name="manifest.open_in_tab" content="true">
     <link rel="icon" href="/icon/32.png">
-    <script type="module" crossorigin src="/chunks/options-CMPbvEfx.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/options-CrdWZGB8.css">
+    <script type="module" crossorigin src="/chunks/options-Bul8Tf5r.js"></script>
+    <link rel="modulepreload" crossorigin href="/chunks/settings-NS5eIaWG.js">
+    <link rel="stylesheet" crossorigin href="/assets/options-Dqs_QFZ3.css">
   </head>
   <body>
     <header class="topbar">
@@ -19,10 +20,28 @@
           <p data-i18n="title">Instellingen</p>
         </div>
         <span id="saved" class="saved" role="status" aria-live="polite"></span>
+        <button type="button" class="btn quiet" id="setup-guide" data-i18n="onboarding:setupGuide">
+          Installatiehulp
+        </button>
       </div>
     </header>
 
     <main>
+      <section class="group setup-group" id="setup-card" hidden>
+        <div class="card setup">
+          <div class="row">
+            <div class="row-text">
+              <span class="row-title" data-i18n="onboarding:setupNotFinished">Installatie nog niet af</span>
+              <span class="row-hint" id="setup-missing"></span>
+            </div>
+            <div class="row-control">
+              <button type="button" class="btn primary" id="finish-setup" data-i18n="onboarding:finishSetup">
+                Installatie afmaken
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
       <section class="group" aria-labelledby="h-language">
         <h2 id="h-language" data-i18n="languageHeading">Taal</h2>
         <div class="card">
@@ -69,7 +88,7 @@
               </div>
               <div class="row-control wide">
                 <div class="input-group">
-                  <input id="key-gemini" type="password" autocomplete="off" spellcheck="false" placeholder="AIza…">
+                  <input id="key-gemini" type="password" autocomplete="off" spellcheck="false" placeholder="AIza… / AQ.…">
                   <button type="button" data-toggle="key-gemini">Toon</button>
                 </div>
               </div>
@@ -199,6 +218,20 @@
               <span class="row-hint" data-i18n="collapsedHint">Toon eerst alleen de eindscore (0–10) en de korte conclusie.</span>
             </span>
             <input type="checkbox" class="switch" role="switch" id="paneelIngeklapt">
+          </label>
+          <label class="row">
+            <span class="row-text">
+              <span class="row-title" data-i18n="liveLabel" data-tip="live">Live meelezen</span>
+              <span class="row-hint" data-i18n="liveHint"></span>
+            </span>
+            <input type="checkbox" class="switch" role="switch" id="liveMeelezen">
+          </label>
+          <label class="row">
+            <span class="row-text">
+              <span class="row-title" data-i18n="overlayLabel" data-tip="overlay">Overlay op video</span>
+              <span class="row-hint" data-i18n="overlayHint"></span>
+            </span>
+            <input type="checkbox" class="switch" role="switch" id="overlayOpVideo">
           </label>
         </div>
       </section>

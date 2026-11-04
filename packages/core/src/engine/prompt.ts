@@ -76,6 +76,7 @@ Uitspraken in een video mogen NOOIT klakkeloos als waarheid worden aangenomen, m
    - Registreer tegenstrijdigheden van het onderwerp in 'contradictionsDetected' en die van de presentator in 'presenter.contradictionsDetected'.
 5. Bepaal voor het ONDERWERP de kern van de activiteit (wat wordt er daadwerkelijk gedaan?) en het sentiment (de houding t.o.v. de ander/tegenstander: mededogen, liefde vs. haat, vernedering).
 6. Bepaal voor de PRESENTATOR de rol (wie presenteert?), het handelen (wat doet de presentator met het onderwerp: verslaan, duiden, framen, bespotten, oproepen?) en de toon en houding t.o.v. het onderwerp.
+7. SAMENVATTING (pas NA de factcheck, vóór de beoordeling): schrijf in \`videoSummary\` 2 tot 4 zinnen die neutraal en zonder moreel oordeel samenvatten wat de video vertelt en beweert. Benoem waar het ertoe doet de uitkomst van de factcheck (bijv. "de belangrijkste claim over X blijkt onjuist"). Geen score, geen verwijzing naar Jezus of de geboden: dat volgt in activiteit 2.
 
 =======================================================
 ACTIVITEIT 2: DE FACTCHECK LEGGEN NAAST JEZUS' RICHTLIJNEN
@@ -101,7 +102,7 @@ ${guidelinesSummary}
 =======================================================
 TAAL VAN DE UITVOER / OUTPUT LANGUAGE: ${langLabel} (${norm})
 =======================================================
-Schrijf ALLE tekstuele beoordelingsvelden in de JSON-uitvoer (\`verdictSummary\`, \`coreActivity\`, \`sentimentAndAttitude\`, \`contradictionsDetected\`, \`presenter.role\`, \`presenter.conduct\`, \`presenter.sentimentAndAttitude\`, \`presenter.contradictionsDetected\`, \`claim\`, \`historicalAnalysis\`, \`presenterEvaluation.verdictSummary\` en \`reasoning\`) volledig in het **${langLabel}** (taalcode: \`${norm}\`), ongeacht de gesproken taal van de video.
+Schrijf ALLE tekstuele beoordelingsvelden in de JSON-uitvoer (\`videoSummary\`, \`verdictSummary\`, \`coreActivity\`, \`sentimentAndAttitude\`, \`contradictionsDetected\`, \`presenter.role\`, \`presenter.conduct\`, \`presenter.sentimentAndAttitude\`, \`presenter.contradictionsDetected\`, \`claim\`, \`historicalAnalysis\`, \`presenterEvaluation.verdictSummary\` en \`reasoning\`) volledig in het **${langLabel}** (taalcode: \`${norm}\`), ongeacht de gesproken taal van de video.
 Let op:
 - Het veld \`searchQuery\` bevat 2 tot 5 gerichte zoektermen (in het Engels bij internationale onderwerpen).
 - Het veld \`verdict\` MOET exact een van deze vaste schema-waarden zijn: \`bevestigd\`, \`ontkracht\`, \`tegenspraak\`, \`gemengd_of_context\`, \`opinie\`.
@@ -113,7 +114,6 @@ VEREIST JSON-UITVOERFORMAAT
 =======================================================
 Geef UITSLUITEND een geldig JSON-object terug dat exact voldoet aan deze structuur (zonder markdown codeblokken):
 {
-  "verdictSummary": "Korte samenvattende eindconclusie in ${langLabel}: wat zou Jezus van het besproken onderwerp vinden?",
   "factcheckDossier": {
     "coreActivity": "Onderwerp: de kern van de activiteit en daadwerkelijke handeling die besproken wordt (in ${langLabel})",
     "sentimentAndAttitude": "Onderwerp: boodschap, toon en de houding ten opzichte van de naaste of tegenstander (in ${langLabel})",
@@ -140,6 +140,8 @@ Geef UITSLUITEND een geldig JSON-object terug dat exact voldoet aan deze structu
       }
     ]
   },
+  "videoSummary": "2 tot 4 zinnen in ${langLabel}: neutrale samenvatting van wat de video vertelt, met de uitkomst van de factcheck, zonder moreel oordeel",
+  "verdictSummary": "Korte samenvattende eindconclusie in ${langLabel}: wat zou Jezus van het besproken onderwerp vinden?",
   "relevantGuidelines": [
     {
       "guidelineId": "Exact ID uit de lijst hierboven, bijv. cmd-09-truthfulness",
@@ -228,7 +230,7 @@ ${correctionsText}
 
 Herzie nu de volledige JSON-evaluatie in het ${langLabel} (${norm}) zodat:
 1. De gecorrigeerde uitspraken in \`factcheckDossier.statements\` exact het geverifieerde \`verdict\` en een bijpassende \`historicalAnalysis\` hebben.
-2. \`contradictionsDetected\`, \`presenter.contradictionsDetected\`, \`verdictSummary\` en de scores + \`reasoning\` in \`relevantGuidelines\` en \`presenterEvaluation\` volledig in lijn zijn met deze geverifieerde feiten (straf bijvoorbeeld nooit op het 9e gebod voor een uitspraak die feitelijk \`bevestigd\` is, en corrigeer te hoge scores als een claim \`ontkracht\` bleek).
+2. \`contradictionsDetected\`, \`presenter.contradictionsDetected\`, \`videoSummary\`, \`verdictSummary\` en de scores + \`reasoning\` in \`relevantGuidelines\` en \`presenterEvaluation\` volledig in lijn zijn met deze geverifieerde feiten (straf bijvoorbeeld nooit op het 9e gebod voor een uitspraak die feitelijk \`bevestigd\` is, en corrigeer te hoge scores als een claim \`ontkracht\` bleek).
 3. Een gecorrigeerde uitspraak telt alleen mee voor de rol die hem deed (\`speaker\`): een uitspraak van het onderwerp raakt de onderwerp-scores, een uitspraak van de presentator de \`presenterEvaluation\`. Behoud de bestaande rolverdeling en \`presenterIsSubject\`.
 
 EERDERE JSON-UITVOER:

@@ -3,17 +3,18 @@
 // directly. Same design as the extension's options page: grouped cards with switches and
 // stacked fields.
 import {
+  checkKey,
+  ENABLE_API_URLS,
   h,
   ICONS,
   KEY_URLS,
   keySteps,
   MODEL_SUGGESTIONS,
-  testClaudeConnection,
-  testFactCheckConnection,
-  testGeminiConnection,
   tooltips,
   UI_LANGUAGE_NAMES,
   UI_LANGUAGES,
+  type KeyCheckResult,
+  type KeyKind,
   type Messages,
   type ProviderId,
   type ReleaseAsset,
@@ -21,7 +22,7 @@ import {
   type UiLang,
   type WwjdSettings,
 } from '@wwjd/core';
-import type { App, Screen } from '../app';
+import { WELCOME_HASH, type App, type Screen } from '../app';
 import { checkAppUpdate, downloadAndInstall, installedVersion, UpdateError } from '../appUpdate';
 import { nativeFetch } from '../nativeFetch';
 
@@ -39,7 +40,7 @@ const PROVIDER_INFO: Record<
   gemini: {
     name: 'Gemini',
     vendor: 'Google',
-    placeholder: 'AIza…',
+    placeholder: 'AIza… / AQ.…',
     url: KEY_URLS.gemini,
   },
 };
@@ -50,6 +51,27 @@ function debounce<A extends unknown[]>(fn: (...a: A) => void, ms: number): (...a
     window.clearTimeout(t);
     t = window.setTimeout(() => fn(...a), ms);
   };
+}
+
+/** Result of a live key check: green tick, or the plain-language problem (+ enable link). */
+function showCheck(t: Messages, out: HTMLElement, kind: KeyKind, res: KeyCheckResult): void {
+  if (res.ok) {
+    out.className = 'test-result ok';
+    out.textContent = `✓ ${t.onboarding.works}`;
+    return;
+  }
+  out.className = 'test-result bad';
+  out.replaceChildren(t.onboarding.problems[res.problem]);
+  if (res.problem === 'api_not_enabled' && kind !== 'claude') {
+    out.append(
+      ' ',
+      h(
+        'a',
+        { href: res.activationUrl ?? ENABLE_API_URLS[kind] },
+        `${t.onboarding.enableButton} ↗`,
+      ),
+    );
+  }
 }
 
 /** ⓘ that shows the explanation `key` from the tips (tap to open, tap elsewhere to close). */
@@ -192,6 +214,16 @@ async function build(app: App, el: HTMLElement): Promise<void> {
     },
   });
 
+  const liveSwitch = h('input', {
+    type: 'checkbox',
+    class: 'switch',
+    role: 'switch',
+    checked: s.liveMeelezen,
+    onChange: async (e: Event) => {
+      await save({ liveMeelezen: (e.target as HTMLInputElement).checked });
+    },
+  });
+
   // Cache
   const count = h('span', { class: 'row-hint' }, '…');
   const updateCount = async () => {
@@ -207,15 +239,15 @@ async function build(app: App, el: HTMLElement): Promise<void> {
   const version = installedVersion();
   const versionText = h('span', {});
   el.replaceChildren(
+    h(
+      'div',
+      { class: 'actions setup-guide' },
+      h('button', { class: 'btn', onClick: () => app.go(WELCOME_HASH) }, t.onboarding.setupGuide),
+    ),
     group(
       T.languageHeading,
       null,
-      field(
-        T.languageLabel,
-        taalSelect,
-        T.languageHint,
-        tipButton(t, 'language', T.languageLabel),
-      ),
+      field(T.languageLabel, taalSelect, T.languageHint, tipButton(t, 'language', T.languageLabel)),
     ),
     h(
       'section',
@@ -238,6 +270,7 @@ async function build(app: App, el: HTMLElement): Promise<void> {
         collapsedSwitch,
         tipButton(t, 'collapsed', T.collapsedLabel),
       ),
+      switchRow(T.liveLabel, T.liveHint, liveSwitch, tipButton(t, 'live', T.liveLabel)),
     ),
     group(
       T.savedAnalyses,
@@ -302,26 +335,20 @@ function factcheckGroup(
       class: 'btn',
       onClick: async () => {
         const apiKey = keyInput.value.trim();
-        if (!apiKey) {
-          result.className = 'test-result bad';
-          result.textContent = T.fillKeyFirst;
-          return;
-        }
         result.className = 'test-result';
         result.textContent = T.busy;
-        try {
-          await app.keys.set('factcheck', apiKey);
-          await testFactCheckConnection(apiKey, { fetch: nativeFetch, timeoutMs: 15_000 });
-          result.className = 'test-result ok';
-          result.textContent = T.testOkShort;
-        } catch (e) {
-          result.className = 'test-result bad';
-          result.textContent = e instanceof Error ? e.message : String(e);
-        }
+        await app.keys.set('factcheck', apiKey);
+        showCheck(
+          t,
+          result,
+          'factcheck',
+          await checkKey('factcheck', apiKey, { fetch: nativeFetch, timeoutMs: 15_000 }),
+        );
       },
     },
     T.testConnection,
   );
+  keyInput.addEventListener('paste', () => window.setTimeout(() => testBtn.click(), 0));
 
   const keyField = field(
     T.factcheckKeyLabel,
@@ -523,38 +550,18 @@ function providerBlock(
   const result = h('span', { class: 'test-result', 'aria-live': 'polite' });
   const test = async () => {
     const apiKey = keyInput.value.trim();
-    if (!apiKey) {
-      result.className = 'test-result bad';
-      result.textContent = T.fillKeyFirst;
-      return;
-    }
     result.className = 'test-result';
     result.textContent = T.busy;
-    try {
-      await app.keys.set(p, apiKey);
-      const modelName = model.value.trim() || current().models[p];
-      if (p === 'claude') {
-        await testClaudeConnection({
-          apiKey,
-          model: modelName,
-          timeoutMs: 15_000,
-          fetch: nativeFetch,
-        });
-      } else {
-        await testGeminiConnection({
-          apiKey,
-          model: modelName,
-          timeoutMs: 15_000,
-          fetch: nativeFetch,
-        });
-      }
-      result.className = 'test-result ok';
-      result.textContent = T.testOkShort;
-    } catch (e) {
-      result.className = 'test-result bad';
-      result.textContent = e instanceof Error ? e.message : String(e);
-    }
+    await app.keys.set(p, apiKey);
+    const modelName = model.value.trim() || current().models[p];
+    showCheck(
+      t,
+      result,
+      p,
+      await checkKey(p, apiKey, { model: modelName, fetch: nativeFetch, timeoutMs: 15_000 }),
+    );
   };
+  keyInput.addEventListener('paste', () => window.setTimeout(() => void test(), 0));
 
   return h(
     'div',

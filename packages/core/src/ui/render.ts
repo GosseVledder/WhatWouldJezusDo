@@ -1,6 +1,7 @@
-import type { ScoredGuideline, WwjdEvaluation } from '../engine/types';
+import type { AnalysisStep, ScoredGuideline, WwjdEvaluation } from '../engine/types';
 import { getGuidelineById, localizeBibleSource, normalizeLang } from '../guidelines/jesus';
 import { messages, type Messages } from '../i18n/messages';
+import type { KeyKind } from './keySteps';
 import { getScaleIllustration } from './scaleImages';
 import { WWJD_BASE_CSS } from './styles';
 
@@ -39,15 +40,42 @@ export interface RenderOptions {
   onToggleEnabled?: (enabled: boolean) => void;
   enabled?: boolean;
   fromCache?: boolean;
+  /** Keys still missing: shows the "Setup not finished" card. */
+  setupMissing?: KeyKind[];
+  /** Synced live mode: the details scroll on their own while the video plays. */
+  live?: boolean;
+  onOpenSetup?: () => void;
   taal?: string;
   t?: Messages;
 }
 
 export type WwjdViewState =
   | { kind: 'idle' }
-  | { kind: 'loading'; step?: string }
+  | { kind: 'loading'; step?: string; progress?: AnalysisProgress }
   | { kind: 'error'; message: string; details?: string; showSettings?: boolean }
   | { kind: 'done'; evaluation: WwjdEvaluation; fromCache?: boolean };
+
+/** Where an analysis is; `factcheck` false when no Fact Check key is used (step left out). */
+export interface AnalysisProgress {
+  current: AnalysisStep;
+  factcheck: boolean;
+}
+
+/** The step list of an analysis: done, active or still to come. */
+export function progressSteps(
+  t: Messages,
+  progress: AnalysisProgress,
+): { step: AnalysisStep; label: string; status: 'done' | 'active' | 'todo' }[] {
+  const order: AnalysisStep[] = ['transcript', 'analyse'];
+  if (progress.factcheck) order.push('factcheck');
+  if (progress.current === 'reconcile') order.push('reconcile');
+  const at = order.indexOf(progress.current);
+  return order.map((step, i) => ({
+    step,
+    label: t.view.progressSteps[step],
+    status: i < at ? 'done' : i === at ? 'active' : 'todo',
+  }));
+}
 
 export interface WwjdStateHandlers {
   onStart?: () => void;
@@ -56,6 +84,36 @@ export interface WwjdStateHandlers {
   onSeek?: (seconds: number) => void;
   onToggleCollapse?: (collapsed: boolean) => void;
   onToggleEnabled?: (enabled: boolean) => void;
+  /** Opens the welcome page ("Setup guide"). */
+  onOpenSetup?: () => void;
+}
+
+/** "Setup not finished" card with a button back to the welcome page. */
+/** What the setup card asks for, from the list of missing keys (AI key and/or Fact Check key). */
+export function setupMissingText(t: Messages, missing: KeyKind[]): string {
+  const O = t.onboarding;
+  const ai = missing.find((k) => k !== 'factcheck');
+  const name = ai === 'claude' ? 'Claude' : 'Gemini';
+  if (ai && missing.includes('factcheck')) return O.setupMissing(name);
+  if (ai) return O.setupMissingAi(name);
+  return O.setupMissingFactcheck;
+}
+
+export function setupNotice(
+  t: Messages,
+  missing: KeyKind[],
+  onOpenSetup?: () => void,
+): HTMLElement {
+  const O = t.onboarding;
+  return h(
+    'div',
+    { class: 'setup-card', role: 'status' },
+    h('strong', {}, O.setupNotFinished),
+    h('span', {}, setupMissingText(t, missing)),
+    onOpenSetup
+      ? h('button', { type: 'button', class: 'btn primary', onClick: onOpenSetup }, O.finishSetup)
+      : null,
+  );
 }
 
 function escapeHtml(text: string): string {
@@ -88,6 +146,15 @@ function renderGuidelineCard(
       ? (dbGuideline?.sources ?? g.bibleSources.map((b) => localizeBibleSource(b, lang)))
       : g.bibleSources;
 
+  if (g.relatedQuotes.length > 0) {
+    // Synced live mode: a teaching note lights up when one of its quotes is said
+    gEl.dataset.moments = g.relatedQuotes.map((q) => q.startSeconds).join(',');
+    gEl.dataset.liveKind = 'teaching';
+    gEl.dataset.liveText = `#${g.number} ${guidelineTitle}`;
+    gEl.dataset.liveLabel = `${g.score.toFixed(1)} / 10`;
+    gEl.dataset.liveTone = gScoreClass;
+    gEl.setAttribute('data-scroll', '');
+  }
   gEl.innerHTML = `
     <div class="guideline-head">
       <div class="guideline-title">#${g.number} ${escapeHtml(guidelineTitle)}</div>
@@ -119,6 +186,12 @@ function renderGuidelineCard(
     </div>
   `;
   return gEl;
+}
+
+/** The presenter's own score, when the presenter is not the subject and was scored. */
+export function presenterScoreOf(evaluation: WwjdEvaluation): number | undefined {
+  const p = evaluation.presenterEvaluation;
+  return p && p.relevantGuidelines.length > 0 ? p.finalScore : undefined;
 }
 
 export function renderWwjdView(
@@ -165,6 +238,10 @@ export function renderWwjdView(
   // Details Container (Collapsible)
   const detailsContainer = document.createElement('div');
   detailsContainer.id = 'wwjd-details-body';
+  if (options.live) {
+    card.classList.add('live');
+    detailsContainer.classList.add('live-scroll');
+  }
   if (isCollapsed) {
     detailsContainer.style.display = 'none';
   }
@@ -190,6 +267,8 @@ export function renderWwjdView(
 
   header.append(title, actions);
   card.appendChild(header);
+  if (options.setupMissing?.length)
+    card.appendChild(setupNotice(t, options.setupMissing, options.onOpenSetup));
 
   // Score banner
   const scaleIllustration = getScaleIllustration(evaluation.finalScore);
@@ -218,15 +297,77 @@ export function renderWwjdView(
       ${escapeHtml(evaluation.verdictSummary)}
     </div>
   `;
+  // Two independent scores side by side: the story and its facts, and the presenter.
+  const presenterScore = presenterScoreOf(evaluation);
+  if (presenterScore !== undefined) {
+    scoreBanner
+      .querySelector('.wwjd-score-details')!
+      .prepend(
+        h(
+          'div',
+          { class: 'score-pair' },
+          h(
+            'span',
+            { class: `score-chip ${scoreClass}`, 'data-role': 'subject' },
+            `${v.subjectScore} ${evaluation.finalScore.toFixed(1)}`,
+          ),
+          h(
+            'span',
+            { class: `score-chip ${scoreClassFor(presenterScore)}`, 'data-role': 'presenter' },
+            `${v.presenterScore} ${presenterScore.toFixed(1)}`,
+          ),
+        ),
+      );
+  }
   card.appendChild(scoreBanner);
+
+  // --- SAMENVATTING: boodschap van de video + de gecontroleerde feiten met tijdcodes ---
+  // Geschreven na de factcheck en vóór de scores; oudere evaluaties zonder samenvatting tonen
+  // alleen de lijst.
+  const dossier = evaluation.factcheckDossier;
+  const summarySection = h(
+    'div',
+    { class: 'summary-section' },
+    h('div', { class: 'section-title' }, v.summaryTitle),
+    evaluation.videoSummary ? h('p', { class: 'video-summary' }, evaluation.videoSummary) : null,
+    dossier.statements.length > 0
+      ? h(
+          'div',
+          { class: 'checked-facts' },
+          h('div', { class: 'checked-facts-title' }, v.checkedFacts),
+          h(
+            'ul',
+            {},
+            ...dossier.statements.map((stmt) =>
+              h(
+                'li',
+                { 'data-moments': String(stmt.startSeconds) },
+                h(
+                  'button',
+                  { type: 'button', class: 'time-btn', 'data-start': String(stmt.startSeconds) },
+                  stmt.timestampLabel,
+                ),
+                h(
+                  'span',
+                  { class: `verdict-tag ${stmt.verdict}` },
+                  v.verdicts[stmt.verdict] ?? stmt.verdict.replace(/_/g, ' '),
+                ),
+                h('span', { class: 'checked-fact-claim' }, stmt.claim || stmt.quote),
+              ),
+            ),
+          ),
+        )
+      : null,
+  );
+  detailsContainer.appendChild(summarySection);
 
   // --- SECTIE 1: FEITENCHECK & INTEGRITEIT (ACTIVITEIT 1) ---
   // Oudere evaluaties kennen geen rolverdeling; die tonen we ongewijzigd
-  const dossier = evaluation.factcheckDossier;
   const hasRoles = dossier.presenterIsSubject !== undefined || dossier.presenter !== undefined;
   const presenter = dossier.presenterIsSubject ? undefined : dossier.presenter;
 
   const factcheckSection = document.createElement('div');
+  factcheckSection.style.marginTop = '14px';
   factcheckSection.innerHTML = `
     <div class="section-title">${escapeHtml(v.section1Title)}</div>
     <div class="activity-summary">
@@ -269,6 +410,13 @@ export function renderWwjdView(
     const stmtEl = document.createElement('div');
     stmtEl.className = 'statement-item';
     const verdictLabel = v.verdicts[stmt.verdict] ?? stmt.verdict.replace(/_/g, ' ');
+    // Synced live mode: the fact check lights up when the statement is said
+    stmtEl.dataset.moments = String(stmt.startSeconds);
+    stmtEl.dataset.liveKind = 'fact';
+    stmtEl.dataset.liveText = stmt.claim || stmt.quote;
+    stmtEl.dataset.liveLabel = verdictLabel;
+    stmtEl.dataset.liveTone = stmt.verdict;
+    stmtEl.setAttribute('data-scroll', '');
     const speakerLabel = stmt.speaker ? v.speakers[stmt.speaker] : undefined;
     stmtEl.innerHTML = `
       <div class="statement-header">
@@ -290,11 +438,27 @@ export function renderWwjdView(
                   `<a href="${escapeHtml(s.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(s.title || s.url)}</a>`,
               )
               .join(', ')}</small></div>`
-          : ''
+          : stmt.verdict !== 'opinie'
+            ? `<div class="no-source"><small>${escapeHtml(v.noSource)}</small></div>`
+            : ''
       }
     `;
     factcheckSection.appendChild(stmtEl);
   });
+
+  if (evaluation.webSources?.length) {
+    factcheckSection.appendChild(
+      h(
+        'div',
+        { class: 'other-sources' },
+        h('small', {}, `${v.otherSources} `),
+        ...evaluation.webSources.flatMap((s, i) => [
+          i > 0 ? ', ' : null,
+          h('a', { href: s.url, target: '_blank', rel: 'noopener noreferrer' }, s.title || s.url),
+        ]),
+      ),
+    );
+  }
   detailsContainer.appendChild(factcheckSection);
 
   // --- SECTIE 2: BEOORDELING VOLGENS JEZUS' RICHTLIJNEN (ACTIVITEIT 2) ---
@@ -359,7 +523,9 @@ export function renderWwjdView(
     h(
       'div',
       { class: 'peek' },
-      `${evaluation.finalScore.toFixed(1)} / 10 · ${evaluation.verdictSummary}`,
+      presenterScore !== undefined
+        ? `${v.subjectScore} ${evaluation.finalScore.toFixed(1)} · ${v.presenterScore} ${presenterScore.toFixed(1)} · ${evaluation.verdictSummary}`
+        : `${evaluation.finalScore.toFixed(1)} / 10 · ${evaluation.verdictSummary}`,
     ),
   );
   container.appendChild(card);
@@ -392,6 +558,9 @@ export function renderWwjdStateView(
     collapsed?: boolean;
     panelCollapsed?: boolean;
     enabled?: boolean;
+    /** Keys still missing (see `setupStatus`). Without the AI key nothing can be analysed. */
+    setupMissing?: KeyKind[];
+    live?: boolean;
     taal?: string;
     t?: Messages;
   } = {},
@@ -414,6 +583,9 @@ export function renderWwjdStateView(
       onToggleEnabled: handlers.onToggleEnabled,
       enabled,
       fromCache: state.fromCache,
+      setupMissing: opts.setupMissing,
+      onOpenSetup: handlers.onOpenSetup,
+      live: opts.live,
       taal: lang,
       t,
     });
@@ -463,6 +635,14 @@ export function renderWwjdStateView(
     return;
   }
 
+  const missing = opts.setupMissing ?? [];
+  if (missing.length) card.append(setupNotice(t, missing, handlers.onOpenSetup));
+  if (missing.some((k) => k !== 'factcheck')) {
+    // No AI key: the setup card is all there is to do.
+    container.appendChild(card);
+    return;
+  }
+
   if (state.kind === 'idle') {
     card.append(
       h(
@@ -476,12 +656,37 @@ export function renderWwjdStateView(
       ),
     );
   } else if (state.kind === 'loading') {
-    const stepText = state.step ?? v.loadingStep;
+    const steps = state.progress ? progressSteps(t, state.progress) : null;
+    const stepText = steps
+      ? (steps.find((s) => s.status === 'active')?.label ?? v.loadingStep)
+      : (state.step ?? v.loadingStep);
     card.append(
       h(
         'div',
         { class: 'loading', role: 'status' },
-        h('div', { class: 'step' }, h('span', { class: 'spinner' }), stepText),
+        steps
+          ? h(
+              'ol',
+              { class: 'progress-steps' },
+              ...steps.map((s) =>
+                h(
+                  'li',
+                  {
+                    'data-status': s.status,
+                    'aria-current': s.status === 'active' ? 'step' : false,
+                  },
+                  s.status === 'active'
+                    ? h('span', { class: 'spinner' })
+                    : h(
+                        'span',
+                        { class: 'step-mark', 'aria-hidden': 'true' },
+                        s.status === 'done' ? '✓' : '',
+                      ),
+                  s.label,
+                ),
+              ),
+            )
+          : h('div', { class: 'step' }, h('span', { class: 'spinner' }), stepText),
         h('div', { class: 'bar w90' }),
         h('div', { class: 'bar w80' }),
         h('div', { class: 'bar w60' }),

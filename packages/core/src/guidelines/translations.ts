@@ -77,11 +77,7 @@ export function localizeBibleReference(nlReference: string, lang: SupportedLang)
   return nlReference;
 }
 
-export function buildBibleUrl(
-  nlReference: string,
-  nlUrl: string,
-  lang: SupportedLang,
-): string {
+export function buildBibleUrl(nlReference: string, nlUrl: string, lang: SupportedLang): string {
   if (lang === 'nl') return nlUrl;
   const localizedRef = localizeBibleReference(nlReference, lang);
   const version = BIBLE_VERSIONS[lang];
@@ -92,18 +88,18 @@ export function buildBibleUrl(
   return `https://www.biblegateway.com/passage/?${params.toString()}`;
 }
 
-export const GUIDELINE_TITLES: Record<
-  Exclude<SupportedLang, 'nl'>,
-  Record<string, string>
-> = {
+export const GUIDELINE_TITLES: Record<Exclude<SupportedLang, 'nl'>, Record<string, string>> = {
   en: {
     'cmd-01-no-other-gods': 'No other gods (Love God and the good above all)',
     'cmd-02-no-idols': 'No idols (Purity of faith, do not abuse religion)',
-    'cmd-03-gods-name-oaths': "Do not misuse God's name & Integrity of promises (Let your 'yes' be 'yes')",
+    'cmd-03-gods-name-oaths':
+      "Do not misuse God's name & Integrity of promises (Let your 'yes' be 'yes')",
     'cmd-04-sabbath-mercy': 'Honor the Sabbath / Humanity and mercy above rigid rules',
-    'cmd-05-honor-parents': 'Honor your father and mother (Care for parents and vulnerable family bonds)',
+    'cmd-05-honor-parents':
+      'Honor your father and mother (Care for parents and vulnerable family bonds)',
     'cmd-06-do-not-kill': 'You shall not murder (Nor with anger, hate speech, or warmongering)',
-    'cmd-07-no-adultery': 'You shall not commit adultery (Relational faithfulness, purity of intention)',
+    'cmd-07-no-adultery':
+      'You shall not commit adultery (Relational faithfulness, purity of intention)',
     'cmd-08-do-not-steal': 'You shall not steal (Justice, fairness, and restitution)',
     'cmd-09-truthfulness': 'You shall not bear false witness (Do not lie or contradict yourself)',
     'cmd-10-do-not-covet': 'You shall not covet (Freedom from greed, envy, and expansionism)',
@@ -126,16 +122,24 @@ export const GUIDELINE_TITLES: Record<
   de: {
     'cmd-01-no-other-gods': 'Keine anderen Götter (Gott und das Gute über alles lieben)',
     'cmd-02-no-idols': 'Keine Götzenbilder (Reinheit des Glaubens, Religion nicht missbrauchen)',
-    'cmd-03-gods-name-oaths': 'Gottes Namen nicht missbrauchen & Ehrlichkeit der Versprechen (Euer Ja sei ein Ja)',
-    'cmd-04-sabbath-mercy': 'Ehre den Ruhetag / Menschlichkeit und Barmherzigkeit über starre Regeln',
-    'cmd-05-honor-parents': 'Ehre Vater und Mutter (Fürsorge für Eltern und schutzbedürftige Familienbande)',
-    'cmd-06-do-not-kill': 'Du sollst nicht töten (Auch nicht mit Zorn, Hassrede oder Kriegstreiberei)',
+    'cmd-03-gods-name-oaths':
+      'Gottes Namen nicht missbrauchen & Ehrlichkeit der Versprechen (Euer Ja sei ein Ja)',
+    'cmd-04-sabbath-mercy':
+      'Ehre den Ruhetag / Menschlichkeit und Barmherzigkeit über starre Regeln',
+    'cmd-05-honor-parents':
+      'Ehre Vater und Mutter (Fürsorge für Eltern und schutzbedürftige Familienbande)',
+    'cmd-06-do-not-kill':
+      'Du sollst nicht töten (Auch nicht mit Zorn, Hassrede oder Kriegstreiberei)',
     'cmd-07-no-adultery': 'Du sollst nicht ehebrechen (Treue in Beziehungen, Reinheit der Absicht)',
-    'cmd-08-do-not-steal': 'Du sollst nicht stehlen (Gerechtigkeit, niemanden übervorteilen und Wiedergutmachung)',
-    'cmd-09-truthfulness': 'Du sollst kein falsches Zeugnis reden (Nicht lügen und sich nicht selbst widersprechen)',
+    'cmd-08-do-not-steal':
+      'Du sollst nicht stehlen (Gerechtigkeit, niemanden übervorteilen und Wiedergutmachung)',
+    'cmd-09-truthfulness':
+      'Du sollst kein falsches Zeugnis reden (Nicht lügen und sich nicht selbst widersprechen)',
     'cmd-10-do-not-covet': 'Du sollst nicht begehren (Frei von Habgier, Neid und Expansionsdrang)',
-    'nt-01-love-neighbor': 'Liebe deinen Nächsten wie dich selbst (Einschließlich Fremder und Außenseiter)',
-    'nt-02-golden-rule': 'Die Goldene Regel (Behandle andere so, wie du selbst behandelt werden möchtest)',
+    'nt-01-love-neighbor':
+      'Liebe deinen Nächsten wie dich selbst (Einschließlich Fremder und Außenseiter)',
+    'nt-02-golden-rule':
+      'Die Goldene Regel (Behandle andere so, wie du selbst behandelt werden möchtest)',
     'nt-03-love-enemies': 'Liebt eure Feinde und betet für die, die euch verfolgen',
     'nt-04-turn-other-cheek': 'Halte auch die andere Wange hin (Gewaltlosigkeit und Deeskalation)',
     'nt-05-peacemakers': 'Selig sind die Friedensstifter (Aktiver Frieden und Versöhnung)',
@@ -153,14 +157,19 @@ export const GUIDELINE_TITLES: Record<
   fr: {
     'cmd-01-no-other-gods': "Pas d'autres dieux (Aimer Dieu et le bien par-dessus tout)",
     'cmd-02-no-idols': "Pas d'idoles (Pureté de la foi, ne pas instrumentaliser la religion)",
-    'cmd-03-gods-name-oaths': 'Ne pas abuser du nom de Dieu & Sincérité des promesses (Que votre oui soit oui)',
-    'cmd-04-sabbath-mercy': 'Honorer le jour du repos / Humanité et miséricorde avant les règles rigides',
+    'cmd-03-gods-name-oaths':
+      'Ne pas abuser du nom de Dieu & Sincérité des promesses (Que votre oui soit oui)',
+    'cmd-04-sabbath-mercy':
+      'Honorer le jour du repos / Humanité et miséricorde avant les règles rigides',
     'cmd-05-honor-parents': 'Honore ton père et ta mère (Soin des parents et des liens familiaux)',
-    'cmd-06-do-not-kill': 'Tu ne commettras pas de meurtre (Ni par la colère, les discours de haine ou le bellicisme)',
-    'cmd-07-no-adultery': "Tu ne commettras pas d'adultère (Fidélité relationnelle et pureté d'intention)",
+    'cmd-06-do-not-kill':
+      'Tu ne commettras pas de meurtre (Ni par la colère, les discours de haine ou le bellicisme)',
+    'cmd-07-no-adultery':
+      "Tu ne commettras pas d'adultère (Fidélité relationnelle et pureté d'intention)",
     'cmd-08-do-not-steal': 'Tu ne voleras pas (Justice, équité et réparation)',
     'cmd-09-truthfulness': 'Tu ne porteras pas de faux témoignage (Ne pas mentir ni se contredire)',
-    'cmd-10-do-not-covet': 'Tu ne convoiteras pas (Libre de cupidité, de jalousie et d’expansionnisme)',
+    'cmd-10-do-not-covet':
+      'Tu ne convoiteras pas (Libre de cupidité, de jalousie et d’expansionnisme)',
     'nt-01-love-neighbor': "Aime ton prochain comme toi-même (Y compris l'étranger et l'exclu)",
     'nt-02-golden-rule': "La Règle d'Or (Traitez les autres comme vous voudriez être traités)",
     'nt-03-love-enemies': 'Aimez vos ennemis et priez pour ceux qui vous persécutent',
@@ -180,15 +189,18 @@ export const GUIDELINE_TITLES: Record<
   es: {
     'cmd-01-no-other-gods': 'No tendrás otros dioses (Amar a Dios y el bien sobre todas las cosas)',
     'cmd-02-no-idols': 'No harás ídolos (Pureza de la fe, no abusar de la religión)',
-    'cmd-03-gods-name-oaths': 'No tomar el nombre de Dios en vano y honestidad en las promesas (Que su sí sea sí)',
-    'cmd-04-sabbath-mercy': 'Honrar el día de reposo / Humanidad y misericordia por encima de reglas rígidas',
+    'cmd-03-gods-name-oaths':
+      'No tomar el nombre de Dios en vano y honestidad en las promesas (Que su sí sea sí)',
+    'cmd-04-sabbath-mercy':
+      'Honrar el día de reposo / Humanidad y misericordia por encima de reglas rígidas',
     'cmd-05-honor-parents': 'Honra a tu padre y a tu madre (Cuidado de los padres y mayores)',
     'cmd-06-do-not-kill': 'No matarás (Tampoco con ira, discurso de odio o belicismo)',
     'cmd-07-no-adultery': 'No cometerás adulterio (Fidelidad relacional y pureza de intención)',
     'cmd-08-do-not-steal': 'No robarás (Justicia, equidad y restitución)',
     'cmd-09-truthfulness': 'No darás falso testimonio (No mentir ni contradecirse a sí mismo)',
     'cmd-10-do-not-covet': 'No codiciarás (Libre de avaricia, envidia y afán expansionista)',
-    'nt-01-love-neighbor': 'Ama a tu prójimo como a ti mismo (Incluido el extranjero y el marginado)',
+    'nt-01-love-neighbor':
+      'Ama a tu prójimo como a ti mismo (Incluido el extranjero y el marginado)',
     'nt-02-golden-rule': 'La Regla de Oro (Trata a los demás como quieres que te traten a ti)',
     'nt-03-love-enemies': 'Amen a sus enemigos y oren por quienes los persiguen',
     'nt-04-turn-other-cheek': 'Poner la otra mejilla (No violencia y desescalada)',
@@ -196,7 +208,8 @@ export const GUIDELINE_TITLES: Record<
     'nt-06-forgiveness': 'El perdón (Perdonar setenta veces siete)',
     'nt-07-do-not-judge': 'No juzguen (Saca primero la viga de tu propio ojo)',
     'nt-08-care-for-poor': 'Cuidado de los pobres, hambrientos y oprimidos',
-    'nt-09-reject-hypocrisy': 'Rechazo de la hipocresía (Las palabras y los hechos deben coincidir)',
+    'nt-09-reject-hypocrisy':
+      'Rechazo de la hipocresía (Las palabras y los hechos deben coincidir)',
     'nt-10-humility-service': 'Humildad y liderazgo de servicio',
     'nt-11-meekness-mercy': 'Mansedumbre y misericordia',
     'nt-12-power-of-words': 'Responsabilidad por cada palabra pronunciada',
@@ -207,15 +220,21 @@ export const GUIDELINE_TITLES: Record<
   it: {
     'cmd-01-no-other-gods': 'Non avere altri dèi (Amare Dio e il bene sopra ogni cosa)',
     'cmd-02-no-idols': 'Non farti idoli (Purezza della fede, non strumentalizzare la religione)',
-    'cmd-03-gods-name-oaths': 'Non abusare del nome di Dio e sincerità delle promesse (Il vostro sì sia sì)',
-    'cmd-04-sabbath-mercy': 'Onora il giorno di riposo / Umanità e misericordia sopra le regole rigide',
+    'cmd-03-gods-name-oaths':
+      'Non abusare del nome di Dio e sincerità delle promesse (Il vostro sì sia sì)',
+    'cmd-04-sabbath-mercy':
+      'Onora il giorno di riposo / Umanità e misericordia sopra le regole rigide',
     'cmd-05-honor-parents': 'Onora tuo padre e tua madre (Cura dei genitori e degli anziani)',
-    'cmd-06-do-not-kill': "Non uccidere (Neppure con l'ira, l'incitamento all'odio o il bellicismo)",
-    'cmd-07-no-adultery': 'Non commettere adulterio (Fedeltà nelle relazioni e purezza di intenzione)',
+    'cmd-06-do-not-kill':
+      "Non uccidere (Neppure con l'ira, l'incitamento all'odio o il bellicismo)",
+    'cmd-07-no-adultery':
+      'Non commettere adulterio (Fedeltà nelle relazioni e purezza di intenzione)',
     'cmd-08-do-not-steal': 'Non rubare (Giustizia, equità e riparazione)',
     'cmd-09-truthfulness': 'Non dire falsa testimonianza (Non mentire né contraddirsi)',
-    'cmd-10-do-not-covet': 'Non desiderare ciò che appartiene ad altri (Libero da avidità e invidia)',
-    'nt-01-love-neighbor': 'Ama il tuo prossimo come te stesso (Incluso lo straniero e chi è ai margini)',
+    'cmd-10-do-not-covet':
+      'Non desiderare ciò che appartiene ad altri (Libero da avidità e invidia)',
+    'nt-01-love-neighbor':
+      'Ama il tuo prossimo come te stesso (Incluso lo straniero e chi è ai margini)',
     'nt-02-golden-rule': "La Regola d'Oro (Tratta gli altri come vorresti essere trattato)",
     'nt-03-love-enemies': 'Amate i vostri nemici e pregate per quelli che vi perseguitano',
     'nt-04-turn-other-cheek': "Porgi l'altra guancia (Non violenza e de-escalation)",
@@ -234,15 +253,18 @@ export const GUIDELINE_TITLES: Record<
   pt: {
     'cmd-01-no-other-gods': 'Não terás outros deuses (Amar a Deus e o bem acima de tudo)',
     'cmd-02-no-idols': 'Não farás ídolos (Pureza da fé, não abusar da religião)',
-    'cmd-03-gods-name-oaths': 'Não tomar o nome de Deus em vão e honestidade nas promessas (Seja o vosso sim, sim)',
-    'cmd-04-sabbath-mercy': 'Honrar o dia de descanso / Humanidade e misericórdia acima de regras rígidas',
+    'cmd-03-gods-name-oaths':
+      'Não tomar o nome de Deus em vão e honestidade nas promessas (Seja o vosso sim, sim)',
+    'cmd-04-sabbath-mercy':
+      'Honrar o dia de descanso / Humanidade e misericórdia acima de regras rígidas',
     'cmd-05-honor-parents': 'Honra teu pai e tua mãe (Cuidado com os pais e idosos)',
     'cmd-06-do-not-kill': 'Não matarás (Nem com ira, discurso de ódio ou belicismo)',
     'cmd-07-no-adultery': 'Não adulterarás (Fidelidade relacional e pureza de intenção)',
     'cmd-08-do-not-steal': 'Não furtarás (Justiça, equidade e restituição)',
     'cmd-09-truthfulness': 'Não dirás falso testemunho (Não mentir nem se contradizer)',
     'cmd-10-do-not-covet': 'Não cobiçarás (Livre de ganância, inveja e expansionismo)',
-    'nt-01-love-neighbor': 'Ama o teu próximo como a ti mesmo (Incluindo o estrangeiro e o excluído)',
+    'nt-01-love-neighbor':
+      'Ama o teu próximo como a ti mesmo (Incluindo o estrangeiro e o excluído)',
     'nt-02-golden-rule': 'A Regra de Ouro (Trate os outros como gostaria de ser tratado)',
     'nt-03-love-enemies': 'Amem os seus inimigos e orem por aqueles que os perseguem',
     'nt-04-turn-other-cheek': 'Dar a outra face (Não violência e desescalada)',
@@ -267,7 +289,8 @@ export const BIBLE_QUOTES: Record<Exclude<SupportedLang, 'nl'>, Record<string, s
       'Love the Lord your God with all your heart and with all your soul and with all your mind. This is the first and greatest commandment.',
     'Matteüs 6:24': 'No one can serve two masters. You cannot serve both God and money.',
     'Lucas 4:8': 'It is written: "Worship the Lord your God and serve him only."',
-    'Exodus 20:4-6': 'You shall not make for yourself an image in the form of anything in heaven above.',
+    'Exodus 20:4-6':
+      'You shall not make for yourself an image in the form of anything in heaven above.',
     'Johannes 4:23-24':
       'True worshipers will worship the Father in the Spirit and in truth, for they are the kind of worshipers the Father seeks.',
     'Matteüs 21:12-13':
@@ -382,7 +405,8 @@ export const BIBLE_QUOTES: Record<Exclude<SupportedLang, 'nl'>, Record<string, s
       'Well done, good and faithful servant! You have been faithful with a few things; I will put you in charge of many things.',
     'Lucas 12:48':
       'From everyone who has been given much, much will be demanded; and from the one who has been entrusted with much, much more will be asked.',
-    'Matteüs 5:6': 'Blessed are those who hunger and thirst for righteousness, for they will be filled.',
+    'Matteüs 5:6':
+      'Blessed are those who hunger and thirst for righteousness, for they will be filled.',
     'Matteüs 23:23':
       'Woe to you... You give a tenth of your spices, but you have neglected the more important matters of the law—justice, mercy and faithfulness.',
     'Johannes 7:24': 'Stop judging by mere appearances, evaluation must be right and just.',
@@ -398,15 +422,15 @@ export const BIBLE_QUOTES: Record<Exclude<SupportedLang, 'nl'>, Record<string, s
     'Matteüs 22:37-38':
       'Du sollst den Herrn, deinen Gott, lieben von ganzem Herzen, von ganzer Seele und von ganzem Gemüt. Dies ist das höchste und größte Gebot.',
     'Matteüs 6:24': 'Niemand kann zwei Herren dienen. Ihr könnt nicht Gott dienen und dem Mammon.',
-    'Lucas 4:8': 'Es steht geschrieben: „Du sollst den Herrn, deinen Gott, anbeten und ihm allein dienen.“',
+    'Lucas 4:8':
+      'Es steht geschrieben: „Du sollst den Herrn, deinen Gott, anbeten und ihm allein dienen.“',
     'Exodus 20:4-6': 'Du sollst dir kein Bildnis noch irgendein Gleichnis machen.',
     'Johannes 4:23-24':
       'Die wahren Anbeter werden den Vater anbeten im Geist und in der Wahrheit; denn auch der Vater will solche Anbeter haben.',
     'Matteüs 21:12-13':
       'Es steht geschrieben: „Mein Haus soll ein Bethaus heißen“; ihr aber macht eine Räuberhöhle daraus!',
     'Exodus 20:7': 'Du sollst den Namen des HERRN, deines Gottes, nicht missbrauchen.',
-    'Matteüs 5:33-37':
-      'Eure Rede aber sei: Ja, ja; nein, nein. Was darüber ist, das ist vom Übel.',
+    'Matteüs 5:33-37': 'Eure Rede aber sei: Ja, ja; nein, nein. Was darüber ist, das ist vom Übel.',
     'Matteüs 7:21':
       'Nicht jeder, der zu mir sagt: „Herr, Herr!“, wird in das Himmelreich kommen, sondern wer den Willen meines Vaters im Himmel tut.',
     'Exodus 20:8-11': 'Gedenke des Sabbattages, dass du ihn heiligst.',
@@ -431,20 +455,21 @@ export const BIBLE_QUOTES: Record<Exclude<SupportedLang, 'nl'>, Record<string, s
       'Ihr habt gehört, dass gesagt ist: „Du sollst nicht ehebrechen.“ Ich aber sage euch: Wer eine Frau ansieht, sie zu begehren, der hat schon mit ihr die Ehe gebrochen in seinem Herzen.',
     'Matteüs 19:4-6': 'Was nun Gott zusammengefügt hat, das soll der Mensch nicht scheiden.',
     'Exodus 20:15': 'Du sollst nicht stehlen.',
-    'Marcus 10:19': 'Du kennst die Gebote: Du sollst nicht stehlen, du sollst niemanden berauben...',
+    'Marcus 10:19':
+      'Du kennst die Gebote: Du sollst nicht stehlen, du sollst niemanden berauben...',
     'Lucas 19:8-9':
       'Zachäus sprach: „Siehe, Herr, die Hälfte meiner Güter gebe ich den Armen, und wenn ich jemanden betrogen habe, so gebe ich es vierfach zurück.“',
     'Johannes 10:10':
       'Ein Dieb kommt nur, um zu stehlen, zu schlachten und umzubringen; ich bin gekommen, damit sie das Leben und volle Genüge haben sollen.',
     'Exodus 20:16': 'Du sollst kein falsches Zeugnis reden wider deinen Nächsten.',
-    'Matteüs 5:37':
-      'Eure Rede aber sei: Ja, ja; nein, nein. Was darüber ist, das ist vom Übel.',
+    'Matteüs 5:37': 'Eure Rede aber sei: Ja, ja; nein, nein. Was darüber ist, das ist vom Übel.',
     'Johannes 8:44':
       'Wenn er die Lüge redet, so redet er aus dem Eigenen; denn er ist ein Lügner und der Vater der Lüge.',
     'Johannes 14:6': 'Jesus spricht: „Ich bin der Weg und die Wahrheit und das Leben.“',
     'Matteüs 15:18-19':
       'Aus dem Herzen kommen böse Gedanken, Mord, Ehebruch, Unzucht, Diebstahl, falsches Zeugnis, Lästerung.',
-    'Exodus 20:17': 'Du sollst nicht begehren deines Nächsten Haus... noch alles, was dein Nächster hat.',
+    'Exodus 20:17':
+      'Du sollst nicht begehren deines Nächsten Haus... noch alles, was dein Nächster hat.',
     'Lucas 12:15':
       'Seht zu und hütet euch vor aller Habgier; denn niemand lebt davon, dass er viele Güter hat.',
     'Matteüs 6:19-21':
@@ -513,7 +538,8 @@ export const BIBLE_QUOTES: Record<Exclude<SupportedLang, 'nl'>, Record<string, s
       'Recht so, du tüchtiger und treuer Knecht, du bist über wenigem treu gewesen, ich will dich über viel setzen.',
     'Lucas 12:48':
       'Wem viel gegeben ist, bei dem wird man viel suchen; und wem viel anvertraut ist, von dem wird man umso mehr fordern.',
-    'Matteüs 5:6': 'Selig sind, die da hungert und dürstet nach der Gerechtigkeit; denn sie sollen satt werden.',
+    'Matteüs 5:6':
+      'Selig sind, die da hungert und dürstet nach der Gerechtigkeit; denn sie sollen satt werden.',
     'Matteüs 23:23':
       'Wehe euch... Ihr gebt den Zehnten von Minze, Dill und Kümmel und lasst das Wichtigste im Gesetz beiseite, nämlich das Recht, die Barmherzigkeit und den Glauben.',
     'Johannes 7:24': 'Richtet nicht nach dem Augenschein, sondern fällt ein gerechtes Urteil.',
@@ -529,12 +555,13 @@ export const BIBLE_QUOTES: Record<Exclude<SupportedLang, 'nl'>, Record<string, s
     'Matteüs 22:37-38':
       "Tu aimeras le Seigneur, ton Dieu, de tout ton cœur, de toute ton âme et de toute ta pensée. C'est le premier et le plus grand commandement.",
     'Matteüs 6:24': 'Nul ne peut servir deux maîtres. Vous ne pouvez servir Dieu et Mammon.',
-    'Lucas 4:8': 'Il est écrit : « Tu adoreras le Seigneur, ton Dieu, et tu le serviras lui seul. »',
+    'Lucas 4:8':
+      'Il est écrit : « Tu adoreras le Seigneur, ton Dieu, et tu le serviras lui seul. »',
     'Exodus 20:4-6': "Tu ne te feras point d'image taillée, ni de représentation quelconque.",
     'Johannes 4:23-24':
       'Les vrais adorateurs adoreront le Père en esprit et en vérité ; car ce sont là les adorateurs que le Père demande.',
     'Matteüs 21:12-13':
-      "Il est écrit : « Ma maison sera appelée une maison de prière », mais vous, vous en faites une caverne de voleurs !",
+      'Il est écrit : « Ma maison sera appelée une maison de prière », mais vous, vous en faites une caverne de voleurs !',
     'Exodus 20:7': "Tu ne prendras point le nom de l'Éternel, ton Dieu, en vain.",
     'Matteüs 5:33-37':
       'Que votre parole soit oui, oui, non, non ; ce qu’on y ajoute vient du malin.',
@@ -562,20 +589,21 @@ export const BIBLE_QUOTES: Record<Exclude<SupportedLang, 'nl'>, Record<string, s
       "Vous avez entendu qu'il a été dit : « Tu ne commettras point d'adultère. » Mais moi, je vous dis que quiconque regarde une femme pour la convoiter a déjà commis un adultère avec elle dans son cœur.",
     'Matteüs 19:4-6': "Que l'homme ne sépare donc pas ce que Dieu a joint.",
     'Exodus 20:15': 'Tu ne déroberas point.',
-    'Marcus 10:19': 'Tu connais les commandements : Tu ne déroberas point ; tu ne feras tort à personne...',
+    'Marcus 10:19':
+      'Tu connais les commandements : Tu ne déroberas point ; tu ne feras tort à personne...',
     'Lucas 19:8-9':
       "Zachée dit : « Voici, Seigneur, je donne aux pauvres la moitié de mes biens, et, si j'ai fait tort de quelque chose à quelqu'un, je lui rends le quadruple. »",
     'Johannes 10:10':
       "Le voleur ne vient que pour dérober, égorger et détruire ; moi, je suis venu afin que les brebis aient la vie, et qu'elles soient dans l'abondance.",
     'Exodus 20:16': 'Tu ne porteras point de faux témoignage contre ton prochain.',
-    'Matteüs 5:37':
-      'Que votre parole soit oui, oui, non, non ; ce qu’on y ajoute vient du malin.',
+    'Matteüs 5:37': 'Que votre parole soit oui, oui, non, non ; ce qu’on y ajoute vient du malin.',
     'Johannes 8:44':
       'Lorsqu’il profère le mensonge, il parle de son propre fonds ; car il est menteur et le père du mensonge.',
     'Johannes 14:6': 'Jésus lui dit : « Je suis le chemin, la vérité, et la vie. »',
     'Matteüs 15:18-19':
       'C’est du cœur que viennent les mauvaises pensées, les meurtres, les adultères, les impudicités, les vols, les faux témoignages, les calomnies.',
-    'Exodus 20:17': 'Tu ne convoiteras point la maison de ton prochain... ni aucune chose qui appartienne à ton prochain.',
+    'Exodus 20:17':
+      'Tu ne convoiteras point la maison de ton prochain... ni aucune chose qui appartienne à ton prochain.',
     'Lucas 12:15':
       'Gardez-vous avec soin de toute avarice ; car la vie d’un homme ne dépend pas de ses biens.',
     'Matteüs 6:19-21':
@@ -588,7 +616,8 @@ export const BIBLE_QUOTES: Record<Exclude<SupportedLang, 'nl'>, Record<string, s
       'Je vous donne un commandement nouveau : Aimez-vous les uns les autres ; comme je vous ai aimés, vous aussi, aimez-vous les uns les autres.',
     'Matteüs 7:12':
       'Tout ce que vous voulez que les hommes fassent pour vous, faites-le de même pour eux, car c’est la loi et les prophètes.',
-    'Lucas 6:31': 'Ce que vous voulez que les hommes fassent pour vous, faites-le de même pour eux.',
+    'Lucas 6:31':
+      'Ce que vous voulez que les hommes fassent pour vous, faites-le de même pour eux.',
     'Matteüs 5:43-45':
       'Mais moi, je vous dis : Aimez vos ennemis, bénissez ceux qui vous maudissent, priez pour ceux qui vous maltraitent et qui vous persécutent.',
     'Lucas 6:27-28':
@@ -607,8 +636,7 @@ export const BIBLE_QUOTES: Record<Exclude<SupportedLang, 'nl'>, Record<string, s
       'Pierre lui dit : « Seigneur, combien de fois pardonnerai-je à mon frère, lorsqu’il péchera contre moi ? Sera-ce jusqu’à sept fois ? » Jésus lui dit : « Je ne te dis pas jusqu’à sept fois, mais jusqu’à septante fois sept fois. »',
     'Matteüs 6:14-15':
       'Si vous pardonnez aux hommes leurs offenses, votre Père céleste vous pardonnera aussi ; mais si vous ne pardonnez pas aux hommes, votre Père ne vous pardonnera pas non plus vos offenses.',
-    'Lucas 17:3-4':
-      'Si ton frère a péché, reprends-le ; et, s’il se repent, pardonne-lui.',
+    'Lucas 17:3-4': 'Si ton frère a péché, reprends-le ; et, s’il se repent, pardonne-lui.',
     'Matteüs 7:1-5':
       'Ne jugez point, afin que vous ne soyez point jugés... Pourquoi vois-tu la paille qui est dans l’œil de ton frère, et n’aperçois-tu pas la poutre qui est dans ton œil ?',
     'Johannes 8:7': 'Que celui de vous qui est sans péché jette le premier la pierre contre elle.',
@@ -627,8 +655,7 @@ export const BIBLE_QUOTES: Record<Exclude<SupportedLang, 'nl'>, Record<string, s
     'Lucas 12:1': 'Gardez-vous du levain des pharisiens, qui est l’hypocrisie.',
     'Marcus 10:42-45':
       'Quiconque veut être grand parmi vous, qu’il soit votre serviteur... Car le Fils de l’homme est venu, non pour être servi, mais pour servir.',
-    'Lucas 14:11':
-      'Car quiconque s’élève sera abaissé, et quiconque s’abaisse sera élevé.',
+    'Lucas 14:11': 'Car quiconque s’élève sera abaissé, et quiconque s’abaisse sera élevé.',
     'Johannes 13:14-15':
       'Si donc je vous ai lavé les pieds, moi, le Seigneur et le Maître, vous devez aussi vous laver les pieds les uns aux autres ; car je vous ai donné un exemple.',
     'Matteüs 5:5': 'Heureux les débonnaires, car ils hériteront la terre !',
@@ -659,9 +686,11 @@ export const BIBLE_QUOTES: Record<Exclude<SupportedLang, 'nl'>, Record<string, s
     'Exodus 20:2-3': 'Yo soy el SEÑOR tu Dios. No tengas otros dioses además de mí.',
     'Matteüs 22:37-38':
       'Ama al Señor tu Dios con todo tu corazón, con toda tu alma y con toda tu mente. Este es el primero y el más importante de los mandamientos.',
-    'Matteüs 6:24': 'Nadie puede servir a dos señores. No pueden servir a la vez a Dios y a las riquezas.',
+    'Matteüs 6:24':
+      'Nadie puede servir a dos señores. No pueden servir a la vez a Dios y a las riquezas.',
     'Lucas 4:8': 'Escrito está: «Adora al Señor tu Dios y sírvele solamente a él».',
-    'Exodus 20:4-6': 'No te hagas ningún ídolo, ni nada que guarde semejanza con lo que hay arriba en el cielo.',
+    'Exodus 20:4-6':
+      'No te hagas ningún ídolo, ni nada que guarde semejanza con lo que hay arriba en el cielo.',
     'Johannes 4:23-24':
       'Los verdaderos adoradores rendirán culto al Padre en espíritu y en verdad, porque así quiere el Padre que sean los que le adoren.',
     'Matteüs 21:12-13':
@@ -738,8 +767,7 @@ export const BIBLE_QUOTES: Record<Exclude<SupportedLang, 'nl'>, Record<string, s
       'Pedro le preguntó: «Señor, ¿cuántas veces tengo que perdonar a mi hermano que peca contra mí? ¿Hasta siete veces?» Jesús le contestó: «No te digo que hasta siete veces, sino hasta setenta veces siete».',
     'Matteüs 6:14-15':
       'Porque si perdonan a otros sus ofensas, también los perdonará a ustedes su Padre celestial. Pero si no perdonan a otros sus ofensas, tampoco su Padre les perdonará a ustedes las suyas.',
-    'Lucas 17:3-4':
-      'Si tu hermano peca contra ti, repréndelo; y, si se arrepiente, perdónalo.',
+    'Lucas 17:3-4': 'Si tu hermano peca contra ti, repréndelo; y, si se arrepiente, perdónalo.',
     'Matteüs 7:1-5':
       'No juzguen, para que no sean juzgados... ¿Por qué te fijas en la astilla que tiene tu hermano en el ojo y no le das importancia a la viga que está en el tuyo?',
     'Johannes 8:7': 'Aquel de ustedes que esté libre de pecado, que tire la primera piedra.',
@@ -830,14 +858,14 @@ export const BIBLE_QUOTES: Record<Exclude<SupportedLang, 'nl'>, Record<string, s
     'Johannes 10:10':
       'Il ladro non viene se non per rubare, ammazzare e distruggere; io sono venuto perché abbiano la vita e l’abbiano in abbondanza.',
     'Exodus 20:16': 'Non attestare il falso contro il tuo prossimo.',
-    'Matteüs 5:37':
-      'Il vostro parlare sia: «Sì, sì; no, no»; poiché il di più viene dal maligno.',
+    'Matteüs 5:37': 'Il vostro parlare sia: «Sì, sì; no, no»; poiché il di più viene dal maligno.',
     'Johannes 8:44':
       'Quando dice il falso, parla di quel che è suo, perché è bugiardo e padre della menzogna.',
     'Johannes 14:6': 'Gesù gli disse: «Io sono la via, la verità e la vita».',
     'Matteüs 15:18-19':
       'Dal cuore vengono pensieri malvagi, omicidi, adultèri, fornicazioni, furti, false testimonianze, maldicenze.',
-    'Exodus 20:17': 'Non desiderare la casa del tuo prossimo... né cosa alcuna che sia del tuo prossimo.',
+    'Exodus 20:17':
+      'Non desiderare la casa del tuo prossimo... né cosa alcuna che sia del tuo prossimo.',
     'Lucas 12:15':
       'Badate e guardatevi da ogni avarizia; perché non è dall’abbondanza dei beni che uno possiede, che egli ha la sua vita.',
     'Matteüs 6:19-21':
@@ -861,16 +889,15 @@ export const BIBLE_QUOTES: Record<Exclude<SupportedLang, 'nl'>, Record<string, s
     'Lucas 6:29-30': 'A chi ti percuote su una guancia, porgi anche l’altra.',
     'Johannes 18:36':
       'Il mio regno non è di questo mondo; se il mio regno fosse di questo mondo, i miei servitori combatterebbero.',
-    'Matteüs 5:9': 'Beati quelli che si adoperano per la pace, perché saranno chiamati figli di Dio.',
+    'Matteüs 5:9':
+      'Beati quelli che si adoperano per la pace, perché saranno chiamati figli di Dio.',
     'Marcus 9:50': 'Siate in pace gli uni con gli altri.',
-    'Johannes 14:27':
-      'Vi lascio pace; vi do la mia pace. Io non vi do come il mondo dà.',
+    'Johannes 14:27': 'Vi lascio pace; vi do la mia pace. Io non vi do come il mondo dà.',
     'Matteüs 18:21-22':
       'Pietro gli disse: «Signore, quante volte perdonerò mio fratello se pecca contro di me? Fino a sette volte?» E Gesù a lui: «Non ti dico fino a sette volte, ma fino a settanta volte sette».',
     'Matteüs 6:14-15':
       'Perché se voi perdonate agli uomini le loro colpe, il Padre vostro celeste perdonerà anche a voi; ma se voi non perdonate agli uomini, neppure il Padre vostro perdonerà le vostre colpe.',
-    'Lucas 17:3-4':
-      'Se tuo fratello pecca, riprendilo; e se si ravvede, perdonagli.',
+    'Lucas 17:3-4': 'Se tuo fratello pecca, riprendilo; e se si ravvede, perdonagli.',
     'Matteüs 7:1-5':
       'Non giudicate, affinché non siate giudicati... Perché guardi la pagliuzza che è nell’occhio di tuo fratello, mentre non scorgi la trave che è nell’occhio tuo?',
     'Johannes 8:7': 'Chi di voi è senza peccato, scagli per primo la pietra contro di lei.',
@@ -889,8 +916,7 @@ export const BIBLE_QUOTES: Record<Exclude<SupportedLang, 'nl'>, Record<string, s
     'Lucas 12:1': 'Guardatevi dal lievito dei farisei, che è ipocrisia.',
     'Marcus 10:42-45':
       'Chiunque vorrà essere grande fra voi, sarà vostro servitore... Poiché anche il Figlio dell’uomo non è venuto per essere servito, ma per servire.',
-    'Lucas 14:11':
-      'Perché chiunque s’innalza sarà abbassato, e chi si abbassa sarà innalzato.',
+    'Lucas 14:11': 'Perché chiunque s’innalza sarà abbassato, e chi si abbassa sarà innalzato.',
     'Johannes 13:14-15':
       'Se dunque io, che sono il Signore e il Maestro, vi ho lavato i piedi, anche voi dovete lavare i piedi gli uni agli altri. Infatti vi ho dato un esempio.',
     'Matteüs 5:5': 'Beati i mansueti, perché erediteranno la terra.',
@@ -906,7 +932,8 @@ export const BIBLE_QUOTES: Record<Exclude<SupportedLang, 'nl'>, Record<string, s
       'Bene, servo buono e fedele; tu sei stato fedele in poca cosa, io ti costituirò sopra molte cose.',
     'Lucas 12:48':
       'A chi molto è stato dato, molto sarà richiesto; e a chi molto è stato affidato, tanto più si richiederà.',
-    'Matteüs 5:6': 'Beati quelli che sono affamati e assetati di giustizia, perché saranno saziati.',
+    'Matteüs 5:6':
+      'Beati quelli che sono affamati e assetati di giustizia, perché saranno saziati.',
     'Matteüs 23:23':
       'Guai a voi... poiché pagate la decima della menta, dell’aneto e del cumino, e trascurate le cose più importanti della legge: il giudizio, la misericordia e la fede.',
     'Johannes 7:24': 'Non giudicate secondo l’apparenza, ma giudicate secondo giustizia.',
@@ -921,7 +948,8 @@ export const BIBLE_QUOTES: Record<Exclude<SupportedLang, 'nl'>, Record<string, s
     'Exodus 20:2-3': 'Eu sou o SENHOR, o teu Deus. Não terás outros deuses além de mim.',
     'Matteüs 22:37-38':
       'Ame o Senhor, o seu Deus, de todo o seu coração, de toda a sua alma e de todo o seu entendimento. Este é o primeiro e maior mandamento.',
-    'Matteüs 6:24': 'Ninguém pode servir a dois senhores. Vocês não podem servir a Deus e ao dinheiro.',
+    'Matteüs 6:24':
+      'Ninguém pode servir a dois senhores. Vocês não podem servir a Deus e ao dinheiro.',
     'Lucas 4:8': 'Está escrito: «Adore o Senhor, o seu Deus, e só a ele preste culto».',
     'Exodus 20:4-6': 'Não farás para ti nenhum ídolo, nem nenhuma imagem de qualquer coisa no céu.',
     'Johannes 4:23-24':
@@ -946,8 +974,7 @@ export const BIBLE_QUOTES: Record<Exclude<SupportedLang, 'nl'>, Record<string, s
     'Exodus 20:13': 'Não matarás.',
     'Matteüs 5:21-22':
       'Vocês ouviram o que foi dito: «Não matarás». Mas eu digo que qualquer que se irar contra seu irmão estará sujeito a julgamento.',
-    'Matteüs 26:52':
-      'Guarde a espada! Pois todos os que empunham a espada, pela espada morrerão.',
+    'Matteüs 26:52': 'Guarde a espada! Pois todos os que empunham a espada, pela espada morrerão.',
     'Lucas 9:54-56':
       'Perguntaram: «Senhor, queres que façamos cair fogo do céu para destruí-los?» Mas Jesus voltou-se e os repreendeu.',
     'Exodus 20:14': 'Não adulterarás.',
@@ -961,10 +988,8 @@ export const BIBLE_QUOTES: Record<Exclude<SupportedLang, 'nl'>, Record<string, s
     'Johannes 10:10':
       'O ladrão vem apenas para roubar, matar e destruir; eu vim para que tenham vida, e a tenham plenamente.',
     'Exodus 20:16': 'Não darás falso testemunho contra o teu próximo.',
-    'Matteüs 5:37':
-      'Seja o seu «sim», sim, e o seu «não», não; o que passar disso vem do Maligno.',
-    'Johannes 8:44':
-      'Quando mente, fala a sua própria língua, pois é mentiroso e pai da mentira.',
+    'Matteüs 5:37': 'Seja o seu «sim», sim, e o seu «não», não; o que passar disso vem do Maligno.',
+    'Johannes 8:44': 'Quando mente, fala a sua própria língua, pois é mentiroso e pai da mentira.',
     'Johannes 14:6': 'Respondeu Jesus: «Eu sou o caminho, a verdade e a vida».',
     'Matteüs 15:18-19':
       'Do coração saem os maus pensamentos, os homicídios, os adultérios, as imoralidades sexuais, os roubos, os falsos testemunhos e as calúnias.',
@@ -994,14 +1019,12 @@ export const BIBLE_QUOTES: Record<Exclude<SupportedLang, 'nl'>, Record<string, s
       'O meu Reino não é deste mundo. Se fosse, os meus servos lutariam para impedir que eu fosse preso.',
     'Matteüs 5:9': 'Bem-aventurados os pacificadores, pois serão chamados filhos de Deus.',
     'Marcus 9:50': 'Vivam em paz uns com os outros.',
-    'Johannes 14:27':
-      'Deixo a paz a vocês; a minha paz dou a vocês. Não a dou como o mundo a dá.',
+    'Johannes 14:27': 'Deixo a paz a vocês; a minha paz dou a vocês. Não a dou como o mundo a dá.',
     'Matteüs 18:21-22':
       'Pedro perguntou: «Senhor, quantas vezes deverei perdoar a meu irmão quando ele pecar contra mim? Até sete vezes?» Jesus respondeu: «Eu digo a você: Não até sete, mas até setenta vezes sete».',
     'Matteüs 6:14-15':
       'Pois se perdoarem as ofensas uns dos outros, o Pai celestial também perdoará vocês. Mas se não perdoarem uns aos outros, o Pai celestial não perdoará as ofensas de vocês.',
-    'Lucas 17:3-4':
-      'Se o seu irmão pecar, repreenda-o e, se ele se arrepender, perdoe-lhe.',
+    'Lucas 17:3-4': 'Se o seu irmão pecar, repreenda-o e, se ele se arrepender, perdoe-lhe.',
     'Matteüs 7:1-5':
       'Não julguem, para que vocês não sejam julgados... Por que você repara no cisco que está no olho do seu irmão e não se dá conta da viga que está em seu próprio olho?',
     'Johannes 8:7': 'Se algum de vocês estiver sem pecado, seja o primeiro a atirar pedra nela.',
@@ -1020,8 +1043,7 @@ export const BIBLE_QUOTES: Record<Exclude<SupportedLang, 'nl'>, Record<string, s
     'Lucas 12:1': 'Tenham cuidado com o fermento dos fariseus, que é a hipocrisia.',
     'Marcus 10:42-45':
       'Quem quiser tornar-se importante entre vocês deverá ser servo... Pois nem mesmo o Filho do homem veio para ser servido, mas para servir.',
-    'Lucas 14:11':
-      'Pois todo o que se exalta será humilhado, e o que se humilha será exaltado.',
+    'Lucas 14:11': 'Pois todo o que se exalta será humilhado, e o que se humilha será exaltado.',
     'Johannes 13:14-15':
       'Pois bem, se eu, sendo Senhor e Mestre de vocês, lavei os seus pés, vocês também devem lavar os pés uns dos outros. Eu dei o exemplo.',
     'Matteüs 5:5': 'Bem-aventurados os humildes, pois eles receberão a terra por herança.',
@@ -1055,9 +1077,7 @@ export function localizeBibleSource(source: BibleSource, lang: SupportedLang): B
   const reference = localizeBibleReference(source.reference, lang);
   const url = buildBibleUrl(source.reference, source.url, lang);
   const quote =
-    BIBLE_QUOTES[lang][source.reference] ??
-    BIBLE_QUOTES.en[source.reference] ??
-    source.quote;
+    BIBLE_QUOTES[lang][source.reference] ?? BIBLE_QUOTES.en[source.reference] ?? source.quote;
   return {
     ...source,
     reference,
@@ -1066,15 +1086,10 @@ export function localizeBibleSource(source: BibleSource, lang: SupportedLang): B
   };
 }
 
-export function localizeGuideline(
-  guideline: JesusGuideline,
-  lang: SupportedLang,
-): JesusGuideline {
+export function localizeGuideline(guideline: JesusGuideline, lang: SupportedLang): JesusGuideline {
   if (lang === 'nl') return guideline;
   const title =
-    GUIDELINE_TITLES[lang][guideline.id] ??
-    GUIDELINE_TITLES.en[guideline.id] ??
-    guideline.title;
+    GUIDELINE_TITLES[lang][guideline.id] ?? GUIDELINE_TITLES.en[guideline.id] ?? guideline.title;
   return {
     ...guideline,
     title,

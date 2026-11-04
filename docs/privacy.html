@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Privacy policy – What Would Jezus Do</title>
+    <link rel="icon" href="assets/icon-128.png" />
+    <link rel="stylesheet" href="site.css" />
+  </head>
+  <body>
+    <header class="top">
+      <a class="brand" href="index.html"
+        ><img src="assets/icon-128.png" alt="" width="32" height="32" /> What Would Jezus Do</a
+      >
+    </header>
+    <main class="legal">
+      <h1>Privacy policy</h1>
+      <p class="small">
+        Applies to the What Would Jezus Do browser extension (Chrome, Edge) and Android app.
+        Effective 2026-11-03.
+      </p>
+
+      <h2>In short</h2>
+      <p>
+        What Would Jezus Do has no server of its own and does not collect, sell or share data about
+        you. It runs on your device and talks directly to the services listed below, using API keys
+        that you create yourself. There is no analytics, tracking or advertising.
+      </p>
+
+      <h2>What the app stores on your device</h2>
+      <ul>
+        <li>
+          <strong>Your API keys.</strong> In the extension they are kept in the extension's own
+          IndexedDB storage, which YouTube pages cannot read. In the Android app they are stored
+          encrypted with the Android Keystore; Android backups are switched off for the app.
+        </li>
+        <li><strong>Your settings</strong>, such as language and display options.</li>
+        <li>
+          <strong>Analyses you ran</strong> (scores, summaries, checked statements and their
+          sources), so that opening the same video again needs no new AI call. You can clear them in
+          Settings.
+        </li>
+        <li>
+          <strong>An optional debug log</strong> (off by default): per AI call the model, duration
+          and token counts. It never contains your keys.
+        </li>
+      </ul>
+
+      <h2>What is sent, and to whom</h2>
+      <ul>
+        <li>
+          <strong>YouTube</strong> (youtube.com): the app requests the transcript (captions) and
+          basic details of the video you are watching or shared.
+        </li>
+        <li>
+          <strong>The AI service you choose</strong>: Google Gemini (default,
+          generativelanguage.googleapis.com) or Anthropic Claude (api.anthropic.com). It receives
+          the transcript, the video's title, channel and publication date, the analysis instructions
+          and your API key for that service. The service may use web search to check claims.
+        </li>
+        <li>
+          <strong>Google Fact Check Tools API</strong> (factchecktools.googleapis.com): short search
+          terms for each claim, with your Fact Check key.
+        </li>
+        <li>
+          <strong>GitHub</strong> (api.github.com, github.com): only when you click "Check for
+          updates", to look up and download the latest version. No keys or other data are sent.
+        </li>
+      </ul>
+      <p>
+        These services process the data under their own terms and privacy policies, as part of your
+        own account with them: Google (<a href="https://policies.google.com/privacy"
+          >policies.google.com/privacy</a
+        >, and the <a href="https://aistudio.google.com/docs/terms">Gemini API terms</a>) and
+        Anthropic (<a href="https://www.anthropic.com/legal/privacy">anthropic.com/legal/privacy</a
+        >). Note that on Google's free (unpaid) Gemini tier, Google's terms say it uses the content
+        you submit and the responses to improve its products, and that human reviewers may read it.
+        WWJD sends the video's transcript and details, not personal data about you; if this matters
+        to you, use a paid Gemini key or Claude.
+      </p>
+
+      <h2>What the app does not do</h2>
+      <ul>
+        <li>It does not read your YouTube account, history or other tabs and websites.</li>
+        <li>It does not send data to the developer.</li>
+        <li>It does not use your data for advertising, profiling or credit decisions.</li>
+      </ul>
+
+      <h2>Permissions (extension)</h2>
+      <ul>
+        <li>
+          <code>storage</code>, <code>unlimitedStorage</code>: settings and saved analyses on your
+          device.
+        </li>
+        <li>
+          <code>declarativeNetRequestWithHostAccess</code>: lets the extension's own transcript
+          requests to youtube.com be accepted by YouTube.
+        </li>
+        <li>
+          Access to youtube.com (the panel and badges), and to the Gemini, Claude, Fact Check and
+          GitHub API addresses listed above.
+        </li>
+      </ul>
+
+      <h2>Your choices</h2>
+      <p>
+        You can delete saved analyses and your keys in Settings at any time, or remove the extension
+        or app to delete everything it stored. Keys can also be revoked at Google or Anthropic.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Questions or problems:
+        <a href="https://github.com/GosseVledder/WhatWouldJezusDo/issues">open an issue on GitHub</a
+        >. Changes to this policy are published on this page with a new date.
+      </p>
+    </main>
+    <footer class="foot">
+      <a href="index.html">Home</a>
+      <a href="https://github.com/GosseVledder/WhatWouldJezusDo">Source on GitHub</a>
+    </footer>
+  </body>
+</html>

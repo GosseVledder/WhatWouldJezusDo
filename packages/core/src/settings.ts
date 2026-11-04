@@ -20,6 +20,10 @@ export const wwjdSettingsSchema = z.object({
   taal: z.enum(UI_LANGUAGES).catch('nl'),
   debugLog: z.boolean().catch(false),
   paneelIngeklapt: z.boolean().catch(true),
+  /** Synced live mode: highlight and scroll to the item being said while the video plays */
+  liveMeelezen: z.boolean().catch(true),
+  /** Extension: small subtitle-style card on the video at each checked moment */
+  overlayOpVideo: z.boolean().catch(false),
 });
 
 export type WwjdSettings = z.infer<typeof wwjdSettingsSchema>;

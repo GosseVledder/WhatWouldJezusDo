@@ -1,21 +1,26 @@
 import {
+  ENABLE_API_URLS,
   ICONS,
   keySteps,
   messages,
   MODEL_SUGGESTIONS,
+  setupMissingText,
   tooltips,
   UI_LANGUAGE_NAMES,
   UI_LANGUAGES,
+  type KeyCheckResult,
   type KeyKind,
   type Messages,
   type ProviderId,
+  type SetupStatus,
   type TipKey,
   type UiLang,
   type UpdateCheck,
   type WwjdSettings,
 } from '@wwjd/core';
+import { STORE_BUILD } from '../../buildMode';
 import type { DebugEntry } from '../../storage/debuglog';
-import { getApiKeys, setApiKey } from '../../storage/secrets';
+import { getApiKeys, KEYS_UPDATED, setApiKey } from '../../storage/secrets';
 import { getSettings, saveSettings } from '../../storage/settings';
 
 const REOPEN_OPTIONS_KEY = 'reopenOptions';
@@ -181,13 +186,16 @@ async function init(): Promise<void> {
 
   // Test connection buttons (gemini, claude, factcheck)
   document.querySelectorAll<HTMLButtonElement>('[data-test]').forEach((b) => {
+    // Pasting a key checks it right away, like on the welcome page.
+    $<HTMLInputElement>(`#key-${b.dataset.test}`).addEventListener('paste', () =>
+      window.setTimeout(() => b.click(), 0),
+    );
     b.addEventListener('click', async () => {
       const kind = b.dataset.test as KeyKind;
       const out = $(`#test-${kind}`);
       const apiKey = $<HTMLInputElement>(`#key-${kind}`).value.trim();
       if (!apiKey) {
-        out.className = 'test-result error';
-        out.textContent = `✗ ${t.settings.fillKeyFirst}`;
+        showCheck(out, kind, { ok: false, problem: 'empty' });
         return;
       }
       b.disabled = true;
@@ -196,26 +204,14 @@ async function init(): Promise<void> {
       await setApiKey(kind, apiKey);
       const model =
         kind === 'factcheck' ? '' : $<HTMLInputElement>(`#model-${kind}`).value.trim();
-      const res = await send<{ ok: boolean; error?: string }>({
+      const res = await send<KeyCheckResult>({
         type: 'testConnection',
         kind,
         apiKey,
         model,
-      }).catch(
-        (e: unknown): RuntimeResponse<{ ok: boolean; error?: string }> => ({
-          ok: false,
-          error: String(e),
-        }),
-      );
+      }).catch((): RuntimeResponse<KeyCheckResult> => ({ ok: false }));
       b.disabled = false;
-      if (res.ok && res.data?.ok !== false) {
-        out.className = 'test-result ok';
-        out.textContent =
-          kind === 'factcheck' ? t.settings.testOkFactcheck : t.settings.testOk;
-      } else {
-        out.className = 'test-result error';
-        out.textContent = `✗ ${res.data?.error ?? res.error ?? t.settings.testFailed}`;
-      }
+      showCheck(out, kind, res.ok && res.data ? res.data : { ok: false, problem: 'unknown' });
     });
   });
 
@@ -225,6 +221,8 @@ async function init(): Promise<void> {
     'actief',
     'automatisch',
     'paneelIngeklapt',
+    'liveMeelezen',
+    'overlayOpVideo',
     'debugLog',
   ] as const) {
     const box = $<HTMLInputElement>(`#${id}`);
@@ -312,8 +310,27 @@ async function init(): Promise<void> {
     logShown = false;
   });
 
-  initUpdate();
+  // Store builds (wxt --mode store) update through the store: no GitHub update check.
+  if (STORE_BUILD) $('#h-update').closest('section')?.remove();
+  else initUpdate();
+  initSetup();
   applyTexts();
+}
+
+/** "Setup not finished" card on top while a key is missing; "Setup guide" in the top bar. */
+function initSetup(): void {
+  const openWelcome = () => void send({ type: 'openWelcome' });
+  $('#setup-guide').addEventListener('click', openWelcome);
+  $('#finish-setup').addEventListener('click', openWelcome);
+  const refresh = async () => {
+    const res = await send<SetupStatus>({ type: 'setupStatus' }).catch(() => null);
+    $('#setup-card').hidden = !res?.ok || !res.data || res.data.complete;
+    if (res?.ok && res.data) $('#setup-missing').textContent = setupMissingText(t, res.data.missing);
+  };
+  void refresh();
+  browser.storage.onChanged.addListener((changes, area) => {
+    if (area === 'local' && (KEYS_UPDATED in changes || 'settings' in changes)) void refresh();
+  });
 }
 
 /**
@@ -404,6 +421,26 @@ function initUpdate(): void {
     await browser.storage.local.set({ [REOPEN_OPTIONS_KEY]: true });
     browser.runtime.reload();
   });
+}
+
+/** Result of a live key check: green tick, or the plain-language problem (+ enable link). */
+function showCheck(out: HTMLElement, kind: KeyKind, res: KeyCheckResult): void {
+  if (res.ok) {
+    out.className = 'test-result ok';
+    out.textContent = `✓ ${t.onboarding.works}`;
+    return;
+  }
+  out.className = 'test-result error';
+  out.textContent = `✗ ${t.onboarding.problems[res.problem]}`;
+  if (res.problem === 'api_not_enabled' && kind !== 'claude') {
+    const a = Object.assign(document.createElement('a'), {
+      href: res.activationUrl ?? ENABLE_API_URLS[kind],
+      target: '_blank',
+      rel: 'noreferrer',
+      textContent: `${t.onboarding.enableButton} ↗`,
+    });
+    out.append(' ', a);
+  }
 }
 
 function updateProviderSections(): void {

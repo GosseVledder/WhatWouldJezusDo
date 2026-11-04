@@ -1,14 +1,20 @@
 // Evaluation screen: the YouTube player on top (optional, off by default), the shared
 // WWJD evaluation view below inside a Shadow DOM root.
 import {
+  analysisErrorView,
+  createLiveSync,
   evaluateVideo,
   formatTimestamp,
   getTranscriptById,
   h,
   renderWwjdStateView,
+  setupStatus,
+  type AnalysisStep,
+  type KeyKind,
+  type LiveSync,
   type WwjdViewState,
 } from '@wwjd/core';
-import { isDark, type App, type Screen } from '../app';
+import { isDark, WELCOME_HASH, type App, type Screen } from '../app';
 import { nativeFetch } from '../nativeFetch';
 import { createPlayer, type EmbeddedPlayer } from '../player';
 import { inSplitScreen, openInYouTubeApp } from '../youtubeApp';
@@ -38,6 +44,13 @@ export function summaryScreen(
   let state: WwjdViewState = { kind: 'loading', step: t.settings.busy };
   let collapsed = false;
   let currentLang = 'nl';
+  let setupMissing: KeyKind[] = [];
+  let liveOn = true;
+  let live: LiveSync | null = null;
+  // Synced live mode: follow the embedded player while it is shown
+  const liveTimer = window.setInterval(() => {
+    if (live && ready && !playerBox.hidden) live.update(ready.currentTime());
+  }, 500);
   let run = 0;
   let disposed = false;
 
@@ -164,6 +177,7 @@ export function summaryScreen(
         onStart: () => void evaluate(false),
         onRefresh: () => void evaluate(true),
         onOpenOptions: () => app.go('#/instellingen'),
+        onOpenSetup: () => app.go(WELCOME_HASH),
         onToggleCollapse: (next) => {
           collapsed = next;
           void app.settings.save({ paneelIngeklapt: next });
@@ -172,10 +186,27 @@ export function summaryScreen(
       {
         collapsed,
         enabled: true,
+        setupMissing,
         taal: currentLang,
         t,
       },
     );
+    live?.stop();
+    live =
+      state.kind === 'done' && liveOn
+        ? createLiveSync(root, {
+            userScrollTarget: window,
+            // The player is sticky under the title bar: keep the item just below it
+            scrollTo: (item) => {
+              const top =
+                item.getBoundingClientRect().top -
+                playerBox.getBoundingClientRect().bottom +
+                window.scrollY -
+                8;
+              window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+            },
+          })
+        : null;
   }
 
   async function evaluate(forceRefresh: boolean) {
@@ -183,6 +214,8 @@ export function summaryScreen(
     const [s, keys] = await Promise.all([app.settings.get(), app.keys.get()]);
     collapsed = s.paneelIngeklapt;
     currentLang = s.taal;
+    liveOn = s.liveMeelezen;
+    setupMissing = setupStatus(keys, s.provider).missing;
 
     if (!forceRefresh) {
       const cached = await app.cache.get(videoId, s.taal);
@@ -197,35 +230,27 @@ export function summaryScreen(
     const provider = s.provider;
     const apiKey = keys[provider];
     if (!apiKey) {
-      state = {
-        kind: 'error',
-        message: t.app.noKeyError,
-        showSettings: true,
-      };
+      // The setup card (setupMissing) takes the place of the analysis.
+      state = { kind: 'idle' };
       render();
       return;
     }
 
-    state = { kind: 'loading', step: t.view.fetchingTranscript };
-    render();
+    const factCheckApiKey = s.googleFactCheckActief ? keys.factcheck || undefined : undefined;
+    const progress = (current: AnalysisStep) => {
+      if (my !== run || disposed) return;
+      state = { kind: 'loading', progress: { current, factcheck: Boolean(factCheckApiKey) } };
+      render();
+    };
+    progress('transcript');
 
     try {
       const transcriptRes = await getTranscriptById(videoId, { fetch: nativeFetch });
       if (my !== run || disposed) return;
       if (!transcriptRes.transcript) {
-        throw new Error(
-          t.extension.noTranscriptError(transcriptRes.reden ?? 'no captions'),
-        );
+        throw new Error(t.extension.noTranscriptError(transcriptRes.reden ?? 'no captions'));
       }
 
-      const providerName = provider === 'claude' ? 'Claude' : 'Gemini';
-      state = {
-        kind: 'loading',
-        step: t.view.evaluatingWith(providerName),
-      };
-      render();
-
-      const factCheckApiKey = s.googleFactCheckActief ? keys.factcheck || undefined : undefined;
       const evaluation = await evaluateVideo(
         {
           videoId,
@@ -239,6 +264,7 @@ export function summaryScreen(
           taal: s.taal,
           factCheckApiKey,
           fetch: nativeFetch,
+          onProgress: progress,
         },
       );
 
@@ -248,14 +274,7 @@ export function summaryScreen(
       render();
     } catch (e) {
       if (my !== run || disposed) return;
-      const msg = e instanceof Error ? e.message : String(e);
-      state = {
-        kind: 'error',
-        message: msg,
-        showSettings: /sleutel|instellingen|toegang|key|settings|clé|Schlüssel|clave|chiave|chave/i.test(
-          msg,
-        ),
-      };
+      state = { kind: 'error', ...analysisErrorView(t, e, s.provider) };
       render();
     }
   }
@@ -278,6 +297,8 @@ export function summaryScreen(
     },
     dispose() {
       disposed = true;
+      window.clearInterval(liveTimer);
+      live?.stop();
       closeDialog();
       darkQuery?.removeEventListener('change', applyTheme);
       run++;

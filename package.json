@@ -2,7 +2,7 @@
   "name": "wwjd",
   "description": "What Would Jezus Do — YouTube video fact-checking and evaluation against the Ten Commandments and Jesus' teachings",
   "private": true,
-  "version": "0.3.0",
+  "version": "0.4.0",
   "license": "MIT",
   "type": "module",
   "workspaces": [
@@ -16,6 +16,7 @@
     "build": "npm run build -w @wwjd/extension",
     "zip": "npm run zip -w @wwjd/extension",
     "package:extension": "node scripts/package-extension.mjs",
+    "zip:store": "npm run zip:store -w @wwjd/extension",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "eslint .",
     "format": "prettier --write .",

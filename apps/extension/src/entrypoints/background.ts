@@ -1,12 +1,14 @@
 import {
   checkForUpdate,
+  errorCodeOf,
+  checkKey,
   evaluateVideo,
   getTranscriptById,
+  isUiLang,
   messages,
   normalizeLang,
-  testClaudeConnection,
-  testFactCheckConnection,
-  testGeminiConnection,
+  setupStatus,
+  type AnalysisStep,
   type CallLog,
   type KeyKind,
   type WwjdEvaluation,
@@ -19,8 +21,9 @@ import {
   setCachedEvaluation,
 } from '../storage/cache';
 import { appendDebugLog, clearDebugLog, getDebugLog } from '../storage/debuglog';
-import { getApiKeyForProvider, getFactCheckApiKey } from '../storage/secrets';
+import { getApiKeyForProvider, getApiKeys, getFactCheckApiKey } from '../storage/secrets';
 import { getSettings, saveSettings } from '../storage/settings';
+import { STORE_BUILD } from '../buildMode';
 
 const RULE_ID = 1;
 const REOPEN_OPTIONS_KEY = 'reopenOptions';
@@ -68,21 +71,52 @@ export default defineBackground(() => {
   rulesReadyPromise = installYoutubeRequestRules().catch((e) =>
     console.warn('[wwjd] request rules', e),
   );
-  browser.runtime.onInstalled.addListener(() => void reopenOptionsAfterReload());
-
-  browser.action.onClicked.addListener(() => {
-    void browser.runtime.openOptionsPage();
+  browser.runtime.onInstalled.addListener((details) => {
+    if (details.reason === 'install') void firstInstall();
+    else void reopenOptionsAfterReload();
   });
 
-  browser.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-    handleMessage(message as { type: string; [key: string]: unknown })
+  // Toolbar icon: the welcome page while setup is unfinished, otherwise the settings.
+  browser.action.onClicked.addListener(() => {
+    void isSetupComplete().then((done) => (done ? browser.runtime.openOptionsPage() : openWelcome()));
+  });
+
+  browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    handleMessage(message as { type: string; [key: string]: unknown }, sender.tab?.id)
       .then((res) => sendResponse({ ok: true, data: res }))
-      .catch((err) => sendResponse({ ok: false, error: (err as Error).message }));
+      .catch((err) =>
+        // The code lets the panel word the error in the user's language.
+        sendResponse({ ok: false, error: (err as Error).message, code: errorCodeOf(err) }),
+      );
     return true; // async response
   });
 });
 
-async function handleMessage(msg: { type: string; [key: string]: unknown }): Promise<unknown> {
+const WELCOME_PATH = '/welcome.html';
+
+async function openWelcome(): Promise<void> {
+  await browser.tabs.create({ url: browser.runtime.getURL(WELCOME_PATH) });
+}
+
+async function isSetupComplete(): Promise<boolean> {
+  const [keys, settings] = await Promise.all([getApiKeys(), getSettings()]);
+  return setupStatus(keys, settings.provider).complete;
+}
+
+/** First install: interface language from the browser, panel on, then the welcome page. */
+async function firstInstall(): Promise<void> {
+  const stored = await browser.storage.local.get('settings');
+  if (!stored.settings) {
+    const ui = (browser.i18n?.getUILanguage?.() ?? navigator.language ?? 'nl').split('-')[0]!;
+    await saveSettings({ taal: isUiLang(ui) ? ui : 'en', actief: true });
+  }
+  await openWelcome();
+}
+
+async function handleMessage(
+  msg: { type: string; [key: string]: unknown },
+  tabId?: number,
+): Promise<unknown> {
   switch (msg.type) {
     case 'getSettings':
       return getSettings();
@@ -93,6 +127,15 @@ async function handleMessage(msg: { type: string; [key: string]: unknown }): Pro
     case 'openOptions':
       await browser.runtime.openOptionsPage();
       return { success: true };
+
+    case 'openWelcome':
+      await openWelcome();
+      return { success: true };
+
+    case 'setupStatus': {
+      const [keys, settings] = await Promise.all([getApiKeys(), getSettings()]);
+      return setupStatus(keys, settings.provider);
+    }
 
     case 'getCached': {
       const videoId = String(msg.videoId);
@@ -115,6 +158,7 @@ async function handleMessage(msg: { type: string; [key: string]: unknown }): Pro
       return true;
 
     case 'checkUpdate': {
+      if (STORE_BUILD) return { ok: false, error: 'Updates come from the store.' };
       try {
         const current = browser.runtime.getManifest().version;
         const check = await checkForUpdate({ target: 'extension', current });
@@ -126,23 +170,11 @@ async function handleMessage(msg: { type: string; [key: string]: unknown }): Pro
 
     case 'testConnection': {
       const kind = msg.kind as KeyKind;
-      const apiKey = String(msg.apiKey ?? '').trim();
       const model = String(msg.model ?? '').trim();
-      if (!apiKey) {
-        return { ok: false, error: 'Vul eerst een API-sleutel in.' };
-      }
-      try {
-        if (kind === 'factcheck') {
-          await testFactCheckConnection(apiKey, { timeoutMs: 15_000 });
-        } else if (kind === 'claude') {
-          await testClaudeConnection({ apiKey, model, timeoutMs: 15_000 });
-        } else {
-          await testGeminiConnection({ apiKey, model, timeoutMs: 15_000 });
-        }
-        return { ok: true };
-      } catch (e) {
-        return { ok: false, error: e instanceof Error ? e.message : String(e) };
-      }
+      return checkKey(kind, String(msg.apiKey ?? ''), {
+        model: model || undefined,
+        timeoutMs: 15_000,
+      });
     }
 
     case 'evaluate': {
@@ -178,6 +210,15 @@ async function handleMessage(msg: { type: string; [key: string]: unknown }): Pro
           ? await getFactCheckApiKey()
           : undefined;
 
+        // Step list in the panel of the tab that asked
+        const progress = (step: AnalysisStep) => {
+          if (tabId === undefined) return;
+          void browser.tabs
+            .sendMessage(tabId, { type: 'progress', videoId, step, factcheck: Boolean(factCheckApiKey) })
+            .catch(() => undefined);
+        };
+        progress('transcript');
+
         await rulesReadyPromise;
 
         const transcriptRes = await getTranscriptById(videoId);
@@ -199,6 +240,7 @@ async function handleMessage(msg: { type: string; [key: string]: unknown }): Pro
             model,
             taal,
             factCheckApiKey,
+            onProgress: progress,
             onCall: (entry: CallLog) => {
               const line = { ...entry, videoId, tijd: new Date().toISOString() };
               if (settings.debugLog) {

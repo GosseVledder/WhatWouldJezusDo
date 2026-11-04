@@ -1,4 +1,4 @@
-import { EngineError, type FactcheckVerdict, type WebSource } from '../engine/types';
+import type { FactcheckVerdict, WebSource } from '../engine/types';
 
 export interface FactCheckClaimReview {
   publisher: {
@@ -290,42 +290,5 @@ export async function searchGoogleFactCheck(
     return null;
   } catch {
     return null;
-  }
-}
-
-export async function testFactCheckConnection(
-  apiKey: string,
-  deps: { fetch?: typeof fetch; timeoutMs?: number } = {},
-): Promise<void> {
-  const trimmedKey = apiKey?.trim();
-  if (!trimmedKey) {
-    throw new EngineError('auth', 'Vul eerst een Fact Check API-sleutel in.');
-  }
-  const doFetch = deps.fetch ?? globalThis.fetch.bind(globalThis);
-  const url = new URL(FACTCHECK_API_URL);
-  url.searchParams.set('query', 'test');
-  url.searchParams.set('pageSize', '1');
-  url.searchParams.set('key', trimmedKey);
-
-  let res: Response;
-  try {
-    res = await doFetch(url.toString(), {
-      method: 'GET',
-      headers: { 'content-type': 'application/json' },
-      signal: AbortSignal.timeout(deps.timeoutMs ?? 15_000),
-    });
-  } catch (e) {
-    throw new EngineError('network', 'Geen verbinding met de Google Fact Check API.', {
-      details: String(e),
-    });
-  }
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    throw new EngineError(
-      'auth',
-      'De Fact Check API-sleutel is ongeldig of de Fact Check Tools API is niet ingeschakeld in Google Cloud.',
-      { status: res.status, details: text.slice(0, 300) },
-    );
   }
 }

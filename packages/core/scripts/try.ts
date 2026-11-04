@@ -91,6 +91,9 @@ async function main() {
   });
 
   console.log('\n======================================================');
+  if (evaluation.videoSummary)
+    console.log(`SAMENVATTING: ${evaluation.videoSummary}
+`);
   console.log(`WWJD EINDSCORE (ONDERWERP): ${evaluation.finalScore.toFixed(1)} / 10`);
   if (evaluation.presenterEvaluation) {
     console.log(`PRESENTATOR: ${evaluation.presenterEvaluation.finalScore.toFixed(1)} / 10`);

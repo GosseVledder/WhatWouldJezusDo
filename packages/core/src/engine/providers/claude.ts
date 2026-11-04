@@ -2,6 +2,7 @@ import { ENGINE_DEFAULTS } from '../config';
 import {
   EngineError,
   type ChatRequest,
+  type GroundedSegment,
   type ProviderOptions,
   type RawModelOutput,
   type WebSource,
@@ -161,9 +162,16 @@ export async function generateClaude(
     groundingSources.push({ title: title?.trim() || u, url: u });
   };
 
+  const groundedSegments: GroundedSegment[] = [];
   for (const block of data.content ?? []) {
+    const cited: WebSource[] = [];
     for (const cit of block.citations ?? []) {
       addSource(cit.url, cit.title);
+      if (cit.url?.trim())
+        cited.push({ title: cit.title?.trim() || cit.url.trim(), url: cit.url.trim() });
+    }
+    if (block.type === 'text' && block.text?.trim() && cited.length) {
+      groundedSegments.push({ text: block.text.trim(), sources: cited });
     }
     if (Array.isArray(block.content)) {
       for (const item of block.content) {
@@ -179,6 +187,7 @@ export async function generateClaude(
     model: data.model ?? opts.model,
     usage: { inputTokens: data.usage?.input_tokens, outputTokens: data.usage?.output_tokens },
     groundingSources: groundingSources.length > 0 ? groundingSources : undefined,
+    groundedSegments: groundedSegments.length > 0 ? groundedSegments : undefined,
   };
 }
 

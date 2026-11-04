@@ -1,12 +1,23 @@
 import {
+  analysisErrorView,
+  createLiveSync,
+  createVideoOverlay,
   DEFAULT_WWJD_SETTINGS,
   messages,
   parseVideoId,
   renderWwjdStateView,
+  type AnalysisStep,
+  type KeyKind,
+  type LiveMoment,
+  type LiveSync,
+  type VideoOverlay,
+  type SetupStatus,
   type WwjdEvaluation,
   type WwjdSettings,
   type WwjdViewState,
 } from '@wwjd/core';
+import { startThumbnailBadges } from '../badges';
+import { KEYS_UPDATED } from '../storage/secrets';
 import { getSettings, onSettingsChanged, saveSettings } from '../storage/settings';
 
 export default defineContentScript({
@@ -24,6 +35,42 @@ export default defineContentScript({
     let state: WwjdViewState = { kind: 'idle' };
     let collapsed = settings.paneelIngeklapt;
     let panelCollapsed = !settings.actief;
+    let setupMissing: KeyKind[] = [];
+    let live: LiveSync | null = null;
+    let overlay: VideoOverlay | null = null;
+
+    /** YouTube's main player video (not previews or ads in other elements). */
+    const mainVideo = () =>
+      document.querySelector<HTMLVideoElement>('#movie_player video.html5-main-video') ??
+      document.querySelector<HTMLVideoElement>('ytd-watch-flexy video');
+
+    /** "Overlay on video": the small card on the player at each checked moment. */
+    function showOnVideo(moment: LiveMoment | null): void {
+      const player = document.querySelector<HTMLElement>('#movie_player');
+      if (!moment || !settings.overlayOpVideo || !settings.actief || !player) {
+        overlay?.show(null);
+        return;
+      }
+      overlay ??= createVideoOverlay(player);
+      overlay.mount(player);
+      overlay.show(moment);
+    }
+
+    // Synced live mode: follow the playback time of the main video
+    const onTime = (e: Event) => {
+      if (!live || e.target !== mainVideo()) return;
+      showOnVideo(live.update((e.target as HTMLVideoElement).currentTime));
+    };
+    document.addEventListener('timeupdate', onTime, true);
+    document.addEventListener('seeked', onTime, true);
+    const noAiKey = () => setupMissing.some((k) => k !== 'factcheck');
+
+    async function refreshSetup(): Promise<void> {
+      const res = (await browser.runtime
+        .sendMessage({ type: 'setupStatus' })
+        .catch(() => null)) as { ok: boolean; data?: SetupStatus } | null;
+      if (res?.ok && res.data) setupMissing = res.data.missing;
+    }
 
     function currentTheme(): 'dark' | 'light' {
       return document.documentElement.hasAttribute('dark') ? 'dark' : 'light';
@@ -73,6 +120,7 @@ export default defineContentScript({
           onStart: () => void runEvaluation(videoId, false),
           onRefresh: () => void runEvaluation(videoId, true),
           onOpenOptions: () => void browser.runtime.sendMessage({ type: 'openOptions' }),
+          onOpenSetup: () => void browser.runtime.sendMessage({ type: 'openWelcome' }),
           onSeek: (seconds) => seekVideo(seconds),
           onToggleCollapse: (nextCollapsed) => {
             collapsed = nextCollapsed;
@@ -98,9 +146,22 @@ export default defineContentScript({
           collapsed,
           panelCollapsed,
           enabled: settings.actief,
+          setupMissing,
+          live: settings.liveMeelezen,
           taal: settings.taal,
         },
       );
+      // The view was rebuilt: follow the video again on the new elements
+      live?.stop();
+      live = null;
+      const follow = settings.liveMeelezen || settings.overlayOpVideo;
+      if (state.kind === 'done' && settings.actief && follow) {
+        live = createLiveSync(shadow, { highlight: settings.liveMeelezen });
+        const video = mainVideo();
+        if (video) showOnVideo(live.update(video.currentTime));
+      } else {
+        showOnVideo(null);
+      }
     }
 
     function handleNavigation() {
@@ -109,6 +170,9 @@ export default defineContentScript({
       if (videoId === currentVideoId) return;
 
       currentVideoId = videoId;
+      live?.stop();
+      live = null;
+      showOnVideo(null);
       if (!videoId) {
         if (hostEl) {
           hostEl.remove();
@@ -141,6 +205,8 @@ export default defineContentScript({
       placeHost();
 
       collapsed = settings.paneelIngeklapt;
+      await refreshSetup();
+      if (currentVideoId !== videoId) return;
       if (!settings.actief) {
         panelCollapsed = true;
         state = { kind: 'idle' };
@@ -165,7 +231,7 @@ export default defineContentScript({
         return;
       }
 
-      if (!settings.actief || !settings.automatisch) {
+      if (!settings.actief || !settings.automatisch || noAiKey()) {
         state = { kind: 'idle' };
         render();
         return;
@@ -179,6 +245,7 @@ export default defineContentScript({
       state = {
         kind: 'loading',
         step: t.view.loadingStep,
+        progress: { current: 'transcript', factcheck: !setupMissing.includes('factcheck') },
       };
       render();
 
@@ -187,19 +254,13 @@ export default defineContentScript({
           type: 'evaluate',
           videoId,
           force,
-        })) as { ok: boolean; data?: WwjdEvaluation; error?: string };
+        })) as { ok: boolean; data?: WwjdEvaluation; error?: string; code?: string };
 
         if (currentVideoId !== videoId) return;
 
         if (!response?.ok || !response.data) {
-          const msg = response?.error ?? t.extension.unknownError;
-          state = {
-            kind: 'error',
-            message: msg,
-            showSettings: /sleutel|instellingen|toegang|key|settings|clé|Schlüssel|clave|chiave|chave/i.test(
-              msg,
-            ),
-          };
+          const err = { code: response?.code, message: response?.error };
+          state = { kind: 'error', ...analysisErrorView(t, err, settings.provider) };
           render();
           return;
         }
@@ -208,14 +269,7 @@ export default defineContentScript({
         render();
       } catch (err) {
         if (currentVideoId === videoId) {
-          const msg = (err as Error).message;
-          state = {
-            kind: 'error',
-            message: msg,
-            showSettings: /sleutel|instellingen|toegang|key|settings|clé|Schlüssel|clave|chiave|chave/i.test(
-              msg,
-            ),
-          };
+          state = { kind: 'error', ...analysisErrorView(t, err, settings.provider) };
           render();
         }
       }
@@ -254,7 +308,35 @@ export default defineContentScript({
       });
     }
 
+    // Keys added on the welcome page or in the settings: update the setup card right away.
+    const onKeys = (changes: Record<string, unknown>, area: string) => {
+      if (area !== 'local' || !(KEYS_UPDATED in changes)) return;
+      const blocked = noAiKey();
+      void refreshSetup().then(() => {
+        if (blocked && !noAiKey() && currentVideoId && state.kind === 'idle') {
+          void startForVideo(currentVideoId);
+        } else {
+          render();
+        }
+      });
+    };
+    browser.storage.onChanged.addListener(onKeys);
+
+    // Progress of a running analysis, sent by the background
+    const onProgress = (message: unknown) => {
+      const m = message as { type?: string; videoId?: string; step?: AnalysisStep; factcheck?: boolean };
+      if (m?.type !== 'progress' || !m.step || m.videoId !== currentVideoId) return;
+      if (state.kind !== 'loading') return;
+      state = { kind: 'loading', progress: { current: m.step, factcheck: Boolean(m.factcheck) } };
+      render();
+    };
+    browser.runtime.onMessage.addListener(onProgress);
+
+    // Score badges on thumbnails of videos analysed before (from the cache, no AI calls)
+    const badges = startThumbnailBadges(() => settings);
+
     const stopSettings = onSettingsChanged((next) => {
+      if (next.provider !== settings.provider) void refreshSetup().then(() => render());
       const enabledChanged = next.actief !== settings.actief;
       const collapsedChanged = next.paneelIngeklapt !== settings.paneelIngeklapt;
       const langChanged = next.taal !== settings.taal;
@@ -289,6 +371,13 @@ export default defineContentScript({
 
     ctx.onInvalidated(() => {
       stopSettings();
+      browser.storage.onChanged.removeListener(onKeys);
+      browser.runtime.onMessage.removeListener(onProgress);
+      document.removeEventListener('timeupdate', onTime, true);
+      document.removeEventListener('seeked', onTime, true);
+      live?.stop();
+      overlay?.destroy();
+      badges.stop();
       themeObserver.disconnect();
       window.clearInterval(interval);
       document.removeEventListener('yt-navigate-finish', handleNavigation);

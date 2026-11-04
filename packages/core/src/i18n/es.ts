@@ -20,6 +20,8 @@ export const es: Messages = {
     hideDetails: 'Ocultar fundamentación ▲',
     jesusAlignment: 'Concordancia con Jesús',
     section1Title: '1. Verificación de hechos e Integridad (Actividad 1)',
+    summaryTitle: 'Resumen',
+    checkedFacts: 'Hechos comprobados',
     coreActivity: 'Núcleo de la actividad:',
     sentimentAndAttitude: 'Sentimiento y actitud:',
     subjectLabel: 'Tema',
@@ -36,6 +38,8 @@ export const es: Messages = {
     statementLabel: 'Declaración:',
     factcheckLabel: 'Verificación:',
     sourcesLabel: 'Fuente(s):',
+    noSource: 'No se encontró ninguna fuente externa: comprobado solo por la IA.',
+    otherSources: 'Otras fuentes consultadas:',
     verdicts: {
       bevestigd: 'confirmado',
       ontkracht: 'refutado',
@@ -48,14 +52,20 @@ export const es: Messages = {
     section3Title: (n) =>
       `3. Presentador: evaluación según las enseñanzas de Jesús (${n} puntos relevantes ponderados)`,
     presenterScore: 'Presentador',
+    subjectScore: 'Relato y hechos',
     linkedToMoment: 'Vinculado al momento:',
     fromCache: (d) => `De la caché · ${d}`,
     justAnalyzed: 'Recién analizado',
     off: 'WWJD está desactivado: no se realizan análisis.',
     analyzeVideo: 'Analizar vídeo',
-    loadingStep: 'Verificando hechos y evaluando el vídeo según las enseñanzas de Jesús y los Diez Mandamientos…',
-    fetchingTranscript: 'Obteniendo la transcripción…',
-    evaluatingWith: (p) => `Verificando hechos y evaluando según las enseñanzas de Jesús con ${p}…`,
+    loadingStep:
+      'Verificando hechos y evaluando el vídeo según las enseñanzas de Jesús y los Diez Mandamientos…',
+    progressSteps: {
+      transcript: 'Obteniendo la transcripción',
+      analyse: 'Comprobando los hechos, resumiendo y puntuando',
+      factcheck: 'Buscando verificaciones oficiales',
+      reconcile: 'Actualizando las puntuaciones con las verificaciones',
+    },
     openSettings: 'Abrir ajustes',
     retry: 'Reintentar',
     refresh: 'Volver a analizar',
@@ -86,8 +96,8 @@ export const es: Messages = {
       gemini: [
         'Abre {site} e inicia sesión con tu cuenta de Google.',
         'Acepta las condiciones (solo la primera vez).',
-        'Haz clic en «Create API key»; si te lo pide, elige un proyecto o deja que se cree uno.',
-        'Copia la clave (empieza por AIza) y pégala arriba en Clave API.',
+        '¿Ya aparece una clave? Es la tuya. Si no, haz clic en «Create API key» (elige o importa un proyecto si te lo pide).',
+        'Copia la clave (empieza por AIza o AQ.) y pégala arriba en Clave API.',
         'Haz clic en «Probar conexión».',
       ],
       claude: [
@@ -101,32 +111,27 @@ export const es: Messages = {
         'Abre {site} e inicia sesión con tu cuenta de Google (no requiere tarjeta de crédito).',
         'Elige arriba un proyecto existente o haz clic en «New Project» y llámalo p. ej. WWJD.',
         'Abre la Fact Check Tools API en la biblioteca de APIs (console.cloud.google.com/apis/library/factchecktools.googleapis.com) y haz clic en «Enable».',
-        'Ve a «Credentials», haz clic en «+ Create Credentials» → «API key», copia la clave (empieza por AIza) y pégala arriba.',
+        'Ve a «Credentials», haz clic en «+ Create credentials» → «API key», selecciona «Fact Check Tools API» en «API restrictions» y haz clic en «Create». Copia la clave (empieza por AIza) y pégala arriba.',
         'Haz clic en «Probar conexión».',
       ],
     },
     keyCost: {
       gemini:
-        'Gratis mientras no vincules facturación (billing) al proyecto de Google. Cuenta con unos 10 análisis por minuto y 200 al día; Google puede cambiarlo y tu propio límite aparece en AI Studio. Cada vídeo nuevo cuesta una llamada; uno ya analizado, nada.',
+        'Gratis mientras no vincules la facturación (billing) al proyecto de Google. Google fija un límite por minuto y por día (el límite diario se reinicia a medianoche, hora del Pacífico); AI Studio muestra tus propios límites. Cada vídeo nuevo cuesta una llamada; uno ya analizado no cuesta nada.',
       claude: 'De pago: cada análisis se descuenta de tu saldo. Sin saldo, la clave no funciona.',
       factcheck:
-        '100 % gratis (hasta 10 000 consultas al día, sin tarjeta de crédito). Se usa para verificar afirmaciones directamente en organizaciones de verificación reconocidas.',
+        'Gratis, sin tarjeta de crédito. Google fija un límite de uso por proyecto; lo ves en la página «Quotas» de Google Cloud. Se usa para verificar afirmaciones directamente con organizaciones de verificación reconocidas en todo el mundo.',
     },
     keyModels: {
       gemini:
         'Gratis vía AI Studio: los modelos Flash y Flash-Lite (gemini-flash-latest, gemini-3.8-flash, gemini-flash-lite-latest). De pago: los modelos Pro (gemini-pro-latest); solo funcionan con facturación.',
       claude: 'Todos los modelos de Claude son de pago; Haiku es el más barato y Opus el más caro.',
       factcheck:
-        'Consejo: si usas el mismo proyecto de Google Cloud que para tu clave de Gemini, puedes usar la misma clave AIza tras activar la Fact Check Tools API.',
+        'Usa una clave aparte: las claves de AI Studio solo funcionan con Gemini. Crea esta clave en Google Cloud, en un proyecto con la Fact Check Tools API activada.',
     },
     model: 'Modelo',
     testConnection: 'Probar conexión',
     busy: 'Un momento…',
-    testOk: '✓ La conexión funciona y el modelo existe.',
-    testOkFactcheck: '✓ La conexión con Google Fact Check API funciona.',
-    testOkShort: 'La conexión funciona',
-    testFailed: 'Falló la conexión.',
-    fillKeyFirst: 'Introduce primero una clave API.',
     factcheckHeading: 'Verificación de hechos (Google Fact Check API)',
     factcheckToggle: 'Usar Google Fact Check Tools API',
     factcheckHint:
@@ -148,6 +153,12 @@ export const es: Messages = {
     autoHint: 'Desactivado: haz clic en «Analizar vídeo» en el panel.',
     collapsedLabel: 'Ocultar fundamentación por defecto',
     collapsedHint: 'Mostrar primero solo la puntuación final (0–10) y la conclusión breve.',
+    liveLabel: 'Modo en directo sincronizado',
+    liveHint:
+      'Mientras se reproduce el vídeo, el panel resalta lo que se dice y se desplaza hasta ello.',
+    overlayLabel: 'Superposición en el vídeo',
+    overlayHint:
+      'Muestra también una pequeña tarjeta tipo subtítulo sobre el vídeo en cada momento comprobado.',
     tipLabel: 'Explicación',
     cacheHeading: 'Caché',
     savedAnalyses: 'Análisis guardados',
@@ -179,8 +190,7 @@ export const es: Messages = {
   },
 
   tips: {
-    language:
-      'Elige el idioma para la interfaz, el análisis de IA y las referencias bíblicas.',
+    language: 'Elige el idioma para la interfaz, el análisis de IA y las referencias bíblicas.',
     provider:
       'Qué IA analiza el vídeo y lo evalúa según las 25 enseñanzas de Jesús. Gemini se puede usar gratis (con un límite diario); Claude se paga por análisis.',
     apiKey:
@@ -196,6 +206,9 @@ export const es: Messages = {
     auto: 'Activado: cada vídeo que abres se analiza enseguida; un vídeo nuevo cuesta una llamada a la IA. Desactivado: solo cuando haces clic en «Analizar vídeo».',
     collapsed:
       'Activado: muestra primero solo la puntuación de Jesús (0–10) y la conclusión breve; despliega la verificación completa y las citas bíblicas cuando quieras leerlas.',
+    live: 'Activado: cada verificación y cada punto de la enseñanza de Jesús se ilumina en el momento en que se dice en el vídeo, y el panel se desplaza hasta él. Si te desplazas tú, espera unos segundos.',
+    overlay:
+      'Activado: en la parte inferior del vídeo aparece unos segundos una tarjeta pequeña y discreta con el veredicto en cada momento comprobado. Desactivado: solo el panel sigue el vídeo.',
     updates: 'Busca en GitHub la última versión de WWJD. No se envían claves ni otros datos.',
     cache:
       'Cada análisis se guarda, así que volver a abrir el mismo vídeo no cuesta nada. Vaciar elimina todos los análisis guardados; tus claves y tus ajustes se mantienen.',
@@ -262,6 +275,88 @@ export const es: Messages = {
     openInYouTubeAt: (t) => `Abrir en la aplicación de YouTube en ${t}`,
     openedInYouTube: (t) => `YouTube salta a ${t}`,
     cancel: 'Cancelar',
-    noKeyError: 'Todavía no se ha configurado ninguna clave API.',
+  },
+  onboarding: {
+    title: 'Te damos la bienvenida a What Would Jezus Do',
+    intro: 'Dos claves gratuitas de Google y listo. Tarda unos 3 minutos.',
+    geminiTitle: '1. Clave de Gemini',
+    geminiText:
+      'Gemini es la IA que comprueba los hechos y compara el vídeo con las enseñanzas de Jesús. La clave es gratuita.',
+    geminiButton: 'Crear clave de Gemini',
+    factcheckTitle: '2. Clave de Fact Check',
+    factcheckText:
+      'Busca verificaciones oficiales de organizaciones como Reuters y AP. Esta clave también es gratuita.',
+    factcheckButton: 'Crear clave de Fact Check',
+    steps: {
+      gemini: [
+        'Haz clic en el botón de arriba, inicia sesión con tu cuenta de Google y acepta las condiciones si Google lo pide.',
+        '¿Ya aparece una clave? Es la tuya. Si no, haz clic en «Create API key» (elige o importa un proyecto si Google lo pide).',
+        'Copia la clave con el icono de copiar que hay al lado.',
+        'Vuelve aquí y pega la clave abajo.',
+      ],
+      factcheck: [
+        'Haz clic en el botón de arriba e inicia sesión con la misma cuenta de Google.',
+        'Arriba, elige un proyecto (el de la tarjeta 1 sirve) y haz clic en «Enable».',
+        'Abre «Credentials» y haz clic en «+ Create credentials» → «API key».',
+        'Google pide una restricción de API: en «API restrictions» selecciona «Fact Check Tools API», haz clic en «Create» y copia la clave.',
+        'Vuelve aquí y pega la clave abajo.',
+      ],
+    },
+    showMe: 'Muéstrame dónde hacer clic',
+    pasteLabel: 'Pega la clave aquí',
+    checking: 'Comprobando la clave…',
+    works: 'Funciona',
+    retry: 'Comprobar de nuevo',
+    problems: {
+      empty: 'Pega primero una clave.',
+      wrong_key: 'Esta clave no es correcta. Cópiala de nuevo, entera y sin espacios.',
+      wrong_api:
+        'Esta clave es de otro servicio de Google. Crea una clave nueva con el botón de esta tarjeta.',
+      restricted:
+        'Esta clave está limitada a otros sitios web o aplicaciones. Crea una clave nueva sin esa limitación.',
+      api_not_enabled:
+        'La clave es correcta, pero este servicio aún no está activado en tu proyecto de Google.',
+      quota:
+        'Esta clave ha alcanzado su límite por ahora. Espera un minuto y vuelve a intentarlo, o mañana.',
+      offline: 'No hay conexión a Internet. Comprueba tu conexión y vuelve a intentarlo.',
+      model:
+        'El modelo de IA elegido no está disponible para esta clave. Mantén el modelo estándar en Ajustes.',
+      unknown: 'Algo salió mal al comprobar la clave. Vuelve a intentarlo en un momento.',
+    },
+    enableButton: 'Activarlo (un clic)',
+    doneButton: 'Listo, abrir un vídeo de YouTube',
+    doneButtonApp: 'Listo, analizar un vídeo',
+    doneWaiting: 'Ambas claves necesitan primero una marca verde.',
+    privacy: 'Tus claves se quedan en este dispositivo y solo se envían a Google.',
+    setupNotFinished: 'Configuración sin terminar',
+    setupMissing: (p) => `Añade tu clave de ${p} y tu clave de Fact Check para analizar vídeos.`,
+    setupMissingAi: (p) => `Añade tu clave de ${p} para analizar vídeos.`,
+    setupMissingFactcheck:
+      'Añade tu clave de Fact Check para que las afirmaciones también se comparen con verificaciones oficiales.',
+    finishSetup: 'Terminar la configuración',
+    setupGuide: 'Guía de configuración',
+    otherAi: '¿Prefieres Claude? Puedes elegirlo más tarde en Ajustes.',
+  },
+
+  errors: {
+    auth: (p) =>
+      `La clave API de ${p} no es válida o no tiene acceso. Comprueba la clave en los ajustes.`,
+    quota: (p) =>
+      `Se ha agotado la cuota o el crédito de ${p}. Vuelve a intentarlo más tarde o revisa tu cuenta.`,
+    rate_limit: (p) =>
+      `${p} está saturado o se ha alcanzado el límite por minuto. Espera un minuto y vuelve a intentarlo.`,
+    bad_request: (p) => `${p} rechazó la solicitud.`,
+    model_not_found: (p) =>
+      `El modelo de ${p} indicado en los ajustes no existe. Elige otro modelo.`,
+    video_unavailable: (p) => `${p} no puede abrir este vídeo (solo vídeos públicos).`,
+    refusal: (p) => `${p} se negó a analizar este vídeo.`,
+    truncated: (p) => `La respuesta de ${p} se cortó. Vuelve a intentarlo.`,
+    network: () =>
+      'No hay conexión con el servicio de IA. Comprueba tu conexión a Internet y vuelve a intentarlo.',
+    timeout: () => 'El servicio de IA no respondió a tiempo. Vuelve a intentarlo.',
+    aborted: () => 'El análisis se ha detenido.',
+    parse: () => 'No se pudo leer la respuesta de la IA. Vuelve a intentarlo.',
+    server: (p) => `${p} tuvo un problema de servidor. Vuelve a intentarlo más tarde.`,
+    unknown: () => 'Error desconocido durante la evaluación.',
   },
 };

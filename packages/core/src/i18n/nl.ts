@@ -20,6 +20,8 @@ export const nl: Messages = {
     hideDetails: 'Onderbouwing inklappen ▲',
     jesusAlignment: 'Jezus-overeenkomst',
     section1Title: '1. Factcheck & Integriteit (Activiteit 1)',
+    summaryTitle: 'Samenvatting',
+    checkedFacts: 'Gecontroleerde feiten',
     coreActivity: 'Kern van activiteit:',
     sentimentAndAttitude: 'Sentiment & houding:',
     subjectLabel: 'Onderwerp',
@@ -36,6 +38,8 @@ export const nl: Messages = {
     statementLabel: 'Uitspraak:',
     factcheckLabel: 'Factcheck:',
     sourcesLabel: 'Bron(nen):',
+    noSource: 'Geen externe bron gevonden: alleen door de AI gecontroleerd.',
+    otherSources: 'Overige geraadpleegde bronnen:',
     verdicts: {
       bevestigd: 'bevestigd',
       ontkracht: 'ontkracht',
@@ -48,14 +52,19 @@ export const nl: Messages = {
     section3Title: (n) =>
       `3. Presentator: toetsing aan Jezus' Richtlijnen (${n} relevante punten meegewogen)`,
     presenterScore: 'Presentator',
+    subjectScore: 'Verhaal & feiten',
     linkedToMoment: 'Gekoppeld aan moment:',
     fromCache: (d) => `Uit cache · ${d}`,
     justAnalyzed: 'Zojuist geanalyseerd',
     off: 'WWJD staat uit: er worden geen analyses gemaakt.',
     analyzeVideo: 'Analyseer video',
     loadingStep: "Video factchecken en toetsen aan Jezus' richtlijnen en De Tien Geboden…",
-    fetchingTranscript: 'Transcript ophalen…',
-    evaluatingWith: (p) => `Feiten verifiëren en toetsen aan Jezus' richtlijnen met ${p}…`,
+    progressSteps: {
+      transcript: 'Transcript ophalen',
+      analyse: 'Feiten controleren, samenvatten en beoordelen',
+      factcheck: 'Officiële factchecks opzoeken',
+      reconcile: 'Scores bijwerken met de factchecks',
+    },
     openSettings: 'Instellingen openen',
     retry: 'Opnieuw proberen',
     refresh: 'Opnieuw analyseren',
@@ -86,8 +95,8 @@ export const nl: Messages = {
       gemini: [
         'Open {site} en log in met je Google-account.',
         'Accepteer de voorwaarden (alleen de eerste keer).',
-        'Klik op "Create API key"; kies zo nodig een project of laat er een aanmaken.',
-        'Kopieer de sleutel (begint met AIza) en plak hem hierboven bij API-sleutel.',
+        'Staat er al een sleutel? Dan is dat de jouwe. Zo niet, klik op "Create API key" (kies of importeer zo nodig een project).',
+        'Kopieer de sleutel (begint met AIza of AQ.) en plak hem hierboven bij API-sleutel.',
         'Klik op "Test verbinding".',
       ],
       claude: [
@@ -101,32 +110,27 @@ export const nl: Messages = {
         'Open {site} en log in met je Google-account (geen creditcard of betaalaccount nodig).',
         'Kies bovenin een bestaand project of klik op "New Project" en noem het bijvoorbeeld WWJD.',
         'Open de Fact Check Tools API in de API Library (console.cloud.google.com/apis/library/factchecktools.googleapis.com) en klik op "Enable".',
-        'Ga naar "Credentials", klik op "+ Create Credentials" → "API key", kopieer de sleutel (begint met AIza) en plak hem hierboven.',
+        'Ga naar "Credentials", klik op "+ Create credentials" → "API key", kies bij "API restrictions" de "Fact Check Tools API" en klik op "Create". Kopieer de sleutel (begint met AIza) en plak hem hierboven.',
         'Klik op "Test verbinding".',
       ],
     },
     keyCost: {
       gemini:
-        'Gratis zolang je geen facturering (billing) aan het Google-project koppelt. Reken op ongeveer 10 analyses per minuut en 200 per dag; Google kan dat wijzigen en je eigen limiet zie je in AI Studio. Elke nieuwe video kost één aanroep, een eerder geanalyseerde video niets.',
+        'Gratis zolang je geen facturering (billing) aan het Google-project koppelt. Google stelt een limiet per minuut en per dag in (de daglimiet begint om middernacht Pacific-tijd opnieuw); je eigen limieten zie je in AI Studio. Elke nieuwe video kost één aanroep, een eerder geanalyseerde video niets.',
       claude: 'Betaald: elke analyse gaat van je tegoed af. Zonder tegoed werkt de sleutel niet.',
       factcheck:
-        '100% gratis (tot 10.000 zoekopdrachten per dag, geen creditcard nodig). Wordt gebruikt om beweringen direct te verifiëren bij erkende factcheck-organisaties wereldwijd.',
+        'Gratis, geen creditcard nodig. Google stelt per project een gebruikslimiet in; die zie je op de pagina Quotas in Google Cloud. Wordt gebruikt om beweringen direct te verifiëren bij erkende factcheck-organisaties wereldwijd.',
     },
     keyModels: {
       gemini:
         'Gratis via AI Studio: de Flash- en Flash-Lite-modellen (gemini-flash-latest, gemini-3.8-flash, gemini-flash-lite-latest). Niet gratis: de Pro-modellen (gemini-pro-latest); die werken alleen met facturering.',
       claude: 'Alle Claude-modellen zijn betaald; Haiku is het goedkoopst, Opus het duurst.',
       factcheck:
-        'Tip: gebruik je hetzelfde Google Cloud-project als voor je Gemini-sleutel, dan kun je nadat je de Fact Check Tools API hebt ingeschakeld ook dezelfde AIza-sleutel gebruiken.',
+        'Gebruik een aparte sleutel: sleutels uit AI Studio werken alleen voor Gemini. Maak deze sleutel in Google Cloud, in een project waarin de Fact Check Tools API is ingeschakeld.',
     },
     model: 'Model',
     testConnection: 'Test verbinding',
     busy: 'Bezig…',
-    testOk: '✓ Verbinding werkt en het model bestaat.',
-    testOkFactcheck: '✓ Verbinding met Google Fact Check API werkt.',
-    testOkShort: 'Verbinding werkt',
-    testFailed: 'Verbinding mislukt.',
-    fillKeyFirst: 'Vul eerst een API-sleutel in.',
     factcheckHeading: 'Feitencontrole (Google Fact Check API)',
     factcheckToggle: 'Google Fact Check Tools API gebruiken',
     factcheckHint:
@@ -148,10 +152,16 @@ export const nl: Messages = {
     autoHint: 'Uit: klik op "Analyseer video" in het paneel.',
     collapsedLabel: 'Onderbouwing standaard inklappen',
     collapsedHint: 'Toon eerst alleen de eindscore (0–10) en de korte conclusie.',
+    liveLabel: 'Live meelezen',
+    liveHint: 'Tijdens het afspelen licht het paneel op wat er gezegd wordt en scrolt ernaartoe.',
+    overlayLabel: 'Overlay op video',
+    overlayHint:
+      'Toon bij elk gecontroleerd moment ook een klein kaartje als ondertitel op de video.',
     tipLabel: 'Uitleg',
     cacheHeading: 'Cache',
     savedAnalyses: 'Opgeslagen analyses',
-    cacheText: 'Elke video wordt één keer per taal geanalyseerd; daarna komt de analyse uit de cache.',
+    cacheText:
+      'Elke video wordt één keer per taal geanalyseerd; daarna komt de analyse uit de cache.',
     clearCache: 'Cache wissen',
     clear: 'Wissen',
     cacheCount: (n) => (n === 1 ? '1 analyse opgeslagen' : `${n} analyses opgeslagen`),
@@ -194,6 +204,9 @@ export const nl: Messages = {
     auto: 'Aan: elke video die je opent wordt meteen geanalyseerd; een nieuwe video kost één AI-aanroep. Uit: pas analyseren wanneer je op "Analyseer video" klikt.',
     collapsed:
       'Aan: toont eerst alleen de Jezus-score (0–10) en de korte conclusie; de volledige factcheck en de bijbelverwijzingen klap je open wanneer je die wilt lezen.',
+    live: 'Aan: elke factcheck en elk punt uit het onderwijs van Jezus licht op op het moment dat het in de video gezegd wordt, en het paneel scrolt ernaartoe. Scrol je zelf, dan wacht het een paar seconden.',
+    overlay:
+      'Aan: onderin de video verschijnt bij elk gecontroleerd moment een paar seconden een klein, onopvallend kaartje met het oordeel. Uit: alleen het paneel volgt de video.',
     updates:
       'Zoekt op GitHub naar de nieuwste versie van WWJD. Er gaan geen sleutels of andere gegevens mee.',
     cache:
@@ -261,6 +274,89 @@ export const nl: Messages = {
     openInYouTubeAt: (t) => `Open in de YouTube-app op ${t}`,
     openedInYouTube: (t) => `YouTube springt naar ${t}`,
     cancel: 'Annuleren',
-    noKeyError: 'Er is nog geen API-sleutel ingesteld.',
+  },
+  onboarding: {
+    title: 'Welkom bij What Would Jezus Do',
+    intro: 'Twee gratis sleutels van Google en je kunt beginnen. Het kost ongeveer 3 minuten.',
+    geminiTitle: '1. Gemini-sleutel',
+    geminiText:
+      'Gemini is de AI die de feiten controleert en de video naast het onderwijs van Jezus legt. De sleutel is gratis.',
+    geminiButton: 'Gemini-sleutel maken',
+    factcheckTitle: '2. Fact Check-sleutel',
+    factcheckText:
+      'Zoekt officiële factchecks op van organisaties zoals Reuters en AP. Ook deze sleutel is gratis.',
+    factcheckButton: 'Fact Check-sleutel maken',
+    steps: {
+      gemini: [
+        'Klik op de knop hierboven, log in met je Google-account en accepteer de voorwaarden als Google daarom vraagt.',
+        'Staat er al een sleutel? Dan is dat de jouwe. Zo niet, klik op "Create API key" (kies of importeer een project als Google daarom vraagt).',
+        'Kopieer de sleutel met het kopieericoontje ernaast.',
+        'Kom terug naar deze pagina en plak de sleutel hieronder.',
+      ],
+      factcheck: [
+        'Klik op de knop hierboven en log in met hetzelfde Google-account.',
+        'Kies bovenaan een project (dat van kaart 1 is prima) en klik op "Enable".',
+        'Open "Credentials" en klik op "+ Create credentials" → "API key".',
+        'Google vraagt om een API-beperking: kies bij "API restrictions" de "Fact Check Tools API", klik op "Create" en kopieer de sleutel.',
+        'Kom terug naar deze pagina en plak de sleutel hieronder.',
+      ],
+    },
+    showMe: 'Laat zien waar ik moet klikken',
+    pasteLabel: 'Plak de sleutel hier',
+    checking: 'Sleutel controleren…',
+    works: 'Werkt',
+    retry: 'Opnieuw controleren',
+    problems: {
+      empty: 'Plak eerst een sleutel.',
+      wrong_key: 'Deze sleutel klopt niet. Kopieer hem opnieuw, helemaal en zonder spaties.',
+      wrong_api:
+        'Deze sleutel hoort bij een andere Google-dienst. Maak een nieuwe sleutel met de knop op deze kaart.',
+      restricted:
+        'Deze sleutel is beperkt tot andere websites of apps. Maak een nieuwe sleutel zonder die beperking.',
+      api_not_enabled:
+        'De sleutel klopt, maar deze dienst staat nog niet aan in je Google-project.',
+      quota:
+        'Deze sleutel heeft zijn limiet voorlopig bereikt. Wacht een minuut en probeer het opnieuw, of morgen.',
+      offline: 'Geen internetverbinding. Controleer je verbinding en probeer het opnieuw.',
+      model:
+        'Het gekozen AI-model is niet beschikbaar voor deze sleutel. Houd in Instellingen het standaardmodel aan.',
+      unknown: 'Er ging iets mis bij het controleren van de sleutel. Probeer het zo opnieuw.',
+    },
+    enableButton: 'Zet hem aan (één klik)',
+    doneButton: 'Klaar, open een YouTube-video',
+    doneButtonApp: 'Klaar, analyseer een video',
+    doneWaiting: 'Beide sleutels hebben eerst een groen vinkje nodig.',
+    privacy: 'Je sleutels blijven op dit apparaat en gaan alleen naar Google.',
+    setupNotFinished: 'Installatie nog niet af',
+    setupMissing: (p) =>
+      `Voeg je ${p}-sleutel en je Fact Check-sleutel toe om video's te analyseren.`,
+    setupMissingAi: (p) => `Voeg je ${p}-sleutel toe om video's te analyseren.`,
+    setupMissingFactcheck:
+      'Voeg je Fact Check-sleutel toe, dan worden beweringen ook getoetst aan officiële factchecks.',
+    finishSetup: 'Installatie afmaken',
+    setupGuide: 'Installatiehulp',
+    otherAi: 'Liever Claude? Die kun je later kiezen in Instellingen.',
+  },
+
+  errors: {
+    auth: (p) =>
+      `De ${p}-API-sleutel is ongeldig of heeft geen toegang. Controleer de sleutel bij Instellingen.`,
+    quota: (p) =>
+      `Het quotum of tegoed van ${p} is op. Probeer het later opnieuw of controleer je account.`,
+    rate_limit: (p) =>
+      `${p} is druk of de limiet per minuut is bereikt. Wacht een minuut en probeer het opnieuw.`,
+    bad_request: (p) => `${p} weigerde het verzoek.`,
+    model_not_found: (p) =>
+      `Het ${p}-model dat bij Instellingen staat, bestaat niet. Kies een ander model.`,
+    video_unavailable: (p) => `${p} kan deze video niet openen (alleen openbare video's).`,
+    refusal: (p) => `${p} weigerde deze video te analyseren.`,
+    truncated: (p) => `Het antwoord van ${p} werd afgekapt. Probeer het opnieuw.`,
+    network: () =>
+      'Geen verbinding met de AI-dienst. Controleer je internetverbinding en probeer het opnieuw.',
+    timeout: () => 'De AI-dienst antwoordde niet op tijd. Probeer het opnieuw.',
+    aborted: () => 'De analyse is gestopt.',
+    parse: () => 'Het antwoord van de AI kon niet worden gelezen. Probeer het opnieuw.',
+    server: (p) => `${p} had een serverprobleem. Probeer het later opnieuw.`,
+    unknown: () => 'Onbekende fout bij evaluatie.',
   },
 };

@@ -29,7 +29,7 @@ export function parseVideoId(input: string | null | undefined): string | null {
   const v = url.searchParams.get('v');
   if (url.pathname === '/watch' && isVideoId(v)) return v;
 
-  const m = url.pathname.match(/^\/(?:embed|live|v|e)\/([A-Za-z0-9_-]{11})(?:[/?]|$)/);
+  const m = url.pathname.match(/^\/(?:embed|live|shorts|v|e)\/([A-Za-z0-9_-]{11})(?:[/?]|$)/);
   if (m?.[1]) return m[1];
 
   if (url.pathname === '/attribution_link') {

@@ -73,11 +73,13 @@ export interface WwjdEvaluation {
   videoTitle?: string;
   channelName?: string;
   taal?: string;
+  videoSummary?: string; // Neutrale samenvatting van de video na de factcheck (ontbreekt in oudere evaluaties)
   finalScore: number; // Onderwerp: gemiddelde van relevante scores, 0.0 tot 10.0 (1 decimaal)
   verdictSummary: string; // Onderwerp: korte samenvattende conclusie
   factcheckDossier: VideoExtractionAndFactcheck;
   relevantGuidelines: ScoredGuideline[]; // Onderwerp: uitsluitend de relevante richtlijnen
   presenterEvaluation?: PresenterEvaluation; // Alleen als presentator ≠ onderwerp
+  webSources?: WebSource[]; // Live-zoekbronnen die niet aan één uitspraak te koppelen waren
   createdAt: string;
   provider: 'gemini' | 'claude';
   model: string;
@@ -131,7 +133,12 @@ export interface ProviderOptions {
   fetch?: typeof fetch;
   sleep?: (ms: number) => Promise<void>;
   onCall?: (entry: CallLog) => void;
+  /** Progress of an analysis, for the step list in the UI. */
+  onProgress?: (step: AnalysisStep) => void;
 }
+
+/** Steps of one analysis, in order. `reconcile` only runs when a fact-check reverses a verdict. */
+export type AnalysisStep = 'transcript' | 'analyse' | 'factcheck' | 'reconcile';
 
 export interface ChatRequest {
   system: string;
@@ -148,7 +155,14 @@ export interface RawModelOutput {
     outputTokens?: number;
   };
   groundingSources?: WebSource[];
+  /** Which part of the answer each source supports (Gemini groundingSupports, Claude citations). */
+  groundedSegments?: GroundedSegment[];
   webSearchQueries?: string[];
+}
+
+export interface GroundedSegment {
+  text: string;
+  sources: WebSource[];
 }
 
 export type EngineErrorCode =

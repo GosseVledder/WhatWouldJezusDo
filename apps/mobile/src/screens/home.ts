@@ -1,6 +1,6 @@
 // Start screen: paste a link, or open one of the recent evaluations.
-import { h, ICONS } from '@wwjd/core';
-import { summaryHash, type App, type Screen } from '../app';
+import { h, ICONS, setupNotice, setupStatus } from '@wwjd/core';
+import { summaryHash, WELCOME_HASH, type App, type Screen } from '../app';
 import { videoFromShare } from '../share';
 import type { RecentEntry } from '../storage/stores';
 
@@ -63,12 +63,10 @@ export function homeScreen(app: App): Screen {
       app.settings.get(),
       app.cache.recent(),
     ]);
-    if (!keys[settings.provider]) {
+    const setup = setupStatus(keys, settings.provider);
+    if (!setup.complete) {
       keyNotice.hidden = false;
-      keyNotice.replaceChildren(
-        h('span', {}, t.settings.fillKeyFirst),
-        h('button', { onClick: () => app.go('#/instellingen') }, t.app.settings),
-      );
+      keyNotice.replaceChildren(setupNotice(t, setup.missing, () => app.go(WELCOME_HASH)));
     }
     list.replaceChildren(
       ...(recent.length

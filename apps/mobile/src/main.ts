@@ -1,11 +1,12 @@
 // App shell: hash routing between home, evaluation and settings, plus incoming shares.
 import { App as CapApp } from '@capacitor/app';
-import { ICONS, messages } from '@wwjd/core';
-import { NavStack, parseRoute, summaryHash, type App, type Screen } from './app';
+import { ICONS, isUiLang, messages, setupStatus } from '@wwjd/core';
+import { NavStack, parseRoute, summaryHash, WELCOME_HASH, type App, type Screen } from './app';
 import './app.css';
 import { homeScreen } from './screens/home';
 import { settingsScreen } from './screens/settings';
 import { summaryScreen } from './screens/summary';
+import { welcomeScreen } from './screens/welcome';
 import { videoFromShare } from './share';
 import { onShare } from './shareIntent';
 import { preferencesKV, secureKV } from './storage/native';
@@ -93,10 +94,12 @@ function show() {
       ? summaryScreen(app, r.videoId, r.start, r.refresh)
       : r.name === 'settings'
         ? settingsScreen(app)
-        : homeScreen(app);
+        : r.name === 'welcome'
+          ? welcomeScreen(app)
+          : homeScreen(app);
   titleEl.textContent = current.title;
   backBtn.hidden = r.name === 'home';
-  settingsBtn.hidden = r.name === 'settings';
+  settingsBtn.hidden = r.name === 'settings' || r.name === 'welcome';
   playerBtn.hidden = !current.setPlayer;
   updatePlayerButton();
   screenEl.replaceChildren(current.el);
@@ -137,11 +140,20 @@ onShare((e) => {
   } else app.toast(app.t.app.shareNoVideo);
 });
 
+/** First start: interface language from the phone; the welcome screen while setup is unfinished. */
+let setupDone = true;
+async function startup(): Promise<void> {
+  if (!(await preferencesKV.get('settings'))) {
+    const lang = (navigator.language || 'nl').split('-')[0]!;
+    await app.settings.save({ taal: isUiLang(lang) ? lang : 'en' });
+  }
+  const [s, keys] = await Promise.all([app.settings.get(), app.keys.get()]);
+  app.t = messages(s.taal);
+  setupDone = setupStatus(keys, s.provider).complete;
+}
+
 void migrateLegacyStorage()
-  .then(() => app.settings.get())
-  .then((s) => {
-    app.t = messages(s.taal);
-  })
+  .then(startup)
   .catch(() => undefined)
   .finally(() => {
     applyChrome();
@@ -150,6 +162,8 @@ void migrateLegacyStorage()
     const sharedVideo = sharedUrl ? videoFromShare(sharedUrl) : null;
     if (sharedVideo) {
       nav.reset(summaryHash(sharedVideo.videoId, sharedVideo.start));
+    } else if (!setupDone && (!location.hash || location.hash === '#/')) {
+      nav.reset(WELCOME_HASH);
     } else {
       nav.reset(location.hash || '#/');
     }

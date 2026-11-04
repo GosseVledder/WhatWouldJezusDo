@@ -98,6 +98,10 @@ export const PresenterEvaluationInputSchema = z.object({
 });
 
 export const WwjdModelOutputSchema = z.object({
+  videoSummary: z
+    .string()
+    .optional()
+    .describe('Neutrale samenvatting van de boodschap van de video, geschreven na de factcheck'),
   verdictSummary: z
     .string()
     .describe('Samenvattende eindconclusie: wat zou Jezus van het besproken onderwerp vinden?'),
@@ -143,13 +147,15 @@ export function wwjdModelOutputJsonSchema(): JsonObject {
   return {
     type: 'object',
     additionalProperties: false,
-    required: ['verdictSummary', 'factcheckDossier', 'relevantGuidelines', 'presenterEvaluation'],
+    // Order = order of generation: fact check, then the summary, then the scores.
+    required: [
+      'factcheckDossier',
+      'videoSummary',
+      'verdictSummary',
+      'relevantGuidelines',
+      'presenterEvaluation',
+    ],
     properties: {
-      verdictSummary: {
-        type: 'string',
-        description:
-          'Samenvattende eindconclusie: wat zou Jezus van het besproken onderwerp vinden?',
-      },
       factcheckDossier: {
         type: 'object',
         additionalProperties: false,
@@ -213,6 +219,16 @@ export function wwjdModelOutputJsonSchema(): JsonObject {
             },
           },
         },
+      },
+      videoSummary: {
+        type: 'string',
+        description:
+          'Neutrale samenvatting (2-4 zinnen) van wat de video vertelt, met de uitkomst van de factcheck',
+      },
+      verdictSummary: {
+        type: 'string',
+        description:
+          'Samenvattende eindconclusie: wat zou Jezus van het besproken onderwerp vinden?',
       },
       relevantGuidelines: scoredGuidelinesJsonSchema(),
       presenterEvaluation: {
