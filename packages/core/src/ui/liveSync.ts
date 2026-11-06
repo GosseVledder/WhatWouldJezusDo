@@ -92,7 +92,10 @@ export function createLiveSync(root: ParentNode, opts: LiveSyncOptions = {}): Li
         if (active !== null && opts.highlight !== false) {
           const els = byStart.get(active) ?? [];
           els.forEach((el) => el.classList.add('is-now'));
-          const scrollEl = els.find((el) => el.hasAttribute('data-scroll'));
+          // Never scroll to a part the details filter hides
+          const scrollEl = els.find(
+            (el) => el.hasAttribute('data-scroll') && !el.closest('[hidden]'),
+          );
           if (scrollEl && Date.now() >= pausedUntil) {
             autoScrolling = true;
             scrollTo(scrollEl);

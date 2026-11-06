@@ -48,11 +48,13 @@ export const nl: Messages = {
       opinie: 'opinie',
     },
     section2Title: (n) =>
-      `2. Onderwerp: toetsing aan Jezus' Richtlijnen (${n} relevante punten meegewogen)`,
+      `2. Verhaal & feiten: toetsing aan Jezus' Richtlijnen (${n} relevante punten meegewogen)`,
     section3Title: (n) =>
       `3. Presentator: toetsing aan Jezus' Richtlijnen (${n} relevante punten meegewogen)`,
     presenterScore: 'Presentator',
     subjectScore: 'Verhaal & feiten',
+    aspectAll: 'Alles',
+    aspectFilterAria: 'Onderbouwing filteren',
     linkedToMoment: 'Gekoppeld aan moment:',
     fromCache: (d) => `Uit cache · ${d}`,
     justAnalyzed: 'Zojuist geanalyseerd',
@@ -65,6 +67,7 @@ export const nl: Messages = {
       factcheck: 'Officiële factchecks opzoeken',
       reconcile: 'Scores bijwerken met de factchecks',
     },
+    usuallyTakes: (d) => `meestal ± ${d}`,
     openSettings: 'Instellingen openen',
     retry: 'Opnieuw proberen',
     refresh: 'Opnieuw analyseren',

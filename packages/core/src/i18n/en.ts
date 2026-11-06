@@ -48,11 +48,13 @@ export const en: Messages = {
       opinie: 'opinion',
     },
     section2Title: (n) =>
-      `2. Subject: Evaluation Against Jesus' Guidelines (${n} relevant points weighed)`,
+      `2. Story & facts: Evaluation Against Jesus' Guidelines (${n} relevant points weighed)`,
     section3Title: (n) =>
       `3. Presenter: Evaluation Against Jesus' Guidelines (${n} relevant points weighed)`,
     presenterScore: 'Presenter',
     subjectScore: 'Story & facts',
+    aspectAll: 'All',
+    aspectFilterAria: 'Filter the substantiation',
     linkedToMoment: 'Linked to moment:',
     fromCache: (d) => `From cache · ${d}`,
     justAnalyzed: 'Just analyzed',
@@ -66,6 +68,7 @@ export const en: Messages = {
       factcheck: 'Looking up official fact-checks',
       reconcile: 'Updating the scores with the fact-checks',
     },
+    usuallyTakes: (d) => `usually ~${d}`,
     openSettings: 'Open settings',
     retry: 'Try again',
     refresh: 'Re-analyze',

@@ -3,6 +3,7 @@
 import {
   analysisErrorView,
   createLiveSync,
+  createStepClock,
   evaluateVideo,
   formatTimestamp,
   getTranscriptById,
@@ -237,9 +238,17 @@ export function summaryScreen(
     }
 
     const factCheckApiKey = s.googleFactCheckActief ? keys.factcheck || undefined : undefined;
+    // Clock per step, with the typical duration from earlier analyses with this model
+    const modelKey = `${provider}:${s.models[provider]}`;
+    const clock = createStepClock(await app.timings.expected(modelKey).catch(() => ({})));
+    if (my !== run || disposed) return;
     const progress = (current: AnalysisStep) => {
+      const timing = clock.step(current);
       if (my !== run || disposed) return;
-      state = { kind: 'loading', progress: { current, factcheck: Boolean(factCheckApiKey) } };
+      state = {
+        kind: 'loading',
+        progress: { current, factcheck: Boolean(factCheckApiKey), timing },
+      };
       render();
     };
     progress('transcript');
@@ -269,6 +278,7 @@ export function summaryScreen(
       );
 
       if (my !== run || disposed) return;
+      await app.timings.record(modelKey, clock.finish()).catch(() => undefined);
       await app.cache.set(evaluation);
       state = { kind: 'done', evaluation, fromCache: false };
       render();

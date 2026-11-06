@@ -16,6 +16,7 @@ export * from './update';
 export * from './ui/styles';
 export * from './ui/scaleImages';
 export * from './ui/render';
+export * from './ui/stepTimings';
 export * from './ui/tooltip';
 export * from './ui/liveSync';
 export * from './ui/overlay';

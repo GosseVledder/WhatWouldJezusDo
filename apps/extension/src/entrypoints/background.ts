@@ -2,6 +2,7 @@ import {
   checkForUpdate,
   errorCodeOf,
   checkKey,
+  createStepClock,
   evaluateVideo,
   getTranscriptById,
   isUiLang,
@@ -23,6 +24,7 @@ import {
 import { appendDebugLog, clearDebugLog, getDebugLog } from '../storage/debuglog';
 import { getApiKeyForProvider, getApiKeys, getFactCheckApiKey } from '../storage/secrets';
 import { getSettings, saveSettings } from '../storage/settings';
+import { stepTimings } from '../storage/stepTimings';
 import { STORE_BUILD } from '../buildMode';
 
 const RULE_ID = 1;
@@ -210,11 +212,21 @@ async function handleMessage(
           ? await getFactCheckApiKey()
           : undefined;
 
-        // Step list in the panel of the tab that asked
+        // Step list in the panel of the tab that asked, with a clock per step and the typical
+        // duration from earlier analyses with this model
+        const modelKey = `${provider}:${model}`;
+        const clock = createStepClock(await stepTimings.expected(modelKey).catch(() => ({})));
         const progress = (step: AnalysisStep) => {
+          const timing = clock.step(step);
           if (tabId === undefined) return;
           void browser.tabs
-            .sendMessage(tabId, { type: 'progress', videoId, step, factcheck: Boolean(factCheckApiKey) })
+            .sendMessage(tabId, {
+              type: 'progress',
+              videoId,
+              step,
+              factcheck: Boolean(factCheckApiKey),
+              timing,
+            })
             .catch(() => undefined);
         };
         progress('transcript');
@@ -251,6 +263,7 @@ async function handleMessage(
           },
         );
 
+        await stepTimings.record(modelKey, clock.finish()).catch(() => undefined);
         await setCachedEvaluation(evaluation);
         return evaluation;
       })();

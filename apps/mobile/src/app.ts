@@ -1,11 +1,13 @@
 // What every screen gets: the stores and navigation.
-import type { Messages, UiLang } from '@wwjd/core';
+import type { Messages, StepTimingStore, UiLang } from '@wwjd/core';
 import type { EvaluationCache, KeyStore, SettingsStore } from './storage/stores';
 
 export interface App {
   settings: SettingsStore;
   keys: KeyStore;
   cache: EvaluationCache;
+  /** Durations of earlier analyses per step, for "usually ~40 s" in the step list. */
+  timings: StepTimingStore;
   /** Interface and evaluation texts for the active language. */
   t: Messages;
   setLanguage(lang: UiLang): void;

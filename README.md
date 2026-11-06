@@ -22,8 +22,8 @@ Ready to use: download, install, and enter your API keys. No build tools require
 
 | Platform | Download | Installation Guide |
 |---|---|---|
-| 📱 **Android App**<br>Phone and tablet, Android 7.0 or newer | [**WhatWouldJezusDo-0.4.0.apk**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/apk/WhatWouldJezusDo-0.4.0.apk)<br>3.1 MB | [Install on Android](#installing-the-android-app) |
-| 🧩 **Chrome & Edge Extension**<br>Windows, macOS, Linux | [**WhatWouldJezusDo-extension-0.4.0.zip**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.4.0.zip)<br>375 kB | [Install in Chrome or Edge](#installing-the-extension-in-chrome-or-edge) |
+| 📱 **Android App**<br>Phone and tablet, Android 7.0 or newer | [**WhatWouldJezusDo-0.4.1.apk**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/apk/WhatWouldJezusDo-0.4.1.apk)<br>3.1 MB | [Install on Android](#installing-the-android-app) |
+| 🧩 **Chrome & Edge Extension**<br>Windows, macOS, Linux | [**WhatWouldJezusDo-extension-0.4.1.zip**](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.4.1.zip)<br>377 kB | [Install in Chrome or Edge](#installing-the-extension-in-chrome-or-edge) |
 
 **What Would Jezus Do is completely <ins>free</ins> to use:** you need an LLM API key (**either** a **free Gemini key**, **or** a **paid Gemini key**, **or** a **paid Claude key**) **and** a **free Google Fact Check Tools API key**; see [Configuring API Keys](#configuring-api-keys). All releases and their SHA-256 checksums are available under [Releases](https://github.com/GosseVledder/WhatWouldJezusDo/releases); both the app and the extension can check for updates directly via *Settings › Updates*.
 
@@ -100,11 +100,11 @@ Once the statements and actions have been fact-checked, the verified dossier is 
 
 | Property | Details |
 |---|---|
-| **File** | [`WhatWouldJezusDo-0.4.0.apk`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/apk/WhatWouldJezusDo-0.4.0.apk) (also in [`apk/`](apk/)) |
-| **Version** | 0.4.0 (versionCode 13) |
+| **File** | [`WhatWouldJezusDo-0.4.1.apk`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/apk/WhatWouldJezusDo-0.4.1.apk) (also in [`apk/`](apk/)) |
+| **Version** | 0.4.1 (versionCode 14) |
 | **Requires** | Android 7.0 or newer |
 | **Size** | 3.1 MB |
-| **SHA-256** | `98c1e806b26aec27ec663084a8f90fa98ed4cf7c6062dfa4224175ae65e1e5e5` |
+| **SHA-256** | `68480a63fe84ebdf5b10e4ed64290dec9191a0b9090707ff7de435b0c987abf5` |
 
 The APK is a signed release build distributed directly via GitHub.
 
@@ -128,13 +128,13 @@ The APK is a signed release build distributed directly via GitHub.
 
 | Property | Details |
 |---|---|
-| **File** | [`WhatWouldJezusDo-extension-0.4.0.zip`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.4.0.zip) (also unpacked in [`extension/WhatWouldJezusDo/`](extension/WhatWouldJezusDo/)) |
-| **Version** | 0.4.0 |
+| **File** | [`WhatWouldJezusDo-extension-0.4.1.zip`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.4.1.zip) (also unpacked in [`extension/WhatWouldJezusDo/`](extension/WhatWouldJezusDo/)) |
+| **Version** | 0.4.1 |
 | **Browsers** | Google Chrome and Microsoft Edge (Manifest V3) |
-| **Size** | 375 kB |
-| **SHA-256** | `e7cf1fecb606b3bf6731b66f77e7c1a53c655a5019ff57de2461118ef4011d26` |
+| **Size** | 377 kB |
+| **SHA-256** | `df719f3276d328e681bd627dd30810f93074e4e8d4cc6af1b5ce6b50db438b45` |
 
-1. **Download** [`WhatWouldJezusDo-extension-0.4.0.zip`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.4.0.zip).
+1. **Download** [`WhatWouldJezusDo-extension-0.4.1.zip`](https://github.com/GosseVledder/WhatWouldJezusDo/raw/main/extension/WhatWouldJezusDo-extension-0.4.1.zip).
 2. **Extract** the zip file to a permanent folder on your computer (for example, `Documents\WhatWouldJezusDo`). Keep this folder in place—the browser loads the extension from it.
 3. Open `chrome://extensions` (Chrome) or `edge://extensions` (Edge).
 4. Enable **Developer mode** (top-right in Chrome; left sidebar in Edge).

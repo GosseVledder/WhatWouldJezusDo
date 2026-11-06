@@ -48,11 +48,13 @@ export const de: Messages = {
       opinie: 'Meinung',
     },
     section2Title: (n) =>
-      `2. Thema: Prüfung nach Jesu Richtlinien (${n} relevante Punkte gewichtet)`,
+      `2. Geschichte & Fakten: Prüfung nach Jesu Richtlinien (${n} relevante Punkte gewichtet)`,
     section3Title: (n) =>
       `3. Moderator: Prüfung nach Jesu Richtlinien (${n} relevante Punkte gewichtet)`,
     presenterScore: 'Moderator',
     subjectScore: 'Geschichte & Fakten',
+    aspectAll: 'Alles',
+    aspectFilterAria: 'Begründung filtern',
     linkedToMoment: 'Verknüpft mit Moment:',
     fromCache: (d) => `Aus dem Cache · ${d}`,
     justAnalyzed: 'Gerade analysiert',
@@ -66,6 +68,7 @@ export const de: Messages = {
       factcheck: 'Offizielle Faktenchecks nachschlagen',
       reconcile: 'Bewertung mit den Faktenchecks aktualisieren',
     },
+    usuallyTakes: (d) => `meist ca. ${d}`,
     openSettings: 'Einstellungen öffnen',
     retry: 'Erneut versuchen',
     refresh: 'Erneut analysieren',

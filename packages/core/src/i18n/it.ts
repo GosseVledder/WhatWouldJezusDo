@@ -48,11 +48,13 @@ export const it: Messages = {
       opinie: 'opinione',
     },
     section2Title: (n) =>
-      `2. Soggetto: valutazione secondo gli insegnamenti di Gesù (${n} punti rilevanti valutati)`,
+      `2. Racconto e fatti: valutazione secondo gli insegnamenti di Gesù (${n} punti rilevanti valutati)`,
     section3Title: (n) =>
       `3. Presentatore: valutazione secondo gli insegnamenti di Gesù (${n} punti rilevanti valutati)`,
     presenterScore: 'Presentatore',
     subjectScore: 'Racconto e fatti',
+    aspectAll: 'Tutto',
+    aspectFilterAria: 'Filtra la motivazione',
     linkedToMoment: 'Collegato al momento:',
     fromCache: (d) => `Dalla cache · ${d}`,
     justAnalyzed: 'Appena analizzato',
@@ -66,6 +68,7 @@ export const it: Messages = {
       factcheck: 'Ricerca di verifiche ufficiali',
       reconcile: 'Aggiornamento dei punteggi con le verifiche',
     },
+    usuallyTakes: (d) => `di solito ~${d}`,
     openSettings: 'Apri impostazioni',
     retry: 'Riprova',
     refresh: 'Rianalizza',

@@ -1,6 +1,6 @@
 // App shell: hash routing between home, evaluation and settings, plus incoming shares.
 import { App as CapApp } from '@capacitor/app';
-import { ICONS, isUiLang, messages, setupStatus } from '@wwjd/core';
+import { createStepTimingStore, ICONS, isUiLang, messages, setupStatus } from '@wwjd/core';
 import { NavStack, parseRoute, summaryHash, WELCOME_HASH, type App, type Screen } from './app';
 import './app.css';
 import { homeScreen } from './screens/home';
@@ -28,6 +28,7 @@ const app: App = {
   settings: createSettingsStore(preferencesKV),
   keys: createKeyStore(secureKV),
   cache: createEvaluationCache(preferencesKV),
+  timings: createStepTimingStore(preferencesKV),
   t: messages('nl'),
   setLanguage(lang) {
     app.t = messages(lang);

@@ -3,6 +3,7 @@ import { getGuidelineById, localizeBibleSource, normalizeLang } from '../guideli
 import { messages, type Messages } from '../i18n/messages';
 import type { KeyKind } from './keySteps';
 import { getScaleIllustration } from './scaleImages';
+import { formatClock, formatDuration, type StepTiming } from './stepTimings';
 import { WWJD_BASE_CSS } from './styles';
 
 type Child = Node | string | null | undefined | false;
@@ -45,8 +46,38 @@ export interface RenderOptions {
   /** Synced live mode: the details scroll on their own while the video plays. */
   live?: boolean;
   onOpenSetup?: () => void;
+  /** Initial filter of the details; default: the viewer's last choice in this session. */
+  aspect?: AspectFilter;
   taal?: string;
   t?: Messages;
+}
+
+/** Which part of the details to show: everything, only the story and facts, or the presenter. */
+export type AspectFilter = 'all' | 'story' | 'presenter';
+
+// Remembered across re-renders (new progress, live updates, another video) in this page/app.
+let rememberedAspect: AspectFilter = 'all';
+
+/** Shows only the rubric(s) of the chosen filter and marks the active filter button. */
+export function applyAspectFilter(root: ParentNode, aspect: AspectFilter): void {
+  root.querySelectorAll<HTMLElement>('[data-aspect]').forEach((el) => {
+    el.hidden = aspect !== 'all' && el.dataset.aspect !== aspect;
+  });
+  root.querySelectorAll<HTMLElement>('.aspect-filter [data-filter]').forEach((b) => {
+    b.setAttribute('aria-pressed', String(b.dataset.filter === aspect));
+  });
+}
+
+/** Heading of a rubric with its own score. */
+function aspectHead(label: string, score?: number): HTMLElement {
+  return h(
+    'div',
+    { class: 'aspect-head' },
+    h('span', { class: 'aspect-name' }, label),
+    score !== undefined
+      ? h('span', { class: `score-chip ${scoreClassFor(score)}` }, `${score.toFixed(1)} / 10`)
+      : null,
+  );
 }
 
 export type WwjdViewState =
@@ -59,6 +90,33 @@ export type WwjdViewState =
 export interface AnalysisProgress {
   current: AnalysisStep;
   factcheck: boolean;
+  /** Running clock and typical durations; without it the list shows no times. */
+  timing?: StepTiming;
+}
+
+/**
+ * Time shown after a step: the measured duration when done, or for the active step a running
+ * clock plus the typical duration ("0:23 · usually ~40 s").
+ */
+function stepTimeText(
+  t: Messages,
+  step: AnalysisStep,
+  status: 'done' | 'active' | 'todo',
+  timing: StepTiming,
+  now: number,
+): string {
+  const expected = timing.expected[step];
+  if (status === 'done') {
+    const ms = timing.done[step];
+    return ms === undefined ? '' : formatDuration(ms);
+  }
+  if (status === 'active') {
+    const clock = formatClock(now - timing.startedAt);
+    return expected === undefined
+      ? clock
+      : `${clock} · ${t.view.usuallyTakes(formatDuration(expected))}`;
+  }
+  return '';
 }
 
 /** The step list of an analysis: done, active or still to come. */
@@ -347,24 +405,28 @@ export function renderWwjdView(
                   { type: 'button', class: 'time-btn', 'data-start': String(stmt.startSeconds) },
                   stmt.timestampLabel,
                 ),
+                h('span', { class: 'checked-fact-claim' }, stmt.claim || stmt.quote),
                 h(
                   'span',
                   { class: `verdict-tag ${stmt.verdict}` },
                   v.verdicts[stmt.verdict] ?? stmt.verdict.replace(/_/g, ' '),
                 ),
-                h('span', { class: 'checked-fact-claim' }, stmt.claim || stmt.quote),
               ),
             ),
           ),
         )
       : null,
   );
-  detailsContainer.appendChild(summarySection);
-
   // --- SECTIE 1: FEITENCHECK & INTEGRITEIT (ACTIVITEIT 1) ---
   // Oudere evaluaties kennen geen rolverdeling; die tonen we ongewijzigd
   const hasRoles = dossier.presenterIsSubject !== undefined || dossier.presenter !== undefined;
   const presenter = dossier.presenterIsSubject ? undefined : dossier.presenter;
+  const presenterEval = evaluation.presenterEvaluation?.relevantGuidelines.length
+    ? evaluation.presenterEvaluation
+    : undefined;
+  // Twee rubrieken (verhaal & feiten / presentator) met filter, zodra de presentator een eigen
+  // profiel of beoordeling heeft. Is de presentator zelf het onderwerp, dan is er één rubriek.
+  const twoAspects = Boolean(presenter || presenterEval);
 
   const factcheckSection = document.createElement('div');
   factcheckSection.style.marginTop = '14px';
@@ -378,23 +440,11 @@ export function renderWwjdView(
     ${
       dossier.presenterIsSubject
         ? `<div class="activity-summary">${escapeHtml(v.presenterIsSubject)}</div>`
-        : presenter
-          ? `<div class="activity-summary">
-      <strong>${escapeHtml(v.presenterLabel)}</strong><br>
-      <strong>${escapeHtml(v.presenterRole)}</strong> ${escapeHtml(presenter.role)}<br>
-      <strong>${escapeHtml(v.presenterConduct)}</strong> ${escapeHtml(presenter.conduct)}<br>
-      <strong>${escapeHtml(v.sentimentAndAttitude)}</strong> ${escapeHtml(presenter.sentimentAndAttitude)}
-    </div>`
-          : ''
+        : ''
     }
   `;
 
-  const contradictionGroups: { label?: string; items: string[] }[] = [
-    { label: hasRoles ? v.subjectLabel : undefined, items: dossier.contradictionsDetected },
-    { label: v.presenterLabel, items: presenter?.contradictionsDetected ?? [] },
-  ];
-  contradictionGroups.forEach(({ label, items }) => {
-    if (items.length === 0) return;
+  const contradictionAlert = (label: string | undefined, items: string[]): HTMLElement => {
     const alertDiv = document.createElement('div');
     alertDiv.className = 'contradiction-alert';
     alertDiv.style.marginTop = '6px';
@@ -402,8 +452,13 @@ export function renderWwjdView(
       ⚠️ <strong>${label ? `${escapeHtml(label)} · ` : ''}${escapeHtml(v.contradictionAlert)}</strong><br>
       ${items.map((c) => `• ${escapeHtml(c)}`).join('<br>')}
     `;
-    factcheckSection.appendChild(alertDiv);
-  });
+    return alertDiv;
+  };
+  if (dossier.contradictionsDetected.length > 0) {
+    factcheckSection.appendChild(
+      contradictionAlert(hasRoles ? v.subjectLabel : undefined, dossier.contradictionsDetected),
+    );
+  }
 
   // Statement list
   dossier.statements.forEach((stmt) => {
@@ -459,8 +514,6 @@ export function renderWwjdView(
       ),
     );
   }
-  detailsContainer.appendChild(factcheckSection);
-
   // --- SECTIE 2: BEOORDELING VOLGENS JEZUS' RICHTLIJNEN (ACTIVITEIT 2) ---
   const jesusSection = document.createElement('div');
   jesusSection.style.marginTop = '14px';
@@ -471,24 +524,86 @@ export function renderWwjdView(
   evaluation.relevantGuidelines.forEach((g) => {
     jesusSection.appendChild(renderGuidelineCard(g, lang, v));
   });
-  detailsContainer.appendChild(jesusSection);
 
-  // --- SECTIE 3: BEOORDELING VAN DE PRESENTATOR (alleen als die niet zelf het onderwerp is) ---
-  const presenterEval = evaluation.presenterEvaluation;
-  if (presenterEval && presenterEval.relevantGuidelines.length > 0) {
-    const presenterSection = document.createElement('div');
-    presenterSection.style.marginTop = '14px';
-    presenterSection.innerHTML = `
-      <div class="section-title">${escapeHtml(v.section3Title(presenterEval.relevantGuidelines.length))}</div>
-      <div class="presenter-score">
-        <span class="guideline-score ${scoreClassFor(presenterEval.finalScore)}">${escapeHtml(v.presenterScore)}: ${presenterEval.finalScore.toFixed(1)} / 10</span>
-        <span>${escapeHtml(presenterEval.verdictSummary)}</span>
-      </div>
-    `;
-    presenterEval.relevantGuidelines.forEach((g) => {
-      presenterSection.appendChild(renderGuidelineCard(g, lang, v));
-    });
-    detailsContainer.appendChild(presenterSection);
+  // Rubriek "Verhaal & feiten": samenvatting, alle gecontroleerde uitspraken (ook die van de
+  // presentator: de feiten horen bij het verhaal) en de toetsing van het onderwerp.
+  const storyGroup = h('div', { class: 'aspect-group story' });
+  if (twoAspects) {
+    storyGroup.dataset.aspect = 'story';
+    storyGroup.append(aspectHead(v.subjectScore, evaluation.finalScore));
+  }
+  storyGroup.append(summarySection, factcheckSection, jesusSection);
+
+  // Rubriek "Presentator": rol, handelen, houding, eigen tegenspraak en sectie 3 (alleen als de
+  // presentator niet zelf het onderwerp is).
+  if (!twoAspects) {
+    detailsContainer.appendChild(storyGroup);
+  } else {
+    const presenterGroup = h(
+      'div',
+      { class: 'aspect-group presenter', 'data-aspect': 'presenter' },
+      aspectHead(v.presenterLabel, presenterScore),
+    );
+    if (presenter) {
+      presenterGroup.insertAdjacentHTML(
+        'beforeend',
+        `
+        <div class="activity-summary">
+          <strong>${escapeHtml(v.presenterRole)}</strong> ${escapeHtml(presenter.role)}<br>
+          <strong>${escapeHtml(v.presenterConduct)}</strong> ${escapeHtml(presenter.conduct)}<br>
+          <strong>${escapeHtml(v.sentimentAndAttitude)}</strong> ${escapeHtml(presenter.sentimentAndAttitude)}
+        </div>`,
+      );
+      if (presenter.contradictionsDetected.length > 0) {
+        presenterGroup.appendChild(
+          contradictionAlert(v.presenterLabel, presenter.contradictionsDetected),
+        );
+      }
+    }
+
+    // --- SECTIE 3: BEOORDELING VAN DE PRESENTATOR ---
+    if (presenterEval) {
+      const presenterSection = document.createElement('div');
+      presenterSection.style.marginTop = '14px';
+      presenterSection.innerHTML = `
+        <div class="section-title">${escapeHtml(v.section3Title(presenterEval.relevantGuidelines.length))}</div>
+        <div class="presenter-score">
+          <span class="guideline-score ${scoreClassFor(presenterEval.finalScore)}">${escapeHtml(v.presenterScore)}: ${presenterEval.finalScore.toFixed(1)} / 10</span>
+          <span>${escapeHtml(presenterEval.verdictSummary)}</span>
+        </div>
+      `;
+      presenterEval.relevantGuidelines.forEach((g) => {
+        presenterSection.appendChild(renderGuidelineCard(g, lang, v));
+      });
+      presenterGroup.appendChild(presenterSection);
+    }
+
+    const aspect = options.aspect ?? rememberedAspect;
+    const labels: Record<AspectFilter, string> = {
+      all: v.aspectAll,
+      story: v.subjectScore,
+      presenter: v.presenterLabel,
+    };
+    const filterBar = h(
+      'div',
+      { class: 'aspect-filter', role: 'group', 'aria-label': v.aspectFilterAria },
+      ...(['all', 'story', 'presenter'] as const).map((a) =>
+        h(
+          'button',
+          {
+            type: 'button',
+            'data-filter': a,
+            onClick: () => {
+              rememberedAspect = a;
+              applyAspectFilter(detailsContainer, a);
+            },
+          },
+          labels[a],
+        ),
+      ),
+    );
+    detailsContainer.append(filterBar, storyGroup, presenterGroup);
+    applyAspectFilter(detailsContainer, aspect);
   }
 
   const providerLabel = evaluation.provider === 'claude' ? 'Claude' : 'Gemini';
@@ -657,6 +772,12 @@ export function renderWwjdStateView(
     );
   } else if (state.kind === 'loading') {
     const steps = state.progress ? progressSteps(t, state.progress) : null;
+    const timing = state.progress?.timing;
+    const timeEl = (step: AnalysisStep, status: 'done' | 'active' | 'todo') => {
+      if (!timing || status === 'todo') return null;
+      const text = stepTimeText(t, step, status, timing, Date.now());
+      return text ? h('span', { class: 'step-time', 'data-step': step }, text) : null;
+    };
     const stepText = steps
       ? (steps.find((s) => s.status === 'active')?.label ?? v.loadingStep)
       : (state.step ?? v.loadingStep);
@@ -683,6 +804,7 @@ export function renderWwjdStateView(
                         s.status === 'done' ? '✓' : '',
                       ),
                   s.label,
+                  timeEl(s.step, s.status),
                 ),
               ),
             )
@@ -717,4 +839,21 @@ export function renderWwjdStateView(
   }
 
   container.appendChild(card);
+
+  // Running clock of the active step. A re-render replaces the element; the timer stops once
+  // its element is no longer in the page.
+  const progress = state.kind === 'loading' ? state.progress : undefined;
+  const clockEl = card.querySelector<HTMLElement>(
+    `.progress-steps li[data-status='active'] .step-time`,
+  );
+  if (progress?.timing && clockEl) {
+    const timing = progress.timing;
+    const timer = setInterval(() => {
+      if (!clockEl.isConnected) {
+        clearInterval(timer);
+        return;
+      }
+      clockEl.textContent = stepTimeText(t, progress.current, 'active', timing, Date.now());
+    }, 1000);
+  }
 }

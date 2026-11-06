@@ -68,6 +68,9 @@ export interface Messages {
     presenterScore: string;
     /** Label of the subject score next to the presenter score. */
     subjectScore: string;
+    /** Filter of the details: everything, only the story and facts, or only the presenter. */
+    aspectAll: string;
+    aspectFilterAria: string;
     linkedToMoment: string;
     fromCache: (date: string) => string;
     justAnalyzed: string;
@@ -75,6 +78,8 @@ export interface Messages {
     analyzeVideo: string;
     loadingStep: string;
     progressSteps: Record<AnalysisStep, string>;
+    /** Typical duration of a step from earlier analyses, e.g. "usually ~40 s". */
+    usuallyTakes: (duration: string) => string;
     openSettings: string;
     retry: string;
     refresh: string;

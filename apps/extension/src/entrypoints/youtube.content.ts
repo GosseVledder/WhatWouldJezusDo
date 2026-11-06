@@ -7,6 +7,7 @@ import {
   parseVideoId,
   renderWwjdStateView,
   type AnalysisStep,
+  type StepTiming,
   type KeyKind,
   type LiveMoment,
   type LiveSync,
@@ -324,10 +325,19 @@ export default defineContentScript({
 
     // Progress of a running analysis, sent by the background
     const onProgress = (message: unknown) => {
-      const m = message as { type?: string; videoId?: string; step?: AnalysisStep; factcheck?: boolean };
+      const m = message as {
+        type?: string;
+        videoId?: string;
+        step?: AnalysisStep;
+        factcheck?: boolean;
+        timing?: StepTiming;
+      };
       if (m?.type !== 'progress' || !m.step || m.videoId !== currentVideoId) return;
       if (state.kind !== 'loading') return;
-      state = { kind: 'loading', progress: { current: m.step, factcheck: Boolean(m.factcheck) } };
+      state = {
+        kind: 'loading',
+        progress: { current: m.step, factcheck: Boolean(m.factcheck), timing: m.timing },
+      };
       render();
     };
     browser.runtime.onMessage.addListener(onProgress);

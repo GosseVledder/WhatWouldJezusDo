@@ -48,11 +48,13 @@ export const fr: Messages = {
       opinie: 'opinion',
     },
     section2Title: (n) =>
-      `2. Sujet : évaluation selon les préceptes de Jésus (${n} points pertinents retenus)`,
+      `2. Récit et faits : évaluation selon les préceptes de Jésus (${n} points pertinents retenus)`,
     section3Title: (n) =>
       `3. Présentateur : évaluation selon les préceptes de Jésus (${n} points pertinents retenus)`,
     presenterScore: 'Présentateur',
     subjectScore: 'Récit et faits',
+    aspectAll: 'Tout',
+    aspectFilterAria: 'Filtrer la justification',
     linkedToMoment: 'Lié au moment :',
     fromCache: (d) => `Depuis le cache · ${d}`,
     justAnalyzed: "Analysé à l'instant",
@@ -66,6 +68,7 @@ export const fr: Messages = {
       factcheck: 'Recherche de vérifications officielles',
       reconcile: 'Mise à jour des scores avec les vérifications',
     },
+    usuallyTakes: (d) => `en général ~${d}`,
     openSettings: 'Ouvrir les paramètres',
     retry: 'Réessayer',
     refresh: 'Réanalyser',
